@@ -9,6 +9,7 @@ This repository contains all tahat is needed to build a full miniEngine 2 system
 	- Software
 	- Hardware (PCB Gerber files)
 	- Documentation
+	- Licenses
 	
 The PCBs and most of the needed parts can be purchased here: http://shop.airiclenz.com  
 	
