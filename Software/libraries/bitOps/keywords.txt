@@ -1,0 +1,12 @@
+bitOps	KEYWORD1
+
+isBit	KEYWORD2
+setBit	KEYWORD2
+toggleBit	KEYWORD2
+deleteBit	KEYWORD2
+
+shiftPack2Bytes	KEYWORD2
+shiftPack3Bytes	KEYWORD2
+shiftPack4Bytes	KEYWORD2
+
+	

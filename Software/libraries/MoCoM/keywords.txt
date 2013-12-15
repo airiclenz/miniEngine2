@@ -1,0 +1,37 @@
+MoCoM	KEYWORD1
+
+init	KEYWORD2
+setID	KEYWORD2
+getID	KEYWORD2
+isMaster	KEYWORD2
+isIDFree	KEYWORD2
+registerSlaves	KEYWORD2
+
+executeCommunication	KEYWORD2
+getLastReceivedCommand	KEYWORD2
+				
+addMotor	KEYWORD2
+clearMotorData	KEYWORD2   
+sendDone	KEYWORD2
+getDataByte	KEYWORD2
+
+getSlaveCount	KEYWORD2
+selectSlave	KEYWORD2
+selectNextSlave	KEYWORD2
+selectPreviousSlave	KEYWORD2
+deselectSlave	KEYWORD2
+isSlaveSelected	KEYWORD2
+		
+ping	KEYWORD2
+getSlaveID	KEYWORD2
+getSlaveMotorCount	KEYWORD2
+getSlaveMotorType	KEYWORD2
+getSlavesTotalMotorCount	KEYWORD2
+  		  		
+sendCommand	KEYWORD2
+
+registerFunction_TimeCritical	KEYWORD2
+registerFunction_CommunicationReceived	KEYWORD2
+
+
+	

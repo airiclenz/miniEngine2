@@ -1,0 +1,14 @@
+RotaryEncoder	KEYWORD1
+getPosition	KEYWORD2
+getStepWidth	KEYWORD2
+getHighVelocity	KEYWORD2
+getLowVelocity	KEYWORD2
+
+setPosition	KEYWORD2
+setStepWidth	KEYWORD2
+setFlipped	KEYWORD2
+setStepDampZone		KEYWORD2
+
+deleteStepDampZone	KEYWORD2
+process	KEYWORD2
+

@@ -1,0 +1,31 @@
+
+LinearFunction	KEYWORD1
+MotorBezier	KEYWORD1
+Point	KEYWORD1
+QuadBezierCurve	KEYWORD1
+StepperMotor	KEYWORD1
+
+add	KEYWORD2
+addSegment	KEYWORD2
+clone	KEYWORD2
+divide	KEYWORD2
+getFastPoint	KEYWORD2
+getPoint	KEYWORD2
+getMotorPosition	KEYWORD2
+getTFromX	KEYWORD2
+getY	KEYWORD2
+initMove	KEYWORD2
+multiply	KEYWORD2
+scale	KEYWORD2
+segmentateCurve	KEYWORD2
+segmentateCurveOptimized	KEYWORD2
+shift	KEYWORD2
+substract	KEYWORD2
+updateDimension	KEYWORD2
+x	KEYWORD2
+xDimension	KEYWORD2
+y	KEYWORD2
+yDimension	KEYWORD2
+
+
+
