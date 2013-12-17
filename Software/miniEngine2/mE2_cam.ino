@@ -139,8 +139,8 @@ void cam_process() {
     // is the time over?
     if ((cam_start_time + cam_exp_duration) <= millis()) {
       
-      digitalWrite(PIN_CAM_SHUTTER, LOW);
-      digitalWrite(PIN_CAM_FOCUS, LOW);
+      // de-trigger the camera
+      cam_stop();
             
       // count the shoot count up
       cam_shoot_count++;        
@@ -211,6 +211,15 @@ void cam_trigger() {
     digitalWrite(PIN_CAM_SHUTTER, HIGH);
     digitalWrite(PIN_CAM_FOCUS, HIGH);
   }  
+  
+}
+
+
+// ============================================================================
+void cam_stop() {
+  
+  digitalWrite(PIN_CAM_SHUTTER, LOW);
+  digitalWrite(PIN_CAM_FOCUS, LOW);  
   
 }
 

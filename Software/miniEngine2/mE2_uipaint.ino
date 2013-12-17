@@ -70,12 +70,12 @@ void uipaint_header(boolean full_repaint) {
     tft.setColor(color_schemes[uicore_col_scheme].font_header);
     tft.setFont(SMALL_FONT);
     
-    if (isBit(core_mode, SYSTEM_MODE_SMS))        uicore_getLongString( 30, 0); 
-    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) uicore_getLongString( 31, 0); 
-    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) uicore_getLongString( 32, 0); 
-    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      uicore_getLongString( 33, 0); 
+    if (isBit(core_mode, SYSTEM_MODE_SMS))        uicore_getLongString( 30 ); 
+    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) uicore_getLongString( 31 ); 
+    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) uicore_getLongString( 32 ); 
+    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      uicore_getLongString( 33 ); 
      
-    tft.print(lines[0], 7, 2);  
+    tft.print(data_line, 7, 2);  
     
   }
   
@@ -517,13 +517,24 @@ void uipaint_editScreen(boolean full_repaint) {
     tft.setBackColor(color_schemes[uicore_col_scheme].background);
     tft.setColor(color_schemes[uicore_col_scheme].background);
     tft.fillRect(0, header_height, display_width - 1, display_height - 1);
-
-  }
   
+  
+    // paint the help text with a small font
+    tft.setFont(SMALL_FONT);
+    tft.setColor(color_schemes[uicore_col_scheme].font_soft);
+    
+    // receive the long text
+    uicore_getLongString(line_codes[menu_pos]);
+    
+    tft.print(data_line, 7, header_height + 10);   
+      
+  }
+    
   // generate the data string
   uicore_generateDataString(line_codes[menu_pos]);
   
-  // only paint now inf don't paint it again anyway in a 2nd loop
+  // only paint now, if not 2nd repaint is defined - 
+  // in this case we paint later anyway in the 2nd loop
   if (!uicore_is2ndRepaintFlag()) {
     
     // paint the data text
@@ -531,7 +542,7 @@ void uipaint_editScreen(boolean full_repaint) {
     tft.setFont(DEFAULT_FONT);
     
     // paint the string
-    byte len = (strlen(data_line) - 1) * tft.getFontXsize();
+    uint8_t len = (strlen(data_line) - 1) * tft.getFontXsize();
     tft.print(data_line, display_width - 30 - len , 140); 
     
     // clear the rest of the data line (in case ther is still old data)

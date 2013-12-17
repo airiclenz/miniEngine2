@@ -76,6 +76,7 @@ typedef struct colorScheme {
   uint16_t  seperator;
 
   uint16_t  font;
+  uint16_t  font_soft;
   uint16_t  font_header;
   uint16_t  font_bg_even;
   uint16_t  font_bg_odd;
@@ -102,6 +103,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(230, 220, 200),    // scrollbar
     uicode_getRGB565(150, 140, 130),    // seperator
     uicode_getRGB565(255, 250, 240),    // font
+    uicode_getRGB565(200, 195, 185),    // font_soft
     uicode_getRGB565(255, 255, 220),    // font_header
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 70,  60,  50),    // font_bg_odd
@@ -117,6 +119,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(200,   0,   0),    // scrollbar
     uicode_getRGB565(100,   0,   0),    // seperator
     uicode_getRGB565(255,   0,   0),    // font
+    uicode_getRGB565(200,   0,   0),    // font_soft
     uicode_getRGB565(170,   0,   0),    // font_header
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 70,   0,   0),    // font_bg_odd
@@ -132,6 +135,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(255, 255, 255),    // scrollbar
     uicode_getRGB565(255, 255, 255),    // seperator
     uicode_getRGB565(255, 255, 255),    // font
+    uicode_getRGB565(235, 235, 235),    // font_soft
     uicode_getRGB565(255, 255, 255),    // font_header
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 60,  60,  60),    // font_bg_odd
@@ -186,7 +190,7 @@ uint16_t display_width, display_height;
 // content of the menus (we initialize the array with some items - 
 // fitting the longest possible menu.
 char lines[32][MENU_MAX_LINES]; 
-char data_line[32];
+char data_line[128];
 char temp[32];
 
 // help array for the lines to know which value corresponds to which
@@ -267,7 +271,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   
   {  30, 202 }, {  30, 203 }, {  30, 204 }, {  30, 205 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
     
-  { 100, 108 }, /*{ 100, 109 },*/ { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, /*{ 100, 104 },*/ { 100, 106 }, { 100, 105 },
+  { 100, 108 }, /*{ 100, 109 },*/ { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
   { 101, 120 }, { 101, 121 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
@@ -275,7 +279,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   { 104,  23 }, /*{ 104, 180 }, { 104, 181 }, */
   
   
-  { 200, 152 }, { 200, 148 }, { 200, 149 } 
+  { 200, 152 }, { 200, 148 }, { 200, 149 }, { 200, 156 }, { 200, 157 } 
     
 };
 
@@ -284,6 +288,26 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
 //  S T R I N G   D E F I N I T I O N S               //
 //                                                    //
 ////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////
+// MISC
+
+
+const char* STR_LINEFEED    = "\n"; 
+const char* STR_EMPTY       = ""; 
+const char* STR_SPACE       = " ";
+const char* STR_PUNKT       = ".";
+const char* STR_DPUNKT      = ":";
+const char* STR_NULL        = "0";
+const char* STR_RECBRACKOP  = "[";
+const char* STR_RECBRACKCL  = "]";
+const char* STR_SLASH       = "/";
+const char* STR_EXCLAMATION = "!";
+const char* STR_PERCENT     = "%";
+
+const char* STR_ALPHA       = "ALPHA";
+
 
 
 ////////////////////////////////////////////////////////
@@ -364,12 +388,23 @@ const char* string_107_short = "start home";
 const char* string_108_short = "mode";
 const char* string_109_short = "setup styl";
 
+const char* string_100_long  = "Power of the backlight";
+const char* string_101_long  = "Time before the backlight turns off";
+const char* string_102_long  = "The global color scheme";
+const char* string_103_long  = "Invert the rotary response";
+const char* string_107_long  = "Move motors home before program-start";
+const char* string_108_long  = "Motor move mode";
+
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
 const char* string_120_short = "cam type";
 const char* string_121_short = "test shot";
 const char* string_122_short = "post delay";
+const char* string_123_short = "SHOOT!";
+
+const char* string_120_long  = "Camera trigger behaviour";
+const char* string_122_long  = "Delay after a camera shot";
 
 
 ////////////////////////////////////////////////////////
@@ -390,6 +425,20 @@ const char* string_152_short = "go home (all)";
 const char* string_153_short = "motor ";  
 const char* string_154_short = "motr sleep";
 const char* string_155_short = "dir flippd";
+const char* string_156_short = "set home mot 1";
+const char* string_157_short = "set home mot 2";
+const char* string_158_short = "GO!";
+const char* string_159_short = "SET!";
+
+const char* string_140_long  = "Select the motor you want to edit";
+const char* string_143_long  = "Delay after a motor move";
+const char* string_144_long  = "Linear or radial movements";
+const char* string_145_long  = "Max speed of the motor";
+const char* string_146_long  = "Ramping-duration for moves";
+const char* string_150_long  = "Keep the motor powerd all the time";
+const char* string_151_long  = "Press [Menu] to change the granularity";
+const char* string_154_long  = "Turn the motor off when not used";
+const char* string_155_long  = "Invert the motor direction";
 
 ////////////////////////////////////////////////////////
 // mode settings
@@ -403,21 +452,15 @@ const char* string_205_short = "playb fps";
 const char* string_206_short = "ramp in";
 const char* string_207_short = "ramp out";
 
+const char* string_200_long = "The total motor-move-distance";
+const char* string_201_long = "The motor direction";
+const char* string_202_long = "The camera exposure time";
+const char* string_203_long = "The total record-duration";
+const char* string_204_long = "Length of the final clip";
+const char* string_205_long = "Frames Per Second of your final clip";
+const char* string_206_long = "Percent of record-time to ramp in";
+const char* string_207_long = "Percent of record-time to ramp out";
 
-////////////////////////////////////////////////////////
-// MISC
-
-const char* STR_SPACE       = " ";
-const char* STR_PUNKT       = ".";
-const char* STR_DPUNKT      = ":";
-const char* STR_NULL        = "0";
-const char* STR_RECBRACKOP  = "[";
-const char* STR_RECBRACKCL  = "]";
-const char* STR_SLASH       = "/";
-const char* STR_EXCLAMATION = "!";
-const char* STR_PERCENT     = "%";
-
-const char* STR_ALPHA       = "ALPHA";
 
 
 
@@ -689,6 +732,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 120: strcpy(lines[target_line], string_120_short);     return;  
     case 121: strcpy(lines[target_line], string_121_short);     return;  
     case 122: strcpy(lines[target_line], string_122_short);     return;  
+    case 123: strcpy(lines[target_line], string_123_short);     return;  
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS MOTOR
@@ -708,6 +752,10 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 153: strcpy(lines[target_line], string_153_short);     return; 
     case 154: strcpy(lines[target_line], string_154_short);     return; 
     case 155: strcpy(lines[target_line], string_155_short);     return; 
+    case 156: strcpy(lines[target_line], string_156_short);     return; 
+    case 157: strcpy(lines[target_line], string_157_short);     return; 
+    case 158: strcpy(lines[target_line], string_158_short);     return; 
+    case 159: strcpy(lines[target_line], string_159_short);     return; 
     
     
     ///////////////////////////////////////////////////////////////////
@@ -734,9 +782,10 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 206: strcpy(lines[target_line], string_206_short);     return;  
     case 207: strcpy(lines[target_line], string_207_short);     return;  
     
-    
-    
   }
+  
+  // no valid result - fill in nothing
+  strcpy(lines[target_line], STR_EMPTY);
 
 }
 
@@ -744,142 +793,86 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
 // ===================================================================================
 // returns a longer string from the flash 
 // ===================================================================================
-void uicore_getLongString(uint16_t buf_number, uint8_t target_line) {
+void uicore_getLongString(uint16_t buf_number) {
   
   switch(buf_number) {
     
     ///////////////////////////////////////////////////////////////////
     // MAIN STRINGS AND UNITS
     
-    /*
-    case   0: strcpy(lines[target_line], string_0_long);       return;  
-    case   1: strcpy(lines[target_line], string_1_long);       return;  
-    case   2: strcpy(lines[target_line], string_2_long);       return;  
-    case   3: strcpy(lines[target_line], string_3_long);       return;  
-    case   4: strcpy(lines[target_line], string_4_long);       return;  
-    case   5: strcpy(lines[target_line], string_5_long);       return;  
-    case   6: strcpy(lines[target_line], string_6_long);       return;  
-    case   7: strcpy(lines[target_line], string_6_long);       return;  
-    case   8: strcpy(lines[target_line], string_8_long);       return;  
-    case   9: strcpy(lines[target_line], string_9_long);       return;  
-    case  10: strcpy(lines[target_line], string_10_long);      return;  
-    case  11: strcpy(lines[target_line], string_11_long);      return;  
-    case  12: strcpy(lines[target_line], string_12_long);      return;  
-    case  13: strcpy(lines[target_line], string_13_long);      return;  
-    case  14: strcpy(lines[target_line], string_14_long);      return;  
-    case  15: strcpy(lines[target_line], string_15_long);      return;  
-    case  16: strcpy(lines[target_line], string_16_long);      return;  
-    case  17: strcpy(lines[target_line], string_17_long);      return;  
-    case  18: strcpy(lines[target_line], string_18_long);      return;    
-    */
     
     ///////////////////////////////////////////////////////////////////
     // SYSTEM MODES
     
-    case  30: strcpy(lines[target_line], string_30_long);      return;  
-    case  31: strcpy(lines[target_line], string_31_long);      return;  
-    case  32: strcpy(lines[target_line], string_32_long);      return;  
-    case  33: strcpy(lines[target_line], string_33_long);      return;  
+    case  30: strcpy(data_line, string_30_long);      return;  
+    case  31: strcpy(data_line, string_31_long);      return;  
+    case  32: strcpy(data_line, string_32_long);      return;  
+    case  33: strcpy(data_line, string_33_long);      return;  
     
     ///////////////////////////////////////////////////////////////////
     // GENERAL EDIT- & JOG SCREEN STRINGS
     
-    /*
-    case  80: strcpy(lines[target_line], string_80_long);      return;  
-    case  81: strcpy(lines[target_line], string_80_long);      return;  
-    case  90: strcpy(lines[target_line], string_80_long);      return;  
-    case  91: strcpy(lines[target_line], string_80_long);      return;  
-    */  
     
     ///////////////////////////////////////////////////////////////////
     // GENERAL SETTING STRINGS
     
-    /*
-    case  92: strcpy(lines[target_line], string_92_long);      return;  
-    case  93: strcpy(lines[target_line], string_93_long);      return;  
-    case  94: strcpy(lines[target_line], string_94_long);      return;  
-    case  95: strcpy(lines[target_line], string_95_long);      return;  
-    case  96: strcpy(lines[target_line], string_96_long);      return;  
-    case  97: strcpy(lines[target_line], string_97_long);      return;  
-    case  98: strcpy(lines[target_line], string_98_long);      return;  
-    */
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS GENERAL
     
-    /*
-    case 100: strcpy(lines[target_line], string_100_long);     return;  
-    case 101: strcpy(lines[target_line], string_101_long);     return; 
-    case 102: strcpy(lines[target_line], string_102_long);     return; 
-    case 103: strcpy(lines[target_line], string_103_long);     return;  
-    case 104: strcpy(lines[target_line], string_104_long);     return;  
-    case 105: strcpy(lines[target_line], string_105_long);     return;  
-    case 106: strcpy(lines[target_line], string_106_long);     return;  
-    case 107: strcpy(lines[target_line], string_107_long);     return; 
-    case 108: strcpy(lines[target_line], string_108_long);     return; 
-    case 109: strcpy(lines[target_line], string_109_long);     return;  
-    */
+    case 100: strcpy(data_line, string_100_long);     return;
+    case 101: strcpy(data_line, string_101_long);     return;
+    case 102: strcpy(data_line, string_102_long);     return;
+    case 103: strcpy(data_line, string_103_long);     return;
+    case 107: strcpy(data_line, string_107_long);     return;
+    case 108: strcpy(data_line, string_108_long);     return;
+    
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CAMERA
-    
-    /*
-    case 120: strcpy(lines[target_line], string_120_long);     return;  
-    case 121: strcpy(lines[target_line], string_121_long);     return;  
-    case 122: strcpy(lines[target_line], string_122_long);     return;  
-    */
+
+    case 120: strcpy(data_line, string_120_long);     return;
+    case 122: strcpy(data_line, string_122_long);     return;
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS MOTOR
-    
-    /*
-    case 140: strcpy(lines[target_line], string_140_long);     return;
-    case 141: strcpy(lines[target_line], string_141_long);     return;  
-    case 142: strcpy(lines[target_line], string_142_long);     return;  
-    case 143: strcpy(lines[target_line], string_143_long);     return;  
-    case 144: strcpy(lines[target_line], string_144_long);     return;  
-    case 145: strcpy(lines[target_line], string_145_long);     return;  
-    case 146: strcpy(lines[target_line], string_146_long);     return; 
-    case 147: strcpy(lines[target_line], string_147_long);     return; 
-    case 148: strcpy(lines[target_line], string_148_long);     return; 
-    case 149: strcpy(lines[target_line], string_149_long);     return;  
-    case 150: strcpy(lines[target_line], string_150_long);     return; 
-    case 151: strcpy(lines[target_line], string_151_long);     return; 
-    case 152: strcpy(lines[target_line], string_152_long);     return; 
-    case 153: strcpy(lines[target_line], string_153_long);     return; 
-    case 154: strcpy(lines[target_line], string_154_long);     return; 
-    case 155: strcpy(lines[target_line], string_155_long);     return; 
-    */
+        
+    case 140: strcpy(data_line, string_140_long);     return;
+    case 143: strcpy(data_line, string_143_long);     return;
+    case 144: strcpy(data_line, string_144_long);     return;
+    case 145: strcpy(data_line, string_145_long);     return;
+    case 146: strcpy(data_line, string_146_long);     return;
+    case 150: strcpy(data_line, string_150_long);     return;
+    case 151: strcpy(data_line, string_151_long);     return;
+    case 154: strcpy(data_line, string_154_long);     return;
+    case 155: strcpy(data_line, string_155_long);     return;
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
-    
-    /*
-    case 160: strcpy(lines[target_line], "chain stat");         return;
-    case 161: strcpy(lines[target_line], "upd chain");          return;  
-    */
+ 
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS TRIGGER
     
-    /*
-    case 180: strcpy(lines[target_line], "trigger 1");          return;
-    case 181: strcpy(lines[target_line], "trigger 2");          return;  
-    */
-    
+  
     ///////////////////////////////////////////////////////////////////
     // RUN MODE - TIMELAPSE
     
-    /*
-    case 200: strcpy(lines[target_line], string_200_long);     return;  
-    case 201: strcpy(lines[target_line], string_201_long);     return;  
-    case 202: strcpy(lines[target_line], string_202_long);     return;  
-    case 203: strcpy(lines[target_line], string_203_long);     return;  
-    case 204: strcpy(lines[target_line], string_204_long);     return;  
-    case 205: strcpy(lines[target_line], string_205_long);     return;  
-    */
-    
+    case 200: strcpy(data_line, string_200_long);     return;  
+    case 201: strcpy(data_line, string_201_long);     return;  
+    case 202: strcpy(data_line, string_202_long);     return;  
+    case 203: strcpy(data_line, string_203_long);     return;  
+    case 204: strcpy(data_line, string_204_long);     return;      
+    case 205: strcpy(data_line, string_205_long);     return;  
+    case 206: strcpy(data_line, string_206_long);     return;  
+    case 207: strcpy(data_line, string_207_long);     return;  
+        
   }
+
+  
+  // no result - return an empty  string
+  strcpy(data_line, STR_EMPTY);
+  
 
 }
 
@@ -1042,8 +1035,14 @@ void uicore_handleKeyEvent(uint8_t key) {
         
       } else {
       
-        // toggle the editing var
-        menu_editing = !menu_editing;
+        // check if the menu point we are standing on
+        // is an action menu point
+        if (!uicode_doAction(line_codes[menu_pos])) {
+        
+          // toggle the editing var
+          menu_editing = !menu_editing;  
+          
+        }
                        
       }
           
@@ -1175,6 +1174,7 @@ void uicore_handleKeyEvent(uint8_t key) {
 
 
 
+
 // ===================================================================================
 // handles the position change of the rotary encoder
 // ===================================================================================
@@ -1226,7 +1226,7 @@ void uicore_repaint() {
                  (core_is_jog_mode_old          != core_isJogModeFlag())        ||
                  (uicore_is2ndRepaintFlag());
   
-  if (full) Serial.print(" full");
+  //if (full) Serial.print(" full");
   
   // Are we in jog Mode?
   if (core_isJogModeFlag()) {
@@ -1268,7 +1268,7 @@ void uicore_repaint() {
   // regular screen
   else {
     
-    Serial.print(" reg");
+    //Serial.print(" reg");
     
     // we are in the settings menu
     if (uicore_isSettingsScreen()) {
@@ -1288,7 +1288,7 @@ void uicore_repaint() {
       
       if (!uicore_isRepaintBatteryFlag()) {
         
-        Serial.print(" noBat");
+        //Serial.print(" noBat");
         
         // paint the header
         uipaint_header(full);
@@ -1305,14 +1305,14 @@ void uicore_repaint() {
                 
       } else {
         
-        Serial.print(" Bat");
+        //Serial.print(" Bat");
         
         uipaint_battery(true); 
         
       }
       
       
-      Serial.print(" stat");
+      //Serial.print(" stat");
       uipaint_cycleLength();
       uipaint_shotCount();
       
@@ -1321,7 +1321,7 @@ void uicore_repaint() {
     // paint the menu items
     if (!uicore_isRepaintBatteryFlag()) {
       
-      Serial.print(" menu");
+      //Serial.print(" menu");
       
       // load the menu strings
       uicore_loadMenuStrings();
@@ -1340,7 +1340,7 @@ void uicore_repaint() {
   core_is_jog_mode_old      = core_isJogModeFlag(); 
   popup_menu_old            = isBit(uicore_status, BIT_7); 
 
-  Serial.println();
+  //Serial.println();
 
 }
 
@@ -1526,6 +1526,15 @@ void uicore_generateDataString(uint16_t line_code) {
     
     
     // camera post delay
+    case  121 :  {  
+      
+                   strcpy(data_line,  string_123_short);  // SHOOT!
+                   break; 
+    
+    }
+    
+    
+    // camera post delay
     case  122 :  {  
                    if (menu_editing) {
                       
@@ -1577,14 +1586,14 @@ void uicore_generateDataString(uint16_t line_code) {
     // motor go home
     case 141 :   {
                          
-                   //strcpy(data_line, ">> GO!");                   
+                   strcpy(data_line, string_158_short);      // GO!              
                    break;  
     }             
     
     // motor set home
     case 142 :   {
                          
-                   //strcpy(data_line, ">> SET!");                   
+                   strcpy(data_line, string_159_short);      // SET!                 
                    break;  
     }  
   
@@ -2036,13 +2045,41 @@ void uicore_generateDataString(uint16_t line_code) {
 
 
 // ===================================================================================
-void uicode_doAction(uint16_t line_code) {
+boolean uicode_doAction(uint16_t line_code) {
   
   // go through all options and create the data string
   switch (line_code) {
     
+    
+    // camera test shot
+    case 121 : {
+                  cam_trigger();
+                  core_delay(200);
+                  cam_stop();
+    
+                  return true;
+    }  
+    
+    // motor (selected) go home
+    case 141 : {
+                  // define the move to the home position
+                  motor_defineMoveToPosition(motor_selected, 0, true);  
+                  // start the move
+                  motor_startMovesToPosition();
+    
+                  return true;
+    }  
+    
+    // motor (selected) set home position
+    case 142 : {
+                  // define the move to the home position
+                  motors[motor_selected].setMotorPosition(0);  
+    
+                  return true;
+    }  
+    
     // jog motor 1
-    case  148 :  {
+    case 148 :  {
                    // enable the jog-mode  
                    core_setJogModeFlag(); 
                    // select motor 1
@@ -2063,11 +2100,11 @@ void uicode_doAction(uint16_t line_code) {
                    // Start the repaint timer every 250ms
                    Timer4.start(TIMER_CYCLE * 1000);
                    
-                   break; 
+                   return true; 
     }
     
     // jog motor 2
-    case  149 :  {
+    case 149 :  {
                    // enable the jog-mode 
                    core_setJogModeFlag();
                    // select motor 2
@@ -2088,11 +2125,11 @@ void uicode_doAction(uint16_t line_code) {
                    // Start the repaint timer every 250ms
                    Timer4.start(TIMER_CYCLE * 1000);
                                       
-                   break; 
+                   return true; 
     }
     
     // move all motors home
-    case  152 :  {
+    case 152 :  {
                    // set up the motors for move to home
                    for (int i=0; i<DEF_MOTOR_COUNT; i++) {
                      motor_defineMoveToPosition(i, 0, true);  
@@ -2101,12 +2138,33 @@ void uicode_doAction(uint16_t line_code) {
                    // start the moves
                    motor_startMovesToPosition();
                      
-                   break; 
+                   return true; 
+    }
+    
+    
+    // set home motor 1
+    case 156 :  {
+                   
+                   motors[0].setMotorPosition(0);
+                   return true; 
+    }
+    
+    
+    // set home motor 2
+    case 157 :  {
+                   
+                   motors[1].setMotorPosition(0);
+                   return true; 
     }
     
   } // end: switch  
 
+
+  // no action executed
+  return false;
+
 }
+
 
 
 

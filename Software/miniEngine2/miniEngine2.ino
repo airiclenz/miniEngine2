@@ -67,7 +67,7 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define ALPHAVERSION                 0 
+#define ALPHAVERSION                 1 
 
 
 ////////////////////////////////////////////////////////

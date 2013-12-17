@@ -1,0 +1,26 @@
+
+
+
+
+
+/////////////////////////////////////////////////////
+version:	2.0 alpha 1
+date:		2013-12-17
+
+Documentation:
+
+-	added a motor-jack warning
+- 	corrected an error with a wrong resistor-color-code 
+
+Software:
+
+-	added motor home functions to the pop-up menu
+-	added action-menu-point functionalities
+- 	implemented an intital simple help system 
+
+
+/////////////////////////////////////////////////////
+version:	2.0 alpha 0
+date:		2013-12-15
+
+- initial realease of the miniEngine v2 (still in alpha)
