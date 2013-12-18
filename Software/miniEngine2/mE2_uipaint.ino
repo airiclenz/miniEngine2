@@ -517,21 +517,67 @@ void uipaint_editScreen(boolean full_repaint) {
     tft.setBackColor(color_schemes[uicore_col_scheme].background);
     tft.setColor(color_schemes[uicore_col_scheme].background);
     tft.fillRect(0, header_height, display_width - 1, display_height - 1);
-  
-  
+    
     // paint the help text with a small font
     tft.setFont(SMALL_FONT);
     tft.setColor(color_schemes[uicore_col_scheme].font_soft);
     
-    // receive the long text
+    Serial.println("paint edit screen");
+    
+    // receive the long help text
     uicore_getLongString(line_codes[menu_pos]);
     
-    tft.print(data_line, 7, header_height + 10);   
+    // variables for realizing word-wrapping
+    byte lineCount = 0;
+    byte fullLen = strlen(data_line);
+    byte subLen = 0;
+    byte startPos = 0;
+  
+    // if we have a help-string
+    if (fullLen > 0) {
+    
+      // loop all charakters of the string
+      for (byte i=0; i<fullLen; i++) {
+        
+        // if we have found a lineFeed
+        if (data_line[i] == STR_LINEFEED) {
+        
+          // if we are not just starting, jump over the delimiter charakter
+          if (startPos != 0) startPos++;
+          
+          // copy the sub string to a temp buffer
+          memcpy(temp, data_line + startPos, i);
+          temp[i - startPos] = 0;  
+          startPos = i;
+          
+          // print the substring
+          tft.print(temp, 7, header_height + 10 + (lineCount * 20)); 
+          // increase the linecount
+          lineCount++; 
+          
+        } 
       
-  }
+      }
+    
+      // paint the last line because this was not covered by the loop:
+      // if we had lineFeeds, jump over the delimiter charakter
+      if (startPos != 0) startPos++;
+      
+      // copy the sub string to a temp buffer
+      memcpy(temp, data_line + startPos, fullLen);
+      temp[fullLen - startPos] = 0;  
+      
+      // print the substring
+      tft.print(temp, 7, header_height + 10 + (lineCount * 20)); 
+          
+    } // end: we have a help string
+          
+  } // end: full repaint
+        
     
   // generate the data string
   uicore_generateDataString(line_codes[menu_pos]);
+  
   
   // only paint now, if not 2nd repaint is defined - 
   // in this case we paint later anyway in the 2nd loop
@@ -543,11 +589,11 @@ void uipaint_editScreen(boolean full_repaint) {
     
     // paint the string
     uint8_t len = (strlen(data_line) - 1) * tft.getFontXsize();
-    tft.print(data_line, display_width - 30 - len , 140); 
+    tft.print(data_line, display_width - 30 - len , 190); 
     
     // clear the rest of the data line (in case ther is still old data)
     tft.setColor(color_schemes[uicore_col_scheme].background);
-    tft.fillRect(0, 140, display_width - len - 31, 140 + tft.getFontYsize() - 1);
+    tft.fillRect(0, 190, display_width - len - 31, 190 + tft.getFontYsize() - 1);
   }
 
 }

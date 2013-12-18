@@ -223,11 +223,6 @@ boolean sd_saveConfig() {
     sd_file.write(10);
     
     
-    /*
-
-
-*/
-    
     
     // Battery calibration
     sd_writeData((uint16_t)   power_getCalibrationEmpty()); 

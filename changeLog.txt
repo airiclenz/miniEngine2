@@ -1,6 +1,14 @@
 
 
 
+/////////////////////////////////////////////////////
+version:	2.0 alpha 2
+date:		2013-12-18
+
+Software:
+
+- 	improved in-system help	to multiline text
+-	fixed a motor-direction-bug in SMS mode 
 
 
 /////////////////////////////////////////////////////

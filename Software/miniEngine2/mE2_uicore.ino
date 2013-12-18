@@ -190,8 +190,8 @@ uint16_t display_width, display_height;
 // content of the menus (we initialize the array with some items - 
 // fitting the longest possible menu.
 char lines[32][MENU_MAX_LINES]; 
-char data_line[128];
-char temp[32];
+char data_line[200];
+char temp[48];
 
 // help array for the lines to know which value corresponds to which
 // line. this is filled by the item_codes when loading the menu content 
@@ -294,7 +294,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
 // MISC
 
 
-const char* STR_LINEFEED    = "\n"; 
+const char  STR_LINEFEED    = '\n'; 
 const char* STR_EMPTY       = ""; 
 const char* STR_SPACE       = " ";
 const char* STR_PUNKT       = ".";
@@ -388,12 +388,12 @@ const char* string_107_short = "start home";
 const char* string_108_short = "mode";
 const char* string_109_short = "setup styl";
 
-const char* string_100_long  = "Power of the backlight";
-const char* string_101_long  = "Time before the backlight turns off";
-const char* string_102_long  = "The global color scheme";
-const char* string_103_long  = "Invert the rotary response";
-const char* string_107_long  = "Move motors home before program-start";
-const char* string_108_long  = "Motor move mode";
+const char* string_100_long  = "Power of the backlight.";
+const char* string_101_long  = "Time after which the backlight\nturns off.";
+const char* string_102_long  = "The global color scheme. Use\nthis to improve dislay readability.";
+const char* string_103_long  = "Invert the rotary-knob response.";
+const char* string_107_long  = "Move all motors to their home\nposition before the program starts.";
+const char* string_108_long  = "The way in which the motors moves.";
 
 
 ////////////////////////////////////////////////////////
@@ -403,8 +403,8 @@ const char* string_121_short = "test shot";
 const char* string_122_short = "post delay";
 const char* string_123_short = "SHOOT!";
 
-const char* string_120_long  = "Camera trigger behaviour";
-const char* string_122_long  = "Delay after a camera shot";
+const char* string_120_long  = "Camera trigger behaviour.";
+const char* string_122_long  = "Delay after a camera shot before the\nmotor moves. Use this if you have\ndefined a long exposure-time in your\ncamera.";
 
 
 ////////////////////////////////////////////////////////
@@ -430,15 +430,15 @@ const char* string_157_short = "set home mot 2";
 const char* string_158_short = "GO!";
 const char* string_159_short = "SET!";
 
-const char* string_140_long  = "Select the motor you want to edit";
-const char* string_143_long  = "Delay after a motor move";
-const char* string_144_long  = "Linear or radial movements";
-const char* string_145_long  = "Max speed of the motor";
-const char* string_146_long  = "Ramping-duration for moves";
-const char* string_150_long  = "Keep the motor powerd all the time";
-const char* string_151_long  = "Press [Menu] to change the granularity";
-const char* string_154_long  = "Turn the motor off when not used";
-const char* string_155_long  = "Invert the motor direction";
+const char* string_140_long  = "Select the motor you want to edit.";
+const char* string_143_long  = "Delay after a motor move. Use this\ndelay for letting the motor\nsettle after a move.";
+const char* string_144_long  = "The type of movements this motor\ndoes (linear or radial).";
+const char* string_145_long  = "Max speed of the motor.\nPress [Menu] to change the granularity.";
+const char* string_146_long  = "Ramping-duration for moves.\nShort times become faster but less\nsmooth moves.";
+const char* string_150_long  = "Keep the motor powerd all the time.\nWhen enabled the motor will be\npowered immediately.";
+const char* string_151_long  = "Motor and hardware calibration value\nin steps per cm or steps per `.\nPress [Menu] to change the granularity.";
+const char* string_154_long  = "Turn the motor off when not used\n(Even during recording!).";
+const char* string_155_long  = "Invert the motor direction.";
 
 ////////////////////////////////////////////////////////
 // mode settings
@@ -452,14 +452,14 @@ const char* string_205_short = "playb fps";
 const char* string_206_short = "ramp in";
 const char* string_207_short = "ramp out";
 
-const char* string_200_long = "The total motor-move-distance";
-const char* string_201_long = "The motor direction";
-const char* string_202_long = "The camera exposure time";
-const char* string_203_long = "The total record-duration";
-const char* string_204_long = "Length of the final clip";
-const char* string_205_long = "Frames Per Second of your final clip";
-const char* string_206_long = "Percent of record-time to ramp in";
-const char* string_207_long = "Percent of record-time to ramp out";
+const char* string_200_long = "The total move-distance of this motor\nduring the recording.";
+const char* string_201_long = "The motor direction.";
+const char* string_202_long = "The camera exposure time. This can\nbe 1/10 for just triggering the\ncamera. The real exposure might be\ndefined in the camera (see also\nCamera post delay)";
+const char* string_203_long = "The total record-duration.";
+const char* string_204_long = "Length of the final clip you want.";
+const char* string_205_long = "Frames Per Second of your final clip.\nThis influences how many photos will\nbe made.";
+const char* string_206_long = "Percent of record-time to ramp into\nthe move.";
+const char* string_207_long = "Percent of record-time to ramp out\nof the move.";
 
 
 

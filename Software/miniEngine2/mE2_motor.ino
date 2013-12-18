@@ -499,12 +499,6 @@ void motor_startMotorPhase() {
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
-    //////////////////////////  
-    // old approach without keyframes (just interpolated / linear position)
-    // calculate the position where the motor needs to be (in cm / °)
-    //new_motor_pos = (motor_total_distance[i] / (float)(setup_frame_count - 1)) * (float)cam_getShootCount();
-    
-    
     //////////////////////////
     // new approach moving along a curve
         

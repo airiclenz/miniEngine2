@@ -134,7 +134,7 @@ uint8_t power_readBatteryLevel() {
     
   // do we have a new min value?
   if ((val < battery_val_empty) &&
-      (val >= 300)) {
+      (val >= 450)) { // needed to not count USB-voltages as min
       
     battery_val_empty = val; 
     do_calibration = true;  
