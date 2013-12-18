@@ -514,6 +514,7 @@ void motor_startMotorPhase() {
     // one cycle
     x = ((float)(system_cycle_start - core_program_start_time + setup_interval_length)) / 1000.0; // * motor_time_factor;
     
+    
     // check if we need to move on to the next curve 
     // (because all curves should be sorted in time, we know when a curve is not
     // any longer valid because the current time is bejond the curves-time-span)   
@@ -536,15 +537,10 @@ void motor_startMotorPhase() {
     // calculate the position where the motor needs to be at this moment in time (in cm / °)
     new_motor_pos = mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.getY(x); 
     
-      
-    //////////////////////////
-    // now include the program start pos as well as the direction
-    if (motor_program_direction[i]) {
-      new_motor_pos = motor_reference_pos[i] - new_motor_pos;   
-    } else {
-      new_motor_pos = motor_reference_pos[i] + new_motor_pos;
-    }
-              
+    // now include the program start pos if needed 
+    // The direction is already embedded in the global move curve
+    new_motor_pos = motor_reference_pos[i] + new_motor_pos;
+    
     // set the new position
     motor_defineMoveToPosition(i, new_motor_pos, false);  
   

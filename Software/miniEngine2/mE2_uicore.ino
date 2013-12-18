@@ -622,9 +622,7 @@ void uicore_process() {
     
     // is one of the repaint flags set?
     if (isBit(uicore_status, B00011110)) {
-      
-      Serial.println("paint");
-      
+            
       // paint everything that needs to be painted
       uicore_repaint();
             
@@ -1209,7 +1207,7 @@ void uicore_handleRotary() {
 // ===================================================================================
 void uicore_repaint() {
   
-  Serial.print("paint");
+  //Serial.print("paint");
   
   /*
   Serial.print("repaint");
