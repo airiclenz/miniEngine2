@@ -174,10 +174,11 @@ boolean sd_initCard() {
 boolean sd_isVersionOK() {
   
   int i=0;
-  byte version[6];
+  byte lenght = 10;
+  byte version[lenght];
     
-  // read the first 5 bytes from the file
-  while (sd_file.available() && (i < 6)) {
+  // read the first few bytes from the file
+  while (sd_file.available() && (i < lenght)) {
     version[i] = sd_file.read();
     i++;
   }

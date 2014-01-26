@@ -1405,7 +1405,7 @@ void uicore_generateDataString(uint16_t line_code) {
       
                    // generate the data string 
                    itoa(uicore_backlight_time / 1000, data_line, 10);
-                   strcat(data_line, "\"");
+                   strcat(data_line, string_6_short); // s
                    break;
                      
     }
