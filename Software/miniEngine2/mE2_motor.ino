@@ -19,13 +19,13 @@
 
 */
 
-#define TIMER_PERIOD            64          // call the timers every 64 microseconds (15625 x per second)
+#define TIMER_PERIOD            100         // call the timers every 80 microseconds
 #define DEF_LS_DEBOUNCE         50          // ms debounce for limit switches
 #define DEF_MIN_POS_ERROR       0.00001     // unit: cm/°; used for accuracy check of float variables
 
 
 #define MOVE_MODE_NONE          0           // this motor is not supposed to move
-#define MOVE_MODE_TOPOS		BIT_1       // this motors is using the temp curves for individual moved
+#define MOVE_MODE_TO_POS	BIT_1       // this motors is using the temp curves for individual moved
 #define MOVE_MODE_CURVE         BIT_2       // this motor is doing long moves with multiple curves
 
 
@@ -114,8 +114,8 @@ volatile uint8_t motor_used_curves_index[DEF_MOTOR_COUNT];
 
 // some variables to track the motor direction during moves
 //boolean motor_dir, motor2_dir, motor1_dir_old, motor2_dir_old;
-volatile bool  motor_dir[DEF_MOTOR_COUNT];
-volatile bool  motor_dir_old[DEF_MOTOR_COUNT];
+//volatile bool  motor_dir[DEF_MOTOR_COUNT];
+//volatile bool  motor_dir_old[DEF_MOTOR_COUNT];
 
 // the direction the motor should use in the program
 volatile bool  motor_program_direction[DEF_MOTOR_COUNT];
@@ -214,8 +214,8 @@ void motor_init() {
     motor_start_time[i] = 0;
     
     // direction variables  
-    motor_dir[i] = motors[i].getDirection();  
-    motor_dir_old[i] = motors[i].getDirection();  
+    //motor_dir[i] = motors[i].getDirection();  
+    //motor_dir_old[i] = motors[i].getDirection();  
   
     // reset the limit switches
     motors[i].resetLimitSwitch();
@@ -531,9 +531,12 @@ void motor_startMotorPhase() {
     // calculate the position where the motor needs to be at this moment in time (in cm / °)
     new_motor_pos = mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.getY(x); 
     
-    // now include the program start pos if needed 
-    // The direction is already embedded in the global move curve
-    new_motor_pos = motor_reference_pos[i] + new_motor_pos;
+    
+    #ifdef DEBUG
+    Serial.print("defining SMS move ");
+    Serial.println(i);
+    #endif
+    
     
     // set the new position
     motor_defineMoveToPosition(i, new_motor_pos, false);  
@@ -548,7 +551,7 @@ void motor_startMotorPhase() {
 // initiates a simple move to a specific position
 // ============================================================================
 void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
-		
+  	
   // only do this if the motor is not yet in any other move mode
   if (motor_move_mode[mNum] == MOVE_MODE_NONE) {
     
@@ -573,6 +576,8 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
     
     // calculate the total distances we are asked to move for the motor
     float moveDist = abs(newPos - motors[mNum].getMotorPosition());
+    
+    
     
     // if we are asked to move at least a tiny bit
     if (moveDist >= DEF_MIN_POS_ERROR) {
@@ -608,8 +613,8 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
         
       }
       
-      /*  
-      #ifdef DEBUG
+        
+      #ifdef SHOW_CURVES
       Serial.print("curve "); Serial.println(mNum);
       Serial.print(curve.p0.x); Serial.print(", "); Serial.println(curve.p0.y);
       Serial.print(curve.p1.x); Serial.print(", "); Serial.println(curve.p1.y);
@@ -617,14 +622,15 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       Serial.print(curve.p3.x); Serial.print(", "); Serial.println(curve.p3.y);
       Serial.println();
       #endif  
-      */
+      
         
       // get the min and max values of the curves
       curve.updateDimension();
         
       // convert the just defined Bezier curve into linear segments
       tempCurves[mNum].segmentateCurveOptimized(curve);
-       
+      //tempCurves[mNum].segmentateCurve(curve);
+             
       // init the motor move 
       tempCurves[mNum].initMove(); 
             
@@ -635,7 +641,7 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       
       // set the move style to use a temporary curve and not the big
       // continuous move array
-      motor_move_mode[mNum] = MOVE_MODE_TOPOS;  
+      motor_move_mode[mNum] = MOVE_MODE_TO_POS;  
      
     } // end: move dist is > 0
            
@@ -649,18 +655,16 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
 // dummy function for processing timer 2
 // ============================================================================
 void motor_startMovesToPosition() {
-  
+    
   // enable all the motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
     // init this motor if needed
-    if (isBit(motor_move_mode[i], MOVE_MODE_TOPOS)) {
+    if (isBit(motor_move_mode[i], MOVE_MODE_TO_POS)) {
       
+      // enable the motor      
       motors[i].enable();  
       
-      // init the directions...
-      motors[i].setDirection(motor_program_direction[i]);
-      motor_dir_old[i] = motors[i].getDirection();
     }
       
   }
@@ -680,7 +684,7 @@ boolean motor_isMoveToPositionRunning() {
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
     // init this motor if needed
-    if (isBit(motor_move_mode[i], MOVE_MODE_TOPOS)) {
+    if (isBit(motor_move_mode[i], MOVE_MODE_TO_POS)) {
       return true;  
     }
   
@@ -766,22 +770,6 @@ void motor_makeKeyframes() {
     // curve array
     curveIndex = motor_used_curves[i][0];
     
-    
-    #ifdef DEBUG
-    
-    Serial.print("Motor: ");
-    Serial.println(i + 1);
-    Serial.print("Curveindex: ");
-    Serial.println(curveIndex);
-    Serial.println("---");
-    Serial.print(curve.p0.x); Serial.print(", "); Serial.println(curve.p0.y);
-    Serial.print(curve.p1.x); Serial.print(", "); Serial.println(curve.p1.y);
-    Serial.print(curve.p2.x); Serial.print(", "); Serial.println(curve.p2.y);
-    Serial.print(curve.p3.x); Serial.print(", "); Serial.println(curve.p3.y);
-    Serial.println();
-    #endif  
-    
-    
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
     mCurves[curveIndex].curve.segmentateCurve(curve); //segmentateCurveOptimized(curve);
@@ -820,7 +808,7 @@ void motor_handleMove() {
       
       // do we need to set a new timestamp for a new move?
       if (isBit(motor_time_status, (1 << i))) {
-        
+                
         // delete the flag
         deleteBit(motor_time_status, (1 << i));
         // store the current time in seconds  
@@ -832,12 +820,11 @@ void motor_handleMove() {
       // how much time went by since we started the motors 
       // (the time = x axis on the curve graph)
       x = ((((float) millis()) / 1000.0) - motor_start_time[i]) * motor_time_factor;
-      
-      
+            
             
       /////////////////////////////////////
       // S-M-S MODE
-      if (motor_move_mode[i] == MOVE_MODE_TOPOS) {
+      if (motor_move_mode[i] == MOVE_MODE_TO_POS) {
         
         // start only if there is work left for this motor 
         if (x <= tempCurves[i].getEndX()) {
@@ -848,15 +835,27 @@ void motor_handleMove() {
           // are there steps we need to execute?            
           if (stepsToDo != 0) {
             
-            motor_dir[i] = (boolean)(stepsToDo < 0);
-            if (motor_dir[i] != motor_dir_old[i]) {
-              motors[i].setDirection(motor_dir[i]);
-              motor_dir_old[i] = motor_dir[i];
+            // determine in which direction we need to move 
+            boolean dir = (boolean)(stepsToDo < 0);
+            
+            // if the direction changed...
+            if (dir != motors[i].getDirection()) {
+              
+              #ifdef DEBUG
+              Serial.print("dirTo ");
+              Serial.println(dir);
+              #endif
+              
+              motors[i].setDirection(dir);
+              //motor_dir_old[i] = dir;
             }
           
             stepsToDo = abs(stepsToDo);   
             for (int s=0; s<stepsToDo; s++) {
               motors[i].step();   
+              
+              // wait a little bit if we need to do more steps
+	      if (i<(stepsToDo-1)) delayMicroseconds(3);
             }
           }
           
@@ -886,8 +885,6 @@ void motor_handleMove() {
           if (motor_used_curves_index[i] < (motor_used_curves_count[i] - 1)) {
             motor_used_curves_index[i]++;  
             
-            Serial.println("nc");
-            
           } else {
         
             // deactivate this motor
@@ -898,8 +895,6 @@ void motor_handleMove() {
             setBit(motor_post_delay_status, (1 << i));
             // this motor is ready
             done++;
-          
-            Serial.println("end");
             
             // leave the while loop
             break;
@@ -918,15 +913,22 @@ void motor_handleMove() {
           // are there steps we need to execute?            
           if (stepsToDo != 0) {
             
-            motor_dir[i] = (boolean)(stepsToDo < 0);
-            if (motor_dir[i] != motor_dir_old[i]) {
-              motors[i].setDirection(motor_dir[i]);
-              motor_dir_old[i] = motor_dir[i];
+            // determine in which direction we need to move 
+            boolean dir = (boolean)(stepsToDo < 0);
+            
+            // if the direction changed...
+            if (dir != motors[i].getDirection()) {
+              
+              motors[i].setDirection(dir);
+              //motor_dir_old[i] = dir;
             }
           
             stepsToDo = abs(stepsToDo);   
             for (int s=0; s<stepsToDo; s++) {
               motors[i].step();   
+              
+              // wait a little bit if we need to do more steps
+	      if (i<(stepsToDo-1)) delayMicroseconds(3);
             }
           
           } // end: if steps are available
@@ -950,11 +952,11 @@ void motor_handleMove() {
     // including the timer - but only if we are not in a program 
     if ((done == DEF_MOTOR_COUNT) &&  
         (!core_isProgramRunningFlag())) {
-      
-      Serial.println("off");    
           
       // turn all motor-action off
-      motor_disableAll();        
+      motor_disableAll(); 
+      
+      Serial.println("mEnd");
     }
     
     

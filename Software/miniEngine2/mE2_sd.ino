@@ -183,12 +183,14 @@ boolean sd_isVersionOK() {
   }
   
   // check if the file content is as expected
-  if ((version[0] == 118)               &&  // v
-      (version[1] == (VERSION + 48))    &&  // ASCII numbers start at 48
-      (version[2] == 46)                &&  // .
-      (version[3] == (SUBVERSION + 48)) &&  // ASCII numbers start at 48
-      (version[4] == 13)                &&  // LF
-      (version[5] == 10)) {                 // CR
+  if ((version[0] == 118)                  &&  // v
+      (version[1] == (VERSION + 48))       &&  // ASCII numbers start at 48
+      (version[2] == 46)                   &&  // .
+      (version[3] == (SUBVERSION + 48))    &&  // ASCII numbers start at 48
+      (version[4] == 46)                   &&  // .
+      (version[5] == (SUBSUBVERSION + 48)) &&  // ASCII numbers start at 48
+      (version[6] == 13)                   &&  // LF
+      (version[7] == 10)) {                    // CR
   
     return true;    
   }
@@ -215,10 +217,12 @@ boolean sd_saveConfig() {
   if (sd_file) {
     
     // save the version information
-    sd_file.print("v");
+    sd_file.print(F("v"));
     sd_file.print(VERSION);
-    sd_file.print(".");
+    sd_file.print(F("."));
     sd_file.print(SUBVERSION);
+    sd_file.print(F("."));
+    sd_file.print(SUBSUBVERSION);
     sd_file.write(13);
     sd_file.write(10);
     
@@ -232,6 +236,7 @@ boolean sd_saveConfig() {
     sd_writeData((byte)       uicore_getBacklightLevel());      // backlight power
     sd_writeData((uint32_t)   uicore_getBacklightTime());       // backlight time
     sd_writeData((byte)       uicore_getColorScheme());         // color scheme No.
+    sd_writeData((byte)       uicore_getFont());                // the used font
     
     // core variables
     sd_writeData((byte)       core_mode);                       // the core mode
@@ -269,8 +274,6 @@ boolean sd_saveConfig() {
     }
     
     sd_file.close();
-
-    //Serial.println("SD-saved");    
     
     return true;
   }
@@ -340,6 +343,7 @@ boolean sd_loadConfig() {
     uicore_setBacklightLevel(       sd_readByte  (buffer, address));            address += 1;
     uicore_setBacklightTime(        sd_readULong (buffer, address));            address += 4;
     uicore_setColorScheme(          sd_readByte  (buffer, address));            address += 1;
+    uicore_setFont(                 sd_readByte  (buffer, address));            address += 1;
         
     // core variables
     core_mode =                     (byte)    sd_readByte(buffer, address);     address += 1; 

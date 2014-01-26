@@ -12,8 +12,20 @@ This repository contains all tahat is needed to build a full miniEngine 2 system
 	- Licenses
 	
 The PCBs and most of the needed parts can be purchased here: http://shop.airiclenz.com  
-	
 
+
+Note of thanks
+--------------
+
+Four of the six contained software libraries were developed by me but two were not:
+
+The library UTFT (here in version 2.0) was developed by Henning Karlsen
+http://henningkarlsen.com/electronics/library.php?id=52
+
+The DueTimer library was developed by Ivan Seidel 
+https://github.com/ivanseidel/DueTimer
+
+A big „Thank you“ to both of you for making these libraries available!
 
 
 

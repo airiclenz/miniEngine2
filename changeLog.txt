@@ -1,5 +1,26 @@
 
 
+/////////////////////////////////////////////////////
+version:	2.0 alpha 3
+date:		2014-01-25
+
+Documentation:
+
+-	updated the documentation (added small system-user-manual)
+-	added some information about updating the software
+
+Software:
+
+-	fixed a bug which started moves from the wrong position 
+	if not moved to home before
+-	fixed a bug that moved the motor in the wrong direction
+	when using the function "Move home (all)"
+-	fixed a bug which cause the motor direction to change 
+	sporadically during motor jogging
+-	added a new menu font and a fon option
+-	Minor user interface changes
+-	added all needed libraries into the repository
+
 
 /////////////////////////////////////////////////////
 version:	2.0 alpha 2
@@ -32,3 +53,4 @@ version:	2.0 alpha 0
 date:		2013-12-15
 
 - initial realease of the miniEngine v2 (still in alpha)
+

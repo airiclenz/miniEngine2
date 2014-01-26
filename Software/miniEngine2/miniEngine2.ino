@@ -39,9 +39,9 @@
 #include <DueTimer.h>
 
 
-// uncomment this for some additional outputs
-#define DEBUG
-
+// uncomment this for debugging outputs via the serial terminal
+//#define DEBUG
+//#define SHOW_CURVES
 
 
 #ifdef DEBUG
@@ -67,7 +67,7 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define ALPHAVERSION                 2 
+#define SUBSUBVERSION                3 
 
 
 ////////////////////////////////////////////////////////
@@ -78,11 +78,9 @@
 
 
 extern uint8_t smallMax[];
-extern uint8_t mediumMax[];
+extern uint8_t mE_Clear[];
 extern uint8_t Sinclair_M[];
 
-#define SMALL_FONT   smallMax
-#define DEFAULT_FONT Sinclair_M
 
 
 ////////////////////////////////////////////////////////

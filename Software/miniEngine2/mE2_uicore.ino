@@ -49,11 +49,38 @@
 #define menu_max_screen_lines              6    // amount of line that can be displayed at once
 
 
+////////////////////////////////////////////////////////
+//                                                    //
+//  F O N T S                                         //
+//                                                    //
+////////////////////////////////////////////////////////
 
 
+#define SMALL_FONT   smallMax
+//#define DEFAULT_FONT mediumMax || Sinclair_M
 
+// the structure used for storing the curve data
+typedef struct fonts {
+  char      *name;
+  uint8_t*  font;
+};
 
+#define  FONT_COUNT  2
+fonts uicore_fonts[FONT_COUNT] = { 
+  {
+    "mE-Clear",
+    mE_Clear
+  },
 
+  {
+    "Sinclair",
+    Sinclair_M
+  },  
+};
+
+// the currently selected font
+uint8_t   uicore_font_index = 0;
+uint8_t   uicore_font_index_old = 0;
 
 
 
@@ -97,23 +124,23 @@ const uint8_t uicore_color_scheme_count = 3;
 struct colorScheme color_schemes[uicore_color_scheme_count] = {
     
   // COLOR SCHEME 0
-  { "default",                          // name (max 8 character)
+  { "Default",                          // name (max 8 character)
     uicode_getRGB565(  0,   0,   0),    // background 
-    uicode_getRGB565(110, 100,  50),    // background_header
+    uicode_getRGB565( 90,  80,  60),    // background_header
     uicode_getRGB565(230, 220, 200),    // scrollbar
     uicode_getRGB565(150, 140, 130),    // seperator
     uicode_getRGB565(255, 250, 240),    // font
     uicode_getRGB565(200, 195, 185),    // font_soft
     uicode_getRGB565(255, 255, 220),    // font_header
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
-    uicode_getRGB565( 70,  60,  50),    // font_bg_odd
-    uicode_getRGB565(  0,   0,   0),    // font_selected
-    uicode_getRGB565(230, 220, 200),    // font_bg_selected
+    uicode_getRGB565( 50,  40,  30),    // font_bg_odd
+    uicode_getRGB565( 40,  45, 120),    // font_selected
+    uicode_getRGB565(160, 165, 235),    // font_bg_selected
     uicode_getRGB565(  0,   0,   0),    // font_menu_selected
   },
   
   // COLOR SCHEME 1
-  { "night",                            // name (max 8 character)
+  { "Night",                            // name (max 8 character)
     uicode_getRGB565(  0,   0,   0),    // background 
     uicode_getRGB565( 80,   0,   0),    // background_header
     uicode_getRGB565(200,   0,   0),    // scrollbar
@@ -129,7 +156,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
   },
   
   // COLOR SCHEME 2
-  { "contrast",                         // name (max 8 character)
+  { "Contrast",                         // name (max 8 character)
     uicode_getRGB565(  0,   0,   0),    // background
     uicode_getRGB565( 40,  40,  40),    // background_header 
     uicode_getRGB565(255, 255, 255),    // scrollbar
@@ -262,7 +289,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 45;
+const uint8_t uicore_content_relation_count = 46;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -271,7 +298,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   
   {  30, 202 }, {  30, 203 }, {  30, 204 }, {  30, 205 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
     
-  { 100, 108 }, /*{ 100, 109 },*/ { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
+  { 100, 108 }, /*{ 100, 109 },*/ { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
   { 101, 120 }, { 101, 121 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
@@ -316,8 +343,8 @@ const char* STR_ALPHA       = "ALPHA";
 const char* string_0_short   = "miniEngine";
 const char* string_1_short   = "ON "; 
 const char* string_2_short   = "OFF";
-const char* string_3_short   = "enabled";
-const char* string_4_short   = "disabled";
+const char* string_3_short   = "}";
+const char* string_4_short   = "{";
 const char* string_5_short   = "cm";
 const char* string_6_short   = "s";
 const char* string_7_short   = "CW";
@@ -357,11 +384,11 @@ const char* string_33_long = "Video";
 ////////////////////////////////////////////////////////
 // GENERAL EDIT-SCREEN & JOG STRINGS
 
-const char* string_80_short = "edit screen";
-const char* string_81_short = "jog motor";
+const char* string_80_short = "Edit screen";
+const char* string_81_short = "Jog motor";
 
-const char* string_90_short = "speed:";
-const char* string_91_short = "pos:";
+const char* string_90_short = "Speed:";
+const char* string_91_short = "Pos:";
 
 
 ////////////////////////////////////////////////////////
@@ -377,30 +404,33 @@ const char* string_98_short = "Battery:";
 
 ////////////////////////////////////////////////////////
 // SETTINGS GENERAL
-const char* string_100_short = "b-light pw";
-const char* string_101_short = "b-light tm";
-const char* string_102_short = "col scheme";
-const char* string_103_short = "rot flippd";
-const char* string_104_short = "autosave";
-const char* string_105_short = "show info";
-const char* string_106_short = "deflt setg";
-const char* string_107_short = "start home";
-const char* string_108_short = "mode";
-const char* string_109_short = "setup styl";
+const char* string_100_short = "B-Light Pw";
+const char* string_101_short = "B-Light Tm";
+const char* string_102_short = "Col Scheme";
+const char* string_103_short = "Rot Flippd";
+const char* string_104_short = "Autosave";
+const char* string_105_short = "Show Info";
+const char* string_106_short = "Deflt Setg";
+const char* string_107_short = "Start Home";
+const char* string_108_short = "Mode";
+const char* string_109_short = "Setup Styl";
+const char* string_110_short = "Menu Font";
 
-const char* string_100_long  = "Power of the backlight.";
+const char* string_100_long  = "Power of the backlight.\nValues above 100% are above 5V and\nabove the specifications of the\ndisplay (Overdrive)!";
 const char* string_101_long  = "Time after which the backlight\nturns off.";
 const char* string_102_long  = "The global color scheme. Use\nthis to improve dislay readability.";
 const char* string_103_long  = "Invert the rotary-knob response.";
-const char* string_107_long  = "Move all motors to their home\nposition before the program starts.";
+const char* string_107_long  = "Move all motors to their home\nposition before the program starts.\nThis takes effect on all\nnon-keyframe modes.";
 const char* string_108_long  = "The way in which the motors moves.";
+const char* string_109_long  = "The way the moves are defined.";
+const char* string_110_long  = "The used font on the display.";
 
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
-const char* string_120_short = "cam type";
-const char* string_121_short = "test shot";
-const char* string_122_short = "post delay";
+const char* string_120_short = "Cam Type";
+const char* string_121_short = "Test Shot";
+const char* string_122_short = "Post Delay";
 const char* string_123_short = "SHOOT!";
 
 const char* string_120_long  = "Camera trigger behaviour.";
@@ -409,24 +439,24 @@ const char* string_122_long  = "Delay after a camera shot before the\nmotor move
 
 ////////////////////////////////////////////////////////
 // SETTINGS MOTOR
-const char* string_140_short = "motor sel";
-const char* string_141_short = "go home";  
-const char* string_142_short = "set home";  
-const char* string_143_short = "post delay";  
-const char* string_144_short = "motor type";  
-const char* string_145_short = "max speed";  
-const char* string_146_short = "ramp time"; 
-const char* string_147_short = "limit sw"; 
-const char* string_148_short = "jog motor 1"; 
-const char* string_149_short = "jog motor 2"; 
-const char* string_150_short = "keep powrd"; 
-const char* string_151_short = "calibratn"; 
-const char* string_152_short = "go home (all)";  
-const char* string_153_short = "motor ";  
-const char* string_154_short = "motr sleep";
-const char* string_155_short = "dir flippd";
-const char* string_156_short = "set home mot 1";
-const char* string_157_short = "set home mot 2";
+const char* string_140_short = "Motor Sel";
+const char* string_141_short = "Go Home";  
+const char* string_142_short = "Set Home";  
+const char* string_143_short = "Post Delay";  
+const char* string_144_short = "Motor Type";  
+const char* string_145_short = "Max Speed";  
+const char* string_146_short = "Ramp Time"; 
+const char* string_147_short = "Limit SW"; 
+const char* string_148_short = "Jog Motor 1"; 
+const char* string_149_short = "Jog Motor 2"; 
+const char* string_150_short = "Keep Powrd"; 
+const char* string_151_short = "Calibratn"; 
+const char* string_152_short = "Go Home (all)";  
+const char* string_153_short = "Motor ";  
+const char* string_154_short = "Motr Sleep";
+const char* string_155_short = "Dir Flippd";
+const char* string_156_short = "Set Home Mot 1";
+const char* string_157_short = "Set Home Mot 2";
 const char* string_158_short = "GO!";
 const char* string_159_short = "SET!";
 
@@ -443,16 +473,16 @@ const char* string_155_long  = "Invert the motor direction.";
 ////////////////////////////////////////////////////////
 // mode settings
     
-const char* string_200_short = "total dist";  
-const char* string_201_short = "direction";  
-const char* string_202_short = "exposure";  
-const char* string_203_short = "rec time";  
-const char* string_204_short = "playb time";
-const char* string_205_short = "playb fps";
-const char* string_206_short = "ramp in";
-const char* string_207_short = "ramp out";
+const char* string_200_short = "Total Dist";  
+const char* string_201_short = "Direction";  
+const char* string_202_short = "Exposure";  
+const char* string_203_short = "Rec Time";  
+const char* string_204_short = "Playb Time";
+const char* string_205_short = "Playb FPS";
+const char* string_206_short = "Ramp In";
+const char* string_207_short = "Ramp Out";
 
-const char* string_200_long = "The total move-distance of this motor\nduring the recording.";
+const char* string_200_long = "The total move-distance of this motor\nduring the recording.\nPress [Menu] to change the granularity.";
 const char* string_201_long = "The motor direction.";
 const char* string_202_long = "The camera exposure time. This can\nbe 1/10 for just triggering the\ncamera. The real exposure might be\ndefined in the camera (see also\nCamera post delay)";
 const char* string_203_long = "The total record-duration.";
@@ -724,6 +754,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 107: strcpy(lines[target_line], string_107_short);     return; 
     case 108: strcpy(lines[target_line], string_108_short);     return; 
     case 109: strcpy(lines[target_line], string_109_short);     return;  
+    case 110: strcpy(lines[target_line], string_110_short);     return;  
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CAMERA
@@ -824,6 +855,8 @@ void uicore_getLongString(uint16_t buf_number) {
     case 103: strcpy(data_line, string_103_long);     return;
     case 107: strcpy(data_line, string_107_long);     return;
     case 108: strcpy(data_line, string_108_long);     return;
+    case 109: strcpy(data_line, string_109_long);     return;
+    case 110: strcpy(data_line, string_110_long);     return;
     
     
     ///////////////////////////////////////////////////////////////////
@@ -1207,24 +1240,16 @@ void uicore_handleRotary() {
 // ===================================================================================
 void uicore_repaint() {
   
-  //Serial.print("paint");
-  
-  /*
-  Serial.print("repaint");
-  if (uicore_isRepaintBatteryFlag()) Serial.print(" Bat");
-  if (uicore_isRepaintShootCount())  Serial.print(" ShootCnt");
-  Serial.println();
-  */
   
   boolean full = (screen_code_old               != screen_code)                 ||
                  (uicore_col_scheme             != uicore_col_scheme_old)       ||
+                 (uicore_font_index             != uicore_font_index_old)       || 
                  (menu_editing                  != menu_editing_old)            ||
                  (core_isProgramRunningFlag()   != program_is_running_old)      ||
                  (popup_menu_old                != isBit(uicore_status, BIT_7)) ||
                  (core_is_jog_mode_old          != core_isJogModeFlag())        ||
                  (uicore_is2ndRepaintFlag());
   
-  //if (full) Serial.print(" full");
   
   // Are we in jog Mode?
   if (core_isJogModeFlag()) {
@@ -1266,7 +1291,6 @@ void uicore_repaint() {
   // regular screen
   else {
     
-    //Serial.print(" reg");
     
     // we are in the settings menu
     if (uicore_isSettingsScreen()) {
@@ -1286,8 +1310,6 @@ void uicore_repaint() {
       
       if (!uicore_isRepaintBatteryFlag()) {
         
-        //Serial.print(" noBat");
-        
         // paint the header
         uipaint_header(full);
               
@@ -1303,14 +1325,10 @@ void uicore_repaint() {
                 
       } else {
         
-        //Serial.print(" Bat");
-        
         uipaint_battery(true); 
         
       }
       
-      
-      //Serial.print(" stat");
       uipaint_cycleLength();
       uipaint_shotCount();
       
@@ -1318,8 +1336,6 @@ void uicore_repaint() {
     
     // paint the menu items
     if (!uicore_isRepaintBatteryFlag()) {
-      
-      //Serial.print(" menu");
       
       // load the menu strings
       uicore_loadMenuStrings();
@@ -1333,12 +1349,11 @@ void uicore_repaint() {
   
   menu_editing_old          = menu_editing;
   uicore_col_scheme_old     = uicore_col_scheme;
+  uicore_font_index_old     = uicore_font_index;
   screen_code_old           = screen_code;
   program_is_running_old    = core_isProgramRunningFlag();
   core_is_jog_mode_old      = core_isJogModeFlag(); 
   popup_menu_old            = isBit(uicore_status, BIT_7); 
-
-  //Serial.println();
 
 }
 
@@ -1496,6 +1511,28 @@ void uicore_generateDataString(uint16_t line_code) {
                   
                   break;
             
+    }
+    
+    
+    
+    // system font
+    case  110 :  {
+                   if (menu_editing) {
+                     //                                          step  min  max             loop 
+                     uicore_changeValueUByte(&uicore_font_index,    1,   0, FONT_COUNT - 1, true);
+                     
+                     // do a full repaint again... but only if sometinhg was chenged
+                     if (uicore_font_index != uicore_font_index_old) {
+                       uicore_set2ndRepaintFlag();
+                     }
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                  
+                   // generate the data string 
+                   strcpy(data_line, uicore_fonts[uicore_font_index].name);
+                   break;
     }
     
     
@@ -1668,11 +1705,15 @@ void uicore_generateDataString(uint16_t line_code) {
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
-                   }        
+                     
+                     if      (edit_granularity == 1)   sprintf(data_line,"%.0f", value);   
+                     else if (edit_granularity == 10)  sprintf(data_line,"%.1f", value); 
+                     else if (edit_granularity == 100) sprintf(data_line,"%.2f", value);   
+                   
+                   } else {
+                     sprintf(data_line,"%.1f", value); 
+                   }       
       
-                   if      (edit_granularity == 1)   sprintf(data_line,"%.0f", value);   
-                   else if (edit_granularity == 10)  sprintf(data_line,"%.1f", value); 
-                   else if (edit_granularity == 100) sprintf(data_line,"%.2f", value);   
                    
                    // motor type for correct unit 
                    if (motors[motor_selected].getType() == TYPE_LINEAR) {
@@ -1690,7 +1731,7 @@ void uicore_generateDataString(uint16_t line_code) {
     case 146 : {
                    
                    if (menu_editing) {
-                     uicore_changeValueFloat(&motor_ramp_time[motor_selected], 0.1, 0, 999); 
+                     uicore_changeValueFloat(&motor_ramp_time[motor_selected], 0.1, 0.1, 999); 
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
@@ -1819,13 +1860,21 @@ void uicore_generateDataString(uint16_t line_code) {
     // motor total distance
     case 200 :   {
                    if (menu_editing) {
-                     uicore_changeValueFloat(&motor_total_distance[motor_selected], (float)rotary.getHighVelocity() / 10.0, 0.0, 65000); 
+                     uicore_changeValueFloat(&motor_total_distance[motor_selected], 
+                                             (float)rotary.getLowVelocity() / (float) edit_granularity,
+                                             0.0, 65000); 
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
-                   }
-                                      
-                   sprintf(data_line,"%.1f", motor_total_distance[motor_selected]);     
+                     
+                     if      (edit_granularity == 1)   sprintf(data_line,"%.0f", motor_total_distance[motor_selected]);  
+                     else if (edit_granularity == 10)  sprintf(data_line,"%.1f", motor_total_distance[motor_selected]);  
+                     else if (edit_granularity == 100) sprintf(data_line,"%.2f", motor_total_distance[motor_selected]);  
+                                          
+                   } else {
+                     sprintf(data_line,"%.1f", motor_total_distance[motor_selected]);
+                   }         
+                        
                    
                    if (motors[motor_selected].getType() == TYPE_LINEAR) {
                      strcat(data_line, string_5_short); // cm
@@ -2060,6 +2109,11 @@ boolean uicode_doAction(uint16_t line_code) {
     
     // motor (selected) go home
     case 141 : {
+                  
+                  Serial.println();
+                  Serial.println("-------------------------------");
+                  Serial.println("Go Home selected starts");
+      
                   // define the move to the home position
                   motor_defineMoveToPosition(motor_selected, 0, true);  
                   // start the move
@@ -2128,6 +2182,11 @@ boolean uicode_doAction(uint16_t line_code) {
     
     // move all motors home
     case 152 :  {
+                   
+                   Serial.println(); 
+                   Serial.println("-------------------------------");
+                   Serial.println("Go Home all starts");
+                    
                    // set up the motors for move to home
                    for (int i=0; i<DEF_MOTOR_COUNT; i++) {
                      motor_defineMoveToPosition(i, 0, true);  
@@ -2681,6 +2740,16 @@ uint8_t uicore_getColorScheme() {
 // ======================================================================================
 void uicore_setColorScheme(uint8_t value) {
   uicore_col_scheme = value;
+}
+
+// ======================================================================================
+uint8_t uicore_getFont() {
+  return uicore_font_index;
+}
+
+// ======================================================================================
+void uicore_setFont(uint8_t value) {
+  uicore_font_index = value;
 }
 
 // ======================================================================================

@@ -254,10 +254,11 @@ void StepperMotor::setMotorPosition(int32_t value) {
 
 // ============================================================================
 void StepperMotor::setDirection(bool dir) {
+		
 	_dir = dir;
 	
 	// set the new direction
-	if (_dir ^ _dir_flipped) {
+	if (dir ^ _dir_flipped) {
 		
 		// set the dir pin high: digitalWrite(_pin_dir, HIGH);
 		setBit(*_port_dir, _bit_dir);
@@ -267,12 +268,14 @@ void StepperMotor::setDirection(bool dir) {
 		// set the dir pin low: digitalWrite(_pin_dir, LOW);
 		deleteBit(*_port_dir, _bit_dir);
 	}
-			
+				
 }
 
 // ============================================================================
 bool StepperMotor::getDirection() {
-	return _dir;
+	
+	//return _dir;
+	return _dir_flipped ^ isBit(*_port_dir, _bit_dir);
 }
 
 // ============================================================================
@@ -394,7 +397,9 @@ void StepperMotor::processJog() {
 			
 			// do we have a direction change?
 			bool dir = (bool)(stepsToDo < 0);
-			if (dir != _dir) setDirection(dir);
+			if (dir != (_dir_flipped ^ isBit(*_port_dir, _bit_dir))) {
+				setDirection(dir);
+			}
 			
 			// make the steps positive
 			stepsToDo = abs(stepsToDo);
@@ -405,7 +410,7 @@ void StepperMotor::processJog() {
 				step();
 				
 				// wait a little bit if we need to do more steps
-				if (i<(stepsToDo-1)) delayMicroseconds(5);
+				if (i<(stepsToDo-1)) delayMicroseconds(3);
 			}
 
 		}

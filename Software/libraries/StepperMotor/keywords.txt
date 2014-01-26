@@ -18,7 +18,7 @@ initMove	KEYWORD2
 multiply	KEYWORD2
 scale	KEYWORD2
 segmentateCurve	KEYWORD2
-segmentateCurveOptimized	KEYWORD2
+segmentateCurveDynamic	KEYWORD2
 shift	KEYWORD2
 substract	KEYWORD2
 updateDimension	KEYWORD2

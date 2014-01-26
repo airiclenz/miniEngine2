@@ -107,7 +107,7 @@ void uipaint_headerSettings(boolean full_repaint) {
   uicore_getShortString( 96, 3); // CHN
   uicore_getShortString( 97, 4); // TRG
     
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);  
     
   byte cnt;
   
@@ -135,8 +135,12 @@ void uipaint_headerSettings(boolean full_repaint) {
                 
         tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
         tft.setColor(color_schemes[uicore_col_scheme].font_selected);
-        tft.print(lines[cnt], (cnt*64)+11 , 30);     
         
+        // mE-Clear
+        if (uicore_font_index == 0) tft.print(lines[cnt], (cnt*64)+9 , 30);
+        // Sinclair
+        if (uicore_font_index == 1) tft.print(lines[cnt], (cnt*64)+11 , 30);
+          
       } else {
          
         tft.setColor(color_schemes[uicore_col_scheme].background_header);
@@ -144,7 +148,11 @@ void uipaint_headerSettings(boolean full_repaint) {
               
         tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
         tft.setColor(color_schemes[uicore_col_scheme].font_header);
-        tft.print(lines[cnt], (cnt*64)+11, 30);     
+        
+        // mE-Clear
+        if (uicore_font_index == 0) tft.print(lines[cnt], (cnt*64)+9 , 30);
+        // Sinclair
+        if (uicore_font_index == 1) tft.print(lines[cnt], (cnt*64)+11 , 30);
      
       }
       
@@ -171,7 +179,7 @@ void uipaint_headerEdit(boolean full_repaint) {
     
     
     tft.setColor(color_schemes[uicore_col_scheme].font);
-    tft.setFont(DEFAULT_FONT);
+    tft.setFont(uicore_fonts[uicore_font_index].font);
     
     uicore_getShortString(line_codes[menu_pos], 0);  // name of the current field 
     tft.print(lines[0], 7, 25); 
@@ -218,7 +226,7 @@ void uipaint_programState() {
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
   tft.setColor(color_schemes[uicore_col_scheme].font_header);
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);
     
   if (core_isProgramRunningFlag()) {
     tft.print(string_1_short, 7, 28);   // ON
@@ -235,7 +243,7 @@ void uipaint_cycleLength() {
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
   tft.setColor(color_schemes[uicore_col_scheme].font_header);
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);
     
   sprintf(temp,"%.1f", ((float) setup_interval_length) / 1000.0);
   
@@ -254,7 +262,7 @@ void uipaint_shotCount() {
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
   tft.setColor(color_schemes[uicore_col_scheme].font_header);
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);
     
   strcpy(data_line, STR_RECBRACKOP);  // [
   
@@ -342,9 +350,9 @@ void uipaint_menu(boolean full_repaint) {
                 
         // paint the text line
         tft.setColor(color_schemes[uicore_col_scheme].font_selected);
-        tft.setFont(DEFAULT_FONT);
+        tft.setFont(uicore_fonts[uicore_font_index].font);
         tft.print(lines[i + menu_offset], 2, y + 7);   
-        tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 23, y + 7);   
+        tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 25, y + 7);   
                        
       } 
         
@@ -363,9 +371,9 @@ void uipaint_menu(boolean full_repaint) {
                 
         // paint the text line
         tft.setColor(color_schemes[uicore_col_scheme].font);
-        tft.setFont(DEFAULT_FONT);
+        tft.setFont(uicore_fonts[uicore_font_index].font);
         tft.print(lines[i + menu_offset], 2, y + 7);   
-        tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 23, y + 7);   
+        tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 25, y + 7);   
             
       } 
       
@@ -413,7 +421,7 @@ void uipaint_popupMenu(boolean full_repaint) {
   
   // setup the odd flag
   boolean odd = false;
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);
       
   uint16_t ysize  = (menu_screen_line_height * popup_menu_length);
   uint16_t xstart = 35;
@@ -522,7 +530,6 @@ void uipaint_editScreen(boolean full_repaint) {
     tft.setFont(SMALL_FONT);
     tft.setColor(color_schemes[uicore_col_scheme].font_soft);
     
-    Serial.println("paint edit screen");
     
     // receive the long help text
     uicore_getLongString(line_codes[menu_pos]);
@@ -585,7 +592,7 @@ void uipaint_editScreen(boolean full_repaint) {
     
     // paint the data text
     tft.setColor(color_schemes[uicore_col_scheme].font);
-    tft.setFont(DEFAULT_FONT);
+    tft.setFont(uicore_fonts[uicore_font_index].font);
     
     // paint the string
     uint8_t len = (strlen(data_line) - 1) * tft.getFontXsize();
@@ -661,7 +668,7 @@ void uipaint_scrollbar(boolean paint, boolean full_screen_scrolling) {
 // ============================================================================
 void uipaint_jogWindow(boolean full_repaint) {
   
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(uicore_fonts[uicore_font_index].font);
       
   uint16_t ysize   = 110;
   uint16_t xstart  = 11;
@@ -684,13 +691,13 @@ void uipaint_jogWindow(boolean full_repaint) {
     tft.fillRect(display_width - xstart, ystart, display_width - xstart + frame, ystart + ysize + frame);  
     
     // header background
-    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-    tft.setColor(color_schemes[uicore_col_scheme].background_header);
+    tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
+    tft.setColor(color_schemes[uicore_col_scheme].font_bg_selected);
     tft.fillRect(xstart, ystart, display_width - xstart, ystart + headerh);
     
     // header text
-    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-    tft.setColor(color_schemes[uicore_col_scheme].font_header);
+    tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
+    tft.setColor(color_schemes[uicore_col_scheme].font_selected);
     strcpy(data_line, string_81_short);
     strcat(data_line, STR_SPACE);
     itoa(motor_selected + 1, temp, 10);
@@ -769,7 +776,7 @@ void uipaint_splashScreen() {
   int x = 80;
   int y = 70;
     
-  tft.setFont(DEFAULT_FONT);
+  tft.setFont(Sinclair_M);
   tft.setColor(255, 255, 255);
   
   int stp = 4;
@@ -808,7 +815,7 @@ void uipaint_splashScreen() {
   strcat(version, STR_ALPHA);
   strcat(version, STR_SPACE);
   
-  itoa(ALPHAVERSION, temp, 10);
+  itoa(SUBSUBVERSION, temp, 10);
   strcat(version, temp);
   
   // how width is the version string?

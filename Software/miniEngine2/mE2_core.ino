@@ -128,7 +128,7 @@ void core_startProgram() {
   // reset the camera shoot count
   cam_resetShootCount();
   // set the program-is-running-flag
-  core_setProgramRunningFlag();    
+  core_setProgramRunningFlag();   
   // repaint the user interface
   uicore_setRepaintFlag();
   uicore_process(); 
@@ -143,14 +143,12 @@ void core_startProgram() {
   motor_makeKeyframes();
   
   
-    
+  
   
   // enable the motors
   motor_powerAll();
   // start the timer...
   motor_startMoveTimer();
-    
-    
   // set the start-immediately-flag
   core_setStartImmediatelyFlag(); 
   // remember the time when we started  
@@ -232,6 +230,14 @@ boolean core_checkMoveHomeBeforeStart() {
     
     // move all motors home first
     for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+      
+      #ifdef DEBUG
+      Serial.println();
+      Serial.println("-------------------------------");
+      Serial.print("defining move home ");
+      Serial.println(i);
+      #endif      
+            
       motor_defineMoveToPosition(i, 0, true);  
     }
                    
