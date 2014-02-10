@@ -1,0 +1,8 @@
+
+
+TODO
+====
+
+
+
+-	check limit switch sensitivity
