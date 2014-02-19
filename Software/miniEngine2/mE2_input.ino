@@ -1,9 +1,9 @@
 /*
 
+    Author: Airic Lenz
+    
     See www.airiclenz.com for more information
 
-    (c) 2013 Airic Lenz
-        
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or

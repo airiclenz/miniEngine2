@@ -1,9 +1,9 @@
 /*
 
+    Author: Airic Lenz
+    
     See www.airiclenz.com for more information
 
-    (c) 2013 Airic Lenz
-        
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -65,7 +65,7 @@ typedef struct fonts {
   uint8_t*  font;
 };
 
-#define  FONT_COUNT  2
+#define  FONT_COUNT  3
 fonts uicore_fonts[FONT_COUNT] = { 
   {
     "mE-Clear",
@@ -75,6 +75,11 @@ fonts uicore_fonts[FONT_COUNT] = {
   {
     "Sinclair",
     Sinclair_M
+  },
+
+  {
+    "Arial",
+    Arial
   },  
 };
 
@@ -105,6 +110,7 @@ typedef struct colorScheme {
   uint16_t  font;
   uint16_t  font_soft;
   uint16_t  font_header;
+  uint16_t  font_dashboard;
   uint16_t  font_bg_even;
   uint16_t  font_bg_odd;
 
@@ -132,6 +138,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(255, 250, 240),    // font
     uicode_getRGB565(200, 195, 185),    // font_soft
     uicode_getRGB565(255, 255, 220),    // font_header
+    uicode_getRGB565(215, 235, 255),    // font_dashboard
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 50,  40,  30),    // font_bg_odd
     uicode_getRGB565( 40,  45, 120),    // font_selected
@@ -148,6 +155,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(255,   0,   0),    // font
     uicode_getRGB565(200,   0,   0),    // font_soft
     uicode_getRGB565(170,   0,   0),    // font_header
+    uicode_getRGB565(225,   0,   0),    // font_dashboard
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 70,   0,   0),    // font_bg_odd
     uicode_getRGB565(  0,   0,   0),    // font_selected
@@ -164,6 +172,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicode_getRGB565(255, 255, 255),    // font
     uicode_getRGB565(235, 235, 235),    // font_soft
     uicode_getRGB565(255, 255, 255),    // font_header
+    uicode_getRGB565(255, 255, 255),    // font_dashboard
     uicode_getRGB565(  0,   0,   0),    // font_bg_even
     uicode_getRGB565( 60,  60,  60),    // font_bg_odd
     uicode_getRGB565(  0,   0,   0),    // font_selected
@@ -199,7 +208,10 @@ uint8_t uicore_col_scheme_old = 0;
 // B5 = 
 // B6 = message on screen
 // B7 = pop-up menu on screen
-uint8_t uicore_status;
+uint8_t uicore_status = 0;
+
+// a variable to track general ui-status changes
+uint8_t uicore_status_old = 0;
 
 
 // the backlight level we are using 
@@ -237,8 +249,7 @@ uint8_t menu_length;
 uint8_t popup_menu_pos = 0;
 // count of the current pop-up-menu/text lines
 uint8_t popup_menu_length;
-// a variable to track changes
-boolean popup_menu_old = false;
+
 
 // how detailed are are editing a value right now? ( stepsize 1 / granularity) 
 uint16_t edit_granularity = 10;
@@ -260,6 +271,12 @@ boolean system_cycle_too_long_old = false;
 
 // hold the lates pressed keys locally
 uint8_t key;
+
+
+// the time a message was displayed
+uint32_t uicore_message_start_time;
+// the duration for which a message should be displayed
+uint32_t uicore_message_duration;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +306,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 46;
+const uint8_t uicore_content_relation_count = 50;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -303,7 +320,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
   { 103,  23 }, /*{ 103, 160 }, { 103, 161 }, */
-  { 104,  23 }, /*{ 104, 180 }, { 104, 181 }, */
+  { 104, 180 }, { 104, 181 }, { 104, 182 }, { 104, 183 }, { 104, 187 },
   
   
   { 200, 152 }, { 200, 148 }, { 200, 149 }, { 200, 156 }, { 200, 157 } 
@@ -333,7 +350,7 @@ const char* STR_SLASH       = "/";
 const char* STR_EXCLAMATION = "!";
 const char* STR_PERCENT     = "%";
 
-const char* STR_ALPHA       = "ALPHA";
+
 
 
 
@@ -364,7 +381,11 @@ const char* string_20_short  = "Nikon";
 const char* string_21_short  = "st/`";    // `=°
 const char* string_22_short  = "`";       // `=°
 const char* string_23_short  = "empty";
-
+const char* string_24_short  = "Running...";
+const char* string_25_short  = "Frames";
+const char* string_26_short  = "Intervall";
+const char* string_27_short  = "Mode";
+const char* string_28_short  = "Battery";
 
 
 
@@ -470,6 +491,28 @@ const char* string_151_long  = "Motor and hardware calibration value\nin steps p
 const char* string_154_long  = "Turn the motor off when not used\n(Even during recording!).";
 const char* string_155_long  = "Invert the motor direction.";
 
+
+////////////////////////////////////////////////////////
+// SETTINGS CHAIN
+
+
+////////////////////////////////////////////////////////
+// SETTINGS TRIGGER
+const char* string_180_short = "Trigger Sel";
+const char* string_181_short = "Enabled";
+const char* string_182_short = "Action";
+const char* string_183_short = "Type";
+const char* string_184_short = "Trg. ";
+const char* string_185_short = "Rising";
+const char* string_186_short = "Falling";
+const char* string_187_short = "Debounce";
+
+const char* string_180_long  = "Select the trigger you want to edit.";
+const char* string_181_long  = "Status of this trigger - On / Off.";
+const char* string_182_long  = "This defines the action that should be\ndone when the trigger is triggered.\nStart = Start the program\nStop  = Stop the program\nShoot = Trigger the camera";
+const char* string_183_long  = "The actual signal type to which this\ntrigger should listen.\nRAISING EDGE (0V -> 3.3V)\nFALLING EDGE (3.3V -> 0V)";
+const char* string_187_long  = "Smoothens the trigger signal via\nsoftware when enabled.";
+
 ////////////////////////////////////////////////////////
 // mode settings
     
@@ -493,27 +536,45 @@ const char* string_207_long = "Percent of record-time to ramp out\nof the move."
 
 
 
+////////////////////////////////////////////////////////
+// messages
+
+const char* string_220_long = "Trigger";
+const char* string_221_long = "Waiting for the start-signal.";
+const char* string_222_long = "Press [SELECT] to abort.";
+
+const char* string_225_long = "Motor";
+const char* string_226_long = "Moving motor to the home-position.";
+
+
+
 
 // ============================================================================
 // status fuctions
 // ============================================================================
-boolean uicore_isBacklightFlag()         { return isBit(uicore_status, BIT_0); }
+boolean uicore_isBacklightFlag()             { return isBit(uicore_status, BIT_0); }
 
-boolean uicore_isRepaintFlag()           { return isBit(uicore_status, BIT_1); }
-void    uicore_setRepaintFlag()          { setBit(uicore_status, BIT_1); }
-void    uicore_deleteRepaintFlag()       { deleteBit(uicore_status, BIT_1); }
+boolean uicore_isRepaintFlag()               { return isBit(uicore_status, BIT_1); }
+void    uicore_setRepaintFlag()              { setBit(uicore_status, BIT_1); }
+void    uicore_deleteRepaintFlag()           { deleteBit(uicore_status, BIT_1); }
 
-boolean uicore_is2ndRepaintFlag()        { return isBit(uicore_status, BIT_2); }
-void    uicore_set2ndRepaintFlag()       { setBit(uicore_status, BIT_2); }
-void    uicore_delete2ndRepaintFlag()    { deleteBit(uicore_status, BIT_2); }
+boolean uicore_is2ndRepaintFlag()            { return isBit(uicore_status, BIT_2); }
+void    uicore_set2ndRepaintFlag()           { setBit(uicore_status, BIT_2); }
+void    uicore_delete2ndRepaintFlag()        { deleteBit(uicore_status, BIT_2); }
 
-boolean uicore_isRepaintBatteryFlag()    { return isBit(uicore_status, BIT_3); }
-void    uicore_setRepaintBatteryFlag()   { setBit(uicore_status, BIT_3); }
-void    uicore_deleteRepaintBatteryFlag(){ deleteBit(uicore_status, BIT_3); }
+boolean uicore_isRepaintBatteryFlag()        { return isBit(uicore_status, BIT_3); }
+void    uicore_setRepaintBatteryFlag()       { setBit(uicore_status, BIT_3); }
+void    uicore_deleteRepaintBatteryFlag()    { deleteBit(uicore_status, BIT_3); }
 
-boolean uicore_isRepaintShootCount()     { return isBit(uicore_status, BIT_4); }
-void    uicore_setRepaintShootCount()    { setBit(uicore_status, BIT_4); }
-void    uicore_deleteRepaintShootCount() { deleteBit(uicore_status, BIT_4); }
+boolean uicore_isRepaintShootCount()         { return isBit(uicore_status, BIT_4); }
+void    uicore_setRepaintShootCount()        { setBit(uicore_status, BIT_4); }
+void    uicore_deleteRepaintShootCount()     { deleteBit(uicore_status, BIT_4); }
+
+
+boolean uicore_isMessageOnScreenFlag()       { return isBit(uicore_status, BIT_6); }
+void    uicore_setMessageOnScreenFlag()      { setBit(uicore_status, BIT_6); }
+void    uicore_deleteMessageOnScreenFlag()   { deleteBit(uicore_status, BIT_6); }
+
 
 
 boolean uicore_isEditing()             { return menu_editing; } 
@@ -619,6 +680,26 @@ void uicore_process() {
 
   } // input event
   
+  
+  ///////////////////////////////////////////////////
+  // M E S S A G E   O N   S C R E E N             //
+  ///////////////////////////////////////////////////
+  if (uicore_isMessageOnScreenFlag()) {
+    
+    if (uicore_message_duration != 0) {
+      if ((uicore_message_start_time + uicore_message_duration) < now) {
+        
+        // remove the message-is-on-screen-flag
+        uicore_deleteMessageOnScreenFlag();
+        
+        // do a repaint
+        uicore_setRepaintFlag();
+          
+      }
+      
+    }
+    
+  }
    
   
   ///////////////////////////////////////////////////
@@ -654,7 +735,7 @@ void uicore_process() {
     if (isBit(uicore_status, B00011110)) {
             
       // paint everything that needs to be painted
-      uicore_repaint();
+      uicore_repaint(false);
             
       // delete all repaint flags (out of the 2nd - repaint flag)
       if (uicore_is2ndRepaintFlag()) {
@@ -789,15 +870,21 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
-    case 160: strcpy(lines[target_line], "chain stat");         return;
-    case 161: strcpy(lines[target_line], "upd chain");          return;  
+    //case 160: strcpy(lines[target_line], string_160_short);     return;
+    //case 161: strcpy(lines[target_line], string_161_short);     return;  
     
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS TRIGGER
-    case 180: strcpy(lines[target_line], "trigger 1");          return;
-    case 181: strcpy(lines[target_line], "trigger 2");          return;  
-
+    case 180: strcpy(lines[target_line], string_180_short);     return;
+    case 181: strcpy(lines[target_line], string_181_short);     return;  
+    case 182: strcpy(lines[target_line], string_182_short);     return;  
+    case 183: strcpy(lines[target_line], string_183_short);     return;  
+    case 184: strcpy(lines[target_line], string_184_short);     return;  
+    case 185: strcpy(lines[target_line], string_185_short);     return;  
+    case 186: strcpy(lines[target_line], string_186_short);     return;  
+    case 187: strcpy(lines[target_line], string_187_short);     return;  
+    
     
     ///////////////////////////////////////////////////////////////////
     // RUN MODE - TIMELAPSE
@@ -885,6 +972,11 @@ void uicore_getLongString(uint16_t buf_number) {
     ///////////////////////////////////////////////////////////////////
     // SETTINGS TRIGGER
     
+    case 180: strcpy(data_line, string_180_long);     return;  
+    case 181: strcpy(data_line, string_181_long);     return;  
+    case 182: strcpy(data_line, string_182_long);     return;  
+    case 183: strcpy(data_line, string_183_long);     return;  
+    case 187: strcpy(data_line, string_187_long);     return;  
   
     ///////////////////////////////////////////////////////////////////
     // RUN MODE - TIMELAPSE
@@ -897,6 +989,17 @@ void uicore_getLongString(uint16_t buf_number) {
     case 205: strcpy(data_line, string_205_long);     return;  
     case 206: strcpy(data_line, string_206_long);     return;  
     case 207: strcpy(data_line, string_207_long);     return;  
+    
+    
+    ///////////////////////////////////////////////////////////////////
+    // MESSAGES
+    
+    case 220: strcpy(data_line, string_220_long);     return;  
+    case 221: strcpy(data_line, string_221_long);     return;  
+    case 222: strcpy(data_line, string_222_long);     return;  
+    
+    case 225: strcpy(data_line, string_225_long);     return;  
+    case 226: strcpy(data_line, string_226_long);     return;  
         
   }
 
@@ -1185,15 +1288,15 @@ void uicore_handleKeyEvent(uint8_t key) {
   
   
   // any UI changes or editing?
-  if ((menu_editing && isBit(key, KEY_UP | KEY_DOWN))        ||
-      (screen_code           != screen_code_old)             ||
-      (menu_screen_pos       != menu_screen_pos_old)         ||
-      (menu_pos              != menu_pos_old       )         ||
-      (menu_editing          != menu_editing_old)            ||
-      (popup_menu_pos        != popup_menu_pos_old)          ||
-      (core_is_jog_mode_old  != core_isJogModeFlag())        ||
-      
-      ((boolean)(isBit(uicore_status, BIT_7)) != popup_menu_old)
+  if ((menu_editing && isBit(key, KEY_UP | KEY_DOWN))                            ||
+      (screen_code                     != screen_code_old)                       ||
+      (menu_screen_pos                 != menu_screen_pos_old)                   ||
+      (menu_pos                        != menu_pos_old       )                   ||
+      (menu_editing                    != menu_editing_old)                      ||
+      (popup_menu_pos                  != popup_menu_pos_old)                    ||
+      (core_is_jog_mode_old            != core_isJogModeFlag())                  ||
+      (isBit(uicore_status, B10000000) != isBit(uicore_status_old, B10000000))   ||
+      (isBit(uicore_status, B01000000) != isBit(uicore_status_old, B01000000))   
      ) {
     
     // repaint
@@ -1235,24 +1338,38 @@ void uicore_handleRotary() {
 
 
 
+
 // ===================================================================================
 // does the paint handling
 // ===================================================================================
-void uicore_repaint() {
+void uicore_repaint(boolean fullRepaint) {
   
   
-  boolean full = (screen_code_old               != screen_code)                 ||
-                 (uicore_col_scheme             != uicore_col_scheme_old)       ||
-                 (uicore_font_index             != uicore_font_index_old)       || 
-                 (menu_editing                  != menu_editing_old)            ||
-                 (core_isProgramRunningFlag()   != program_is_running_old)      ||
-                 (popup_menu_old                != isBit(uicore_status, BIT_7)) ||
-                 (core_is_jog_mode_old          != core_isJogModeFlag())        ||
+  // check if we need to do a full 
+  // repaint on certain ui-changes 
+  // or events
+  boolean full = (fullRepaint)                                                                ||
+                 (screen_code_old                       != screen_code)                       ||
+                 (uicore_col_scheme                     != uicore_col_scheme_old)             ||
+                 (uicore_font_index                     != uicore_font_index_old)             || 
+                 (menu_editing                          != menu_editing_old)                  ||
+                 (core_isProgramRunningFlag()           != program_is_running_old)            ||
+                 (isBit(uicore_status_old, B10000000)   != isBit(uicore_status, B10000000))   ||
+                 (isBit(uicore_status_old, B01000000)   != isBit(uicore_status, B01000000))   ||
+                 (core_is_jog_mode_old                  != core_isJogModeFlag())              ||
                  (uicore_is2ndRepaintFlag());
   
   
+  // paint the dashboard if the program is running
+  if (core_isProgramRunningFlag()) {
+    
+    uipaint_dashboard(full);  
+    
+  }
+  
+  
   // Are we in jog Mode?
-  if (core_isJogModeFlag()) {
+  else if (core_isJogModeFlag()) {
     
     if (!uicore_isRepaintBatteryFlag()) {
       // paint the jog window
@@ -1260,8 +1377,7 @@ void uicore_repaint() {
     }
     
   }
-  
-  
+    
   // we are displaying a popup menu
   else if (isBit(uicore_status, BIT_7)) {
     
@@ -1317,12 +1433,7 @@ void uicore_repaint() {
           // paint battery info on a full repaint
           uipaint_battery(full); 
         }
-      
-        // paint the program state 
-        if (full) {
-          uipaint_programState();  
-        }
-                
+              
       } else {
         
         uipaint_battery(true); 
@@ -1344,7 +1455,6 @@ void uicore_repaint() {
     }
   
   }
-   
   
   
   menu_editing_old          = menu_editing;
@@ -1353,12 +1463,43 @@ void uicore_repaint() {
   screen_code_old           = screen_code;
   program_is_running_old    = core_isProgramRunningFlag();
   core_is_jog_mode_old      = core_isJogModeFlag(); 
-  popup_menu_old            = isBit(uicore_status, BIT_7); 
+  uicore_status_old         = uicore_status; 
 
 }
 
 
 
+// ===================================================================================
+// Prepared a message and initializes as needed values
+// ===================================================================================
+void uicore_showMessage(byte title, byte fromLine, byte toLine, uint32_t duration){
+  
+  menu_length = 0;
+  
+  line_codes[0] = title; // title
+
+  // fill the array with the content we want to paint  
+  for (int i=fromLine; i<=toLine; i++) {
+    line_codes[1 + menu_length++] = i; // content ...
+  }
+  
+  // paint the message
+  uipaint_message();
+  
+  // set the flag which indicates that a message is on the screen
+  uicore_setMessageOnScreenFlag();
+    
+  // remember the time when the message was painted
+  uicore_message_start_time = millis();
+  
+  // set the message duration in ms
+  uicore_message_duration = duration;
+  
+  // enable the backlight
+  uicore_setBacklight(true);
+  
+  
+}
 
 
 
@@ -1857,6 +1998,113 @@ void uicore_generateDataString(uint16_t line_code) {
                    break;
     }
     
+    
+    // trigger selection
+    case 180 :   {
+      
+                   if (menu_editing) {
+                     uicore_changeValueUByte(&trigger_selected, 1, 0, DEF_TRIGGER_COUNT - 1, true);  
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   } 
+                    
+                   strcpy(data_line, string_184_short);   // "trigger "
+                   itoa((trigger_selected + 1), temp, 10);
+                   
+                   strcat(data_line, temp);          
+                   break;  
+    }
+    
+    // trigger eneabled
+    case 181 :   {
+      
+                   if (menu_editing &&
+                      (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     // flip the enabled bit
+                     trigger_setEnabled(trigger_selected, !trigger_triggers[trigger_selected].enabled);
+                                          
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   } 
+                   
+                   if (trigger_triggers[trigger_selected].enabled) {
+                     strcpy(data_line, string_3_short);   // enabled 
+                   } else {
+                     strcpy(data_line, string_4_short);   // disabled 
+                   }  
+                  
+                   break;  
+    }
+    
+    // trigger action
+    case 182 :   {
+      
+                   if (menu_editing) {
+                     
+                     // change the trigger action variable
+                     uicore_changeValueUByte(&trigger_triggers[trigger_selected].action, 1, 0, TRIGGER_ACTION_COUNT - 1, true);  
+                                          
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   } 
+                                      
+                   strcpy(data_line, trigger_actions[trigger_triggers[trigger_selected].action].name);   // disabled 
+                   
+                   break;  
+    }
+    
+    // trigger type
+    case 183 :   {
+      
+                   if (menu_editing &&
+                      (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     if (trigger_triggers[trigger_selected].type == FALLING) {
+                       trigger_triggers[trigger_selected].type = RISING;
+                     } else {
+                       trigger_triggers[trigger_selected].type = FALLING;
+                     }
+                                          
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   } 
+                   
+                   if (trigger_triggers[trigger_selected].type == FALLING) {
+                     strcpy(data_line, string_186_short);   // FALLING  
+                   } else {
+                     strcpy(data_line, string_185_short);   // RISING   
+                   }                   
+                   
+                   
+                   break;  
+    }
+    
+    
+    // trigger debounce
+    case 187 :   {
+      
+                   if (menu_editing &&
+                      (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     // flip the enabled bit
+                     trigger_setDebounce(trigger_selected, !trigger_triggers[trigger_selected].debounce);
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   } 
+                   
+                   if (trigger_triggers[trigger_selected].debounce) {
+                     strcpy(data_line, string_3_short);   // enabled 
+                   } else {
+                     strcpy(data_line, string_4_short);   // disabled 
+                   }  
+                  
+                   break;  
+    }
+    
+    
     // motor total distance
     case 200 :   {
                    if (menu_editing) {
@@ -2109,10 +2357,6 @@ boolean uicode_doAction(uint16_t line_code) {
     
     // motor (selected) go home
     case 141 : {
-                  
-                  Serial.println();
-                  Serial.println("-------------------------------");
-                  Serial.println("Go Home selected starts");
       
                   // define the move to the home position
                   motor_defineMoveToPosition(motor_selected, 0, true);  
@@ -2182,10 +2426,6 @@ boolean uicode_doAction(uint16_t line_code) {
     
     // move all motors home
     case 152 :  {
-                   
-                   Serial.println(); 
-                   Serial.println("-------------------------------");
-                   Serial.println("Go Home all starts");
                     
                    // set up the motors for move to home
                    for (int i=0; i<DEF_MOTOR_COUNT; i++) {
@@ -2357,21 +2597,21 @@ void uicore_setBacklightLevel(uint8_t value) {
 // ============================================================================
 // sets the backlight level on or off
 // ============================================================================
-void uicore_setBacklight(boolean value) {
+void uicore_setBacklight(boolean state) {
   
   // calculate the actual PWM value we need to set
   uint8_t light_val = BACKLIGHT_NORM * uicore_backlight_level / 100;
   
   
   // SET BACKLIGHT "ON"  
-  if (value) {
+  if (state) {
     
     // activate the light
     analogWrite(PIN_BACKLIGHT, light_val);
     // set the backlight flag
     setBit(uicore_status, BIT_0);
     // remember the time when we activated the light
-    uicore_action_time = now;
+    uicore_action_time = millis();
     
   
   } 

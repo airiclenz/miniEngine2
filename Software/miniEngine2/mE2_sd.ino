@@ -1,9 +1,9 @@
 /*
 
+    Author: Airic Lenz
+    
     See www.airiclenz.com for more information
 
-    (c) 2013 Airic Lenz
-        
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -269,10 +269,21 @@ boolean sd_saveConfig() {
       sd_writeData((byte)     motors[i].isDirectionFlipped());  // motor direction flipped
       
       // a lille bit of motor specific run-setup-data
-      sd_writeData((uint8_t)    setup_run_ramp_in[i]);          // the ramp-in-amount in percent for run setup
-      sd_writeData((uint8_t)    setup_run_ramp_out[i]);         // the ramp-out-amount in percent for run setup
+      sd_writeData((uint8_t)  setup_run_ramp_in[i]);            // the ramp-in-amount in percent for run setup
+      sd_writeData((uint8_t)  setup_run_ramp_out[i]);           // the ramp-out-amount in percent for run setup
       
     }
+    
+    
+    // trigger data
+    for (int i=0; i<trigger_getTriggercount(); i++) {
+      
+      sd_writeData((byte)     trigger_isTriggerEnabled(i));     // trigger enabled status
+      sd_writeData((byte)     trigger_getTriggerAction(i));     // trigger action
+      sd_writeData((byte)     trigger_getTriggerType(i));       // trigger type
+      sd_writeData((byte)     trigger_isTriggerDebounce(i));    // trigger type
+    }
+    
     
     sd_file.close();
     
@@ -347,8 +358,8 @@ boolean sd_loadConfig() {
     uicore_setFont(                 sd_readByte  (buffer, address));            address += 1;
         
     // core variables
-    core_mode =                     (byte)    sd_readByte(buffer, address);     address += 1; 
-    core_settings =                 (byte)    sd_readByte(buffer, address);     address += 1; 
+    core_mode =                     sd_readByte(buffer, address);               address += 1; 
+    core_settings =                 sd_readByte(buffer, address);               address += 1; 
     
     
     // camera data
@@ -356,7 +367,7 @@ boolean sd_loadConfig() {
     if (camType) setBit(cam_status, BIT_7);
     else         deleteBit(cam_status, BIT_7);    
     
-    cam_fps_index =                 (byte)     sd_readByte(buffer, address);    address += 1;
+    cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
     cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
     cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
     cam_post_delay =                (uint32_t) sd_readULong(buffer, address);   address += 4; 
@@ -380,13 +391,29 @@ boolean sd_loadConfig() {
       motor_total_distance[i] =     sd_readFloat (buffer, address);             address += 4;
       motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
       motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
-      
-      
+            
       // a lille bit of motor specific run-setup-data
-      setup_run_ramp_in[i] =        (byte)     sd_readByte(buffer, address);    address += 1; 
-      setup_run_ramp_out[i] =       (byte)     sd_readByte(buffer, address);    address += 1; 
+      setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
+      setup_run_ramp_out[i] =       sd_readByte(buffer, address);               address += 1; 
       
     }
+    
+    
+    // trigger data
+    for (int i=0; i<trigger_getTriggercount(); i++) {
+      
+      boolean enabled =             (boolean) sd_readByte(buffer, address);     address += 1;
+      byte action =                 sd_readByte(buffer, address);               address += 1;
+      byte type =                   sd_readByte(buffer, address);               address += 1;
+      boolean debounce =            (boolean) sd_readByte(buffer, address);     address += 1;
+      
+      trigger_setTriggerType(i, type);
+      trigger_setTriggerAction(i, action);
+      trigger_setDebounce(i, debounce);
+      trigger_setEnabled(i, enabled);
+      
+    }
+    
     
     return true;
   }

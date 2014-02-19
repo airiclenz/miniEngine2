@@ -1,9 +1,9 @@
 /*
 
+    Author: Airic Lenz
+    
     See www.airiclenz.com for more information
 
-    (c) 2013 Airic Lenz
-        
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -42,18 +42,18 @@ uint8_t  popup_menu_pos_old  = 255;
 // paints the header base
 // ======================================================================================
 // result = true when the first line is on screen
-void uipaint_headerBase() {
+void uipaint_headerBase(int height) {
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
   tft.setColor(color_schemes[uicore_col_scheme].background_header);
-  tft.fillRect(0, 0, display_width - 1, header_height - 6);
+  tft.fillRect(0, 0, display_width - 1, height - 6);
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background);
   tft.setColor(color_schemes[uicore_col_scheme].background);
-  tft.fillRect(0, header_height - 6, display_width - 1, header_height);
+  tft.fillRect(0, height - 6, display_width - 1, height);
   
   tft.setColor(color_schemes[uicore_col_scheme].seperator);
-  tft.fillRect(0, header_height - 4, display_width - 1, header_height - 3);
+  tft.fillRect(0, height - 4, display_width - 1, height - 3);
   
 }
 
@@ -64,7 +64,7 @@ void uipaint_headerBase() {
 void uipaint_header(boolean full_repaint) {
   
   if (full_repaint) {
-    uipaint_headerBase();  
+    uipaint_headerBase(header_height);  
   
     tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
     tft.setColor(color_schemes[uicore_col_scheme].font_header);
@@ -89,7 +89,7 @@ void uipaint_headerSettings(boolean full_repaint) {
   
   // do we come from a regular screen?
   if (full_repaint) {
-    uipaint_headerBase();  
+    uipaint_headerBase(header_height);  
     
     tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
     tft.setColor(color_schemes[uicore_col_scheme].font_header);
@@ -140,6 +140,8 @@ void uipaint_headerSettings(boolean full_repaint) {
         if (uicore_font_index == 0) tft.print(lines[cnt], (cnt*64)+9 , 30);
         // Sinclair
         if (uicore_font_index == 1) tft.print(lines[cnt], (cnt*64)+11 , 30);
+        // Arial
+        if (uicore_font_index == 2) tft.print(lines[cnt], (cnt*64)+10 , 30);
           
       } else {
          
@@ -153,6 +155,8 @@ void uipaint_headerSettings(boolean full_repaint) {
         if (uicore_font_index == 0) tft.print(lines[cnt], (cnt*64)+9 , 30);
         // Sinclair
         if (uicore_font_index == 1) tft.print(lines[cnt], (cnt*64)+11 , 30);
+        // Arial
+        if (uicore_font_index == 2) tft.print(lines[cnt], (cnt*64)+10 , 30);
      
       }
       
@@ -168,7 +172,7 @@ void uipaint_headerSettings(boolean full_repaint) {
 void uipaint_headerEdit(boolean full_repaint) {
   
   if (full_repaint) {
-    uipaint_headerBase();  
+    uipaint_headerBase(header_height);  
     
     tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
     tft.setColor(color_schemes[uicore_col_scheme].font_header);
@@ -197,43 +201,42 @@ void uipaint_battery(boolean paint) {
   
   if (paint && power_isShowBattery()) {
     
-    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-    tft.setColor(color_schemes[uicore_col_scheme].font_header);
-    tft.setFont(SMALL_FONT);
-  
     uint8_t  batProcent = power_getBatteryLevel();
     itoa(batProcent, temp, 10);     
+    
+    
+    if (core_isProgramRunningFlag()) {
         
-    uicore_getShortString( 98, 0); // Battery:
-    
-    if (batProcent == 100)   strcat(lines[0], " ");
-    else if (batProcent > 9) strcat(lines[0], "  ");
-    else                     strcat(lines[0], "   ");
-    
-    strcat(lines[0], temp);
-    strcat(lines[0], "%");
-    tft.print(lines[0], 209, 2);  
+      tft.setBackColor(color_schemes[uicore_col_scheme].background);
+      tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+      
+      strcat(temp, STR_PERCENT);
+      tft.print(temp, 7, 195);
+      
+    } else {
+      
+      uicore_getShortString( 98, 0); // Battery:
+      
+      tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+      tft.setColor(color_schemes[uicore_col_scheme].font_header);
+      tft.setFont(SMALL_FONT);
+      
+      if (batProcent == 100)   strcat(lines[0], " ");
+      else if (batProcent > 9) strcat(lines[0], "  ");
+      else                     strcat(lines[0], "   ");
+      
+      strcat(lines[0], temp);
+      strcat(lines[0], STR_PERCENT);
+      tft.print(lines[0], 209, 2);
+      
+    }
             
   }
    
 }
 
 
-// ======================================================================================
-// paints the program status
-// ======================================================================================
-void uipaint_programState() {
-  
-  tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-  tft.setColor(color_schemes[uicore_col_scheme].font_header);
-  tft.setFont(uicore_fonts[uicore_font_index].font);
-    
-  if (core_isProgramRunningFlag()) {
-    tft.print(string_1_short, 7, 28);   // ON
-  } else {
-    tft.print(string_2_short, 7, 28);   // OFF
-  }
-}
+
 
 
 // ======================================================================================
@@ -242,16 +245,25 @@ void uipaint_programState() {
 void uipaint_cycleLength() {
   
   tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-  tft.setColor(color_schemes[uicore_col_scheme].font_header);
   tft.setFont(uicore_fonts[uicore_font_index].font);
     
   sprintf(temp,"%.1f", ((float) setup_interval_length) / 1000.0);
+  strcat(temp, string_6_short); // s
+  
   
   if (system_cycle_too_long) {
     strcat(temp, STR_EXCLAMATION);
   }
   
-  tft.print(temp, 80, 28);   // ON
+  if (core_isProgramRunningFlag()) {
+    tft.setBackColor(color_schemes[uicore_col_scheme].background);
+    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+    tft.print(temp, 7, 125);   
+  } else {
+    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+    tft.setColor(color_schemes[uicore_col_scheme].font_header);
+    tft.print(temp, 7, 30);   
+  }
 }
 
 
@@ -260,17 +272,34 @@ void uipaint_cycleLength() {
 // ======================================================================================
 void uipaint_shotCount() {
   
-  tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-  tft.setColor(color_schemes[uicore_col_scheme].font_header);
   tft.setFont(uicore_fonts[uicore_font_index].font);
     
   strcpy(data_line, STR_RECBRACKOP);  // [
   
+  byte charCount;
+  
+  // determinte the amount of digits we need to display
+  if      ((setup_frame_count <  100) && (cam_shoot_count <  100)) { charCount = 2; }
+  else if ((setup_frame_count < 1000) && (cam_shoot_count < 1000)) { charCount = 3; }
+  else                                                             { charCount = 4; }
+  
+  // add spaces to the string if needed
   if (cam_shoot_count < 10) {
-    strcat(data_line, STR_SPACE);
-    strcat(data_line, STR_SPACE);
+    
+    for (byte i=1; i<charCount; i++) {
+      strcat(data_line, STR_SPACE);
+    }
+    
   } else if (cam_shoot_count < 100) {
-    strcat(data_line, STR_SPACE);
+    
+    for (byte i=2; i<charCount; i++) {
+      strcat(data_line, STR_SPACE);
+    }
+    
+  } else if ((cam_shoot_count < 1000) &&
+             (charCount == 4)) {
+    strcat(data_line, STR_SPACE);  
+    
   }
   
   itoa(cam_shoot_count, temp, 10);
@@ -279,18 +308,153 @@ void uipaint_shotCount() {
   
   if (setup_frame_count < 10) {
     strcat(data_line, STR_SPACE);
-    strcat(data_line, STR_SPACE);
-  } else if (setup_frame_count < 100) {
-    strcat(data_line, STR_SPACE);
-  }
+  } 
   
   
   itoa(setup_frame_count, temp, 10);
   strcat(data_line, temp);
   strcat(data_line, STR_RECBRACKCL);
   
-  tft.print(data_line, 173, 28);   // [000/XXX]
+  if (core_isProgramRunningFlag()) {
+    tft.setBackColor(color_schemes[uicore_col_scheme].background);
+    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+    tft.print(data_line, 130, 125);   // [0000/XXXX]
+  } else {
+    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+    tft.setColor(color_schemes[uicore_col_scheme].font_header);
+    tft.print(data_line, 141 + ((4-charCount) << 5),  28);   // [0000/XXXX]
+  }
+  
 }
+
+
+
+// ======================================================================================
+// paints the dashboard
+// ======================================================================================
+void uipaint_dashboard(boolean fullRepaint) {
+  
+  if (fullRepaint) {
+    
+    // paint the dashboard header
+    uipaint_headerBase(70);  
+    
+    // clear the rest of the screen
+    tft.setBackColor(color_schemes[uicore_col_scheme].background);
+    tft.setColor(color_schemes[uicore_col_scheme].background);
+    tft.fillRect(0, 71, display_width - 1, display_height - 1);  
+    
+    // paint a "recording" sign (the one with the red dot)
+    tft.setColor(color_schemes[uicore_col_scheme].background);
+    tft.fillCircle(30,33,16);
+    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+    tft.drawCircle(30,33,14);
+    tft.setColor(VGA_RED);
+    tft.fillCircle(30,33,8);
+      
+    // write "Running..."
+    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+    tft.setFont(uicore_fonts[uicore_font_index].font);
+    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+    tft.print(string_24_short, 80, 27);
+    
+    // paint the mode string
+    tft.setBackColor(color_schemes[uicore_col_scheme].background);
+    if (isBit(core_mode, SYSTEM_MODE_SMS)) {
+      tft.print(string_30_short, 130, 195);  // SMS
+    } else if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {
+      tft.print(string_31_short, 130, 195);  // Continous
+    } else if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) {
+      tft.print(string_32_short, 130, 195);  // Stop-Motn
+    } else if (isBit(core_mode, SYSTEM_MODE_VIDEO)) {
+      tft.print(string_33_short, 130, 195);  // Video
+    }
+    
+    // Paint the section headers
+    tft.setFont(SMALL_FONT);
+    tft.setColor(color_schemes[uicore_col_scheme].font_soft);
+    tft.print(string_25_short, 130, 100);  // Frames
+    tft.print(string_26_short,   7, 100);  // Intervall
+    tft.print(string_27_short, 130, 170);  // Mode
+    tft.print(string_28_short,   7, 170);  // Battery
+      
+  }
+  
+  // shoot count
+  uipaint_shotCount();
+  
+  // intervall
+  uipaint_cycleLength();
+  
+  // battery
+  uipaint_battery(uicore_isRepaintBatteryFlag() || fullRepaint);
+  
+  
+  
+   
+  
+}
+
+
+// ======================================================================================
+// paints a message
+// ======================================================================================
+void uipaint_message() {
+  
+  int ysize = 50 + (menu_length * 20);
+  int ystart = (display_height - ysize) >> 1;
+  uint16_t headerh = header_height >> 1;
+  
+  
+  // clear the rest of the area
+  tft.setBackColor(color_schemes[uicore_col_scheme].background);
+  tft.setColor(color_schemes[uicore_col_scheme].background);
+  tft.fillRect(0, ystart - 10, display_width, ystart);  
+  tft.fillRect(0, ystart, 5, ystart + ysize + 10); 
+  tft.fillRect(display_width - 5, ystart, display_width, ystart + ysize + 10);
+  tft.fillRect(5, ystart + headerh, display_width - 5, ystart + ysize + 10);  
+      
+  // header background
+  tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
+  tft.setColor(color_schemes[uicore_col_scheme].font_bg_selected);
+  tft.fillRect(5, ystart, display_width - 7, ystart + headerh);
+  
+  // paint the hightlight frame
+  tft.setColor(color_schemes[uicore_col_scheme].scrollbar);
+  tft.drawRect(5, ystart, display_width - 6, ystart + ysize);
+  
+  // message window icon
+  tft.setColor(color_schemes[uicore_col_scheme].font_selected);
+  tft.fillCircle(21, ystart + (headerh >> 1), 12);
+  tft.setColor(color_schemes[uicore_col_scheme].scrollbar);
+  tft.drawCircle(21, ystart + (headerh >> 1), 12);
+  
+  tft.setColor(color_schemes[uicore_col_scheme].font);
+  tft.setBackColor(color_schemes[uicore_col_scheme].font_selected);
+  tft.setFont(SMALL_FONT);
+  tft.print("i", 18, ystart + 8);
+  
+  // paint the title
+  tft.setFont(uicore_fonts[uicore_font_index].font);
+  tft.setColor(color_schemes[uicore_col_scheme].font_selected);
+  tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
+  uicore_getLongString(line_codes[0]);
+  tft.print(data_line, 50, ystart + 7);
+  
+  // paint the message                                                                                                                                                                                                                                                                                                                         text
+  tft.setFont(SMALL_FONT);
+  tft.setColor(color_schemes[uicore_col_scheme].font);
+  tft.setBackColor(color_schemes[uicore_col_scheme].background);
+  
+  for (int i=1; i<=menu_length; i++) {
+    uicore_getLongString(line_codes[i]);
+    tft.print(data_line, 17, ystart + 22 + (20 * i));
+  }
+  
+  
+}
+
+
 
 
 // ======================================================================================
@@ -812,7 +976,7 @@ void uipaint_splashScreen() {
   
   // alpha
   strcat(version, STR_SPACE);
-  strcat(version, STR_ALPHA);
+  strcat(version, STR_VER);
   strcat(version, STR_SPACE);
   
   itoa(SUBSUBVERSION, temp, 10);

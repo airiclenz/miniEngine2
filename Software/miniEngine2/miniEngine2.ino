@@ -1,9 +1,9 @@
 /*
 
+    Author: Airic Lenz, C.A. Church
+    
     See www.airiclenz.com for more information
 
-    (c) 2013 Airic Lenz, C.A. Church
-    
     The 1st version of this code, dealing with core functionalities, 
     was heavily inspired by the OpenMoCo Engine by C.A. Church
     and is basically based on it. Thank you for your great work! 
@@ -67,12 +67,14 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define SUBSUBVERSION                3 
+#define SUBSUBVERSION                4
+
+const char* STR_VER                  = "BETA";
 
 
 ////////////////////////////////////////////////////////
 //                                                    //
-//  F O N T   D E F I N I T I O N S                   //
+//  F O N T S                                         //
 //                                                    //
 ////////////////////////////////////////////////////////
 
@@ -80,7 +82,7 @@
 extern uint8_t smallMax[];
 extern uint8_t mE_Clear[];
 extern uint8_t Sinclair_M[];
-
+extern uint8_t Arial[];
 
 
 ////////////////////////////////////////////////////////
@@ -334,7 +336,12 @@ void setup() {
   input_init();
   com_init();
   cam_init();
+  trigger_init();
   //touch_init();
+  
+  
+  
+  
   
   
   #ifdef DEBUG
@@ -385,8 +392,9 @@ void loop() {
     com_process();
     cam_process();
     sd_process();
+    trigger_process();
     
-    core_process();
+    //core_process();
     
     
     //////////////////////////////////

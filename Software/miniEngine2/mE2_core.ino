@@ -1,8 +1,8 @@
-/*
+  /*
 
+    Author: Airic Lenz
+    
     See www.airiclenz.com for more information
-
-    (c) 2013 Airic Lenz, C.A. Church
     
     The 1st version of this code, dealing with core functionalities, 
     was heavily inspired by the OpenMoCo Engine by C.A. Church
@@ -124,7 +124,9 @@ void core_checkIfProgramDone() {
 // starts the program
 // ============================================================================
 void core_startProgram() {
-    
+  
+  //////////////////////////////////////////////
+  // P R O G R A M   I N I T I A L I Z A T I O N  
   // reset the camera shoot count
   cam_resetShootCount();
   // set the program-is-running-flag
@@ -132,8 +134,17 @@ void core_startProgram() {
   // repaint the user interface
   uicore_setRepaintFlag();
   uicore_process(); 
-    
   
+  // turn all trigger interrupts on
+  trigger_enableAllInterrupts();
+  
+  
+  //////////////////////////////////////////////
+  // M O V I N G   H O M E
+  // print a "moving motor to home" message
+  uicore_showMessage(225, 226, 226, 1);
+  // enable the motors
+  motor_powerAll();  
   // check if the motors need to be moved home first and
   // move them home in case "yes"
   core_checkMoveHomeBeforeStart();
@@ -143,10 +154,55 @@ void core_startProgram() {
   motor_makeKeyframes();
   
   
+  //////////////////////////////////////////////
+  // S T A R T   T R I G G E R S
+  // check triggers
+  if (trigger_isStartTriggerDefined()) {
+    
+    // clear the trigger cache for making sure we have not false
+    // trigger events cause by enabling the interrupts
+    trigger_clearEvents();  
+    
+    // print a "waiting for trigger" message and show it for
+    // at least on millisecond
+    uicore_showMessage(220, 221, 222, 1);
+
+    // wait until the trigger signal comes
+    while (!trigger_isStartTriggered()) {
+      
+      // check the keys for abort events
+      if (input_isKeyEvent()) {
+        
+        // clear the key input event buffer
+        input_clearKeyEvent();
+        
+        // stop the program
+        core_stopProgram();
+        
+        // and now leave this function
+        return;
+      }
+        
+    }
+        
+    // trigger the backlight on the trigger event
+    uicore_setBacklight(true);
+          
+  }
+      
+      
+  //////////////////////////////////////////////
+  // R E P A I N T
+  // remove all possible meessages from the screen
+  uicore_deleteMessageOnScreenFlag();
+  // do a full repaint to have a fresh dashboard
+  uicore_repaint(true);
+  // remove the repaint flag
+  uicore_deleteRepaintFlag();
+   
   
-  
-  // enable the motors
-  motor_powerAll();
+  //////////////////////////////////////////////
+  // S T A R T
   // start the timer...
   motor_startMoveTimer();
   // set the start-immediately-flag
@@ -179,6 +235,9 @@ void core_stopProgram() {
  
   // disable all motors on program Stop 
   motor_disableAll(); 
+ 
+  // turn all trigger interrupts off
+  trigger_disableAllInterrupts(); 
  
   // reset the cycle warning
   system_cycle_too_long = false;
@@ -230,14 +289,6 @@ boolean core_checkMoveHomeBeforeStart() {
     
     // move all motors home first
     for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-      
-      #ifdef DEBUG
-      Serial.println();
-      Serial.println("-------------------------------");
-      Serial.print("defining move home ");
-      Serial.println(i);
-      #endif      
-            
       motor_defineMoveToPosition(i, 0, true);  
     }
                    
