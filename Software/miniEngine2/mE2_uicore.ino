@@ -108,6 +108,7 @@ typedef struct colorScheme {
   uint16_t  seperator;
 
   uint16_t  font;
+  uint16_t  font_disabled;
   uint16_t  font_soft;
   uint16_t  font_header;
   uint16_t  font_dashboard;
@@ -136,6 +137,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicore_getRGB565(230, 220, 200),    // scrollbar
     uicore_getRGB565(150, 140, 130),    // seperator
     uicore_getRGB565(255, 250, 240),    // font
+    uicore_getRGB565(155, 150, 140),    // font_disabled
     uicore_getRGB565(200, 195, 185),    // font_soft
     uicore_getRGB565(255, 255, 220),    // font_header
     uicore_getRGB565(215, 235, 255),    // font_dashboard
@@ -153,8 +155,9 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicore_getRGB565(200,   0,   0),    // scrollbar
     uicore_getRGB565(100,   0,   0),    // seperator
     uicore_getRGB565(255,   0,   0),    // font
-    uicore_getRGB565(200,   0,   0),    // font_soft
-    uicore_getRGB565(170,   0,   0),    // font_header
+    uicore_getRGB565(170,   0,   0),    // font_disabled
+    uicore_getRGB565(220,   0,   0),    // font_soft
+    uicore_getRGB565(200,   0,   0),    // font_header
     uicore_getRGB565(225,   0,   0),    // font_dashboard
     uicore_getRGB565(  0,   0,   0),    // font_bg_even
     uicore_getRGB565( 70,   0,   0),    // font_bg_odd
@@ -170,6 +173,7 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     uicore_getRGB565(255, 255, 255),    // scrollbar
     uicore_getRGB565(255, 255, 255),    // seperator
     uicore_getRGB565(255, 255, 255),    // font
+    uicore_getRGB565(150, 150, 150),    // font_disabled
     uicore_getRGB565(235, 235, 235),    // font_soft
     uicore_getRGB565(255, 255, 255),    // font_header
     uicore_getRGB565(255, 255, 255),    // font_dashboard
@@ -235,6 +239,9 @@ char temp[48];
 // help array for the lines to know which value corresponds to which
 // line. this is filled by the item_codes when loading the menu content 
 uint8_t line_codes[MENU_MAX_LINES]; 
+
+// help array for knowing which lines are disabled
+boolean lines_disabled[MENU_MAX_LINES]; 
 
 
 // position of the cursor on the screen. this is needed to paint verticall scrolling
@@ -361,6 +368,7 @@ const char* STR_RECBRACKCL  = "]";
 const char* STR_SLASH       = "/";
 const char* STR_EXCLAMATION = "!";
 const char* STR_PERCENT     = "%";
+const char* STR_NONE        = "---";
 
 
 
@@ -635,7 +643,7 @@ void uicore_init() {
   uicore_backlight_time = 15000;
   
   
-  screen_code      = 10;
+  screen_code      = uicore_checkScreenPos();
   screen_code_old  = 255;
   menu_screen_pos  = 0;
   menu_pos         = 0;
@@ -1169,7 +1177,7 @@ void uicore_handleKeyEvent(uint8_t key) {
           // go to the top of the new screen
           menu_screen_pos  = 0;
           menu_pos         = 0;
-                    
+                              
         } // end: we are already in the menu
       
       } // end: we are not editing 
@@ -1215,9 +1223,14 @@ void uicore_handleKeyEvent(uint8_t key) {
         // check if the menu point we are standing on
         // is an action menu point
         if (!uicode_doAction(line_codes[menu_pos])) {
-        
-          // toggle the editing var
-          menu_editing = !menu_editing;  
+          
+          // if this line is not disabled
+          if (!lines_disabled[menu_pos]) {
+            
+            // toggle the editing var
+            menu_editing = !menu_editing;  
+            
+          }
           
         }
                        
@@ -1363,6 +1376,8 @@ void uicore_handleRotary() {
   if (core_isJogModeFlag()) {
     
     int16_t pos = rotary.getPosition();
+    // a very very complex formula to achieve a non-linear speed-up / speed-down
+    // behaviour while jogging
     float jogSpeed = pow((float) pos / 8.0, 2) / 2.0;
     
     // max limit...
@@ -1522,9 +1537,10 @@ void uicore_repaint(boolean fullRepaint) {
         full) {
       
       if (debug) Serial.print("Bdy");
-          
+      
       // load the menu strings
       uicore_loadMenuStrings();
+      
       // paint the menu
       uipaint_menu(full);
     }
@@ -1532,6 +1548,7 @@ void uicore_repaint(boolean fullRepaint) {
   }
   
   if (debug) Serial.println();
+  
   
   menu_editing_old          = menu_editing;
   uicore_col_scheme_old     = uicore_col_scheme;
@@ -2641,33 +2658,44 @@ void uicore_loadMenuStrings() {
   menu_length = 0;
   
   // flag for hiding a menu line
-  boolean hideLine;
+  boolean disable_line;
   
-  // a temp offset to allow different values for different system states
-  uint8_t entry_shift;
+  
   
   // loop all menu-content relations we have
   for (int i=0; i<uicore_content_relation_count; i++) {
     
-    entry_shift  = 0;
-    hideLine     = false;
+    disable_line = false;
     
     // if we found an entry that is on the current screen
     if (ui_content_relations[i].screen == screen_code) {
       
-      // add the new line (possibly remapped) to the menu array
-      if (!hideLine) {
+      // store the corresponding string to the lines array
+      uicore_getShortString(ui_content_relations[i].menu_item, menu_length);
         
-        // store the corresponding string to the lines array
-        uicore_getShortString(ui_content_relations[i].menu_item + entry_shift, menu_length);
-        
-        // store the line_code
-        line_codes[menu_length] = ui_content_relations[i].menu_item + entry_shift;
+      // store the line_code
+      line_codes[menu_length] = ui_content_relations[i].menu_item;
          
-        // increment the menu length
-        menu_length++;
-
+      ////////////////////////////////////////////////   
+      // check if the current item should be disabled
+      
+      // "empty" items are always disabled
+      if (ui_content_relations[i].menu_item == 23) {
+        disable_line = true;   
       }
+      
+      // in VIDEO MODE and on move style item?
+      if (core_mode == MODE_VIDEO &&
+          ui_content_relations[i].menu_item == 111) {
+        
+        disable_line = true;   
+      }   
+       
+      // set the status to the helper array 
+      lines_disabled[menu_length] = disable_line;   
+         
+      // increment the menu length
+      menu_length++;
       
     }  
     
@@ -2764,11 +2792,11 @@ byte uicore_checkScreenPos() {
     return 40;
     
   } // end: panorama
-  
+ 
     
     
   // default return = SMS with RUN Setup  
-  return 10;    
+  //return 10;    
 }
 
 

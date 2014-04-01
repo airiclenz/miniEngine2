@@ -347,13 +347,9 @@ boolean core_checkMoveHomeBeforeStart() {
           motor_defineMoveToPosition(i, 0, true);  
         }
         
-        Serial.println("moves to home defined");
-                       
         // start the moves
         motor_startMovesToPosition();
                 
-        Serial.println("moves to home started");
-        
         // wait until all motors reached home
         while (motor_isMoveToPositionRunning()) {
           
@@ -373,9 +369,6 @@ boolean core_checkMoveHomeBeforeStart() {
           
         } // end: while motors are moving 
         
-        
-        Serial.println("moves to home done");
-          
       } // end: move home first  
             
     } // end: setup style run
@@ -432,11 +425,9 @@ void core_checkValues() {
   
   
   
- 
-  
-  
   ////////////////////////////  
   // TODO
+ 
   
 }
 

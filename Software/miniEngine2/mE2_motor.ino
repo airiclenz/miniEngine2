@@ -664,9 +664,6 @@ void motor_startMovesToPosition() {
     // init this motor if needed
     if (isBit(motor_move_mode[i], MOVE_MODE_TO_POS)) {
       
-      // jump to the first curve
-      motor_used_curves_index[i] = 0;
-      
       // enable the motor      
       motors[i].enable();  
       
@@ -746,13 +743,13 @@ boolean motor_isCurveBasedMoveRunning() {
 
 
 
-
 // ============================================================================
 // returns true if any of the motors is in post delay
 // ============================================================================
 boolean motor_isPostDelay() {
   return motor_post_delay_status > 0;  
 }
+
 
 
 // ============================================================================
@@ -917,27 +914,17 @@ void motor_makeKeyframes() {
 boolean motor_moveToStartKeyframe() {
   
   int curveIndex;
-  
-  Serial.println("moving to start keyframes");
-  
+    
   // move all motors home first
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-    
-    Serial.print("motor ");
-    Serial.println(i);
-    
+   
     // if the motor has curves
     if (motor_used_curves_count[i] > 0) {
-      
-      Serial.print("motor has curves");
       
       // get the index of the first used curve
       curveIndex = motor_used_curves[i][0];
       // get the motor position at time 0
       float pos = mCurves[curveIndex].curve.getY(0);
-      
-      Serial.print("start pos ");
-      Serial.println(pos);
       
       // move the motor to this position
       motor_defineMoveToPosition(i, pos, true);  
@@ -950,7 +937,6 @@ boolean motor_moveToStartKeyframe() {
   // start the moves
   motor_startMovesToPosition();
   
-  Serial.print("moves to positions started");
   
   // wait until all motors reached home
   while (motor_isMoveToPositionRunning()) {
@@ -972,8 +958,6 @@ boolean motor_moveToStartKeyframe() {
     
   } // end: while motors are moving 
   
-  
-  Serial.print("moves to positions done");
   
   return true;
   

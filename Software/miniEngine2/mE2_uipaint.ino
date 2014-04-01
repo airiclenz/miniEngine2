@@ -290,26 +290,31 @@ void uipaint_battery(boolean paint) {
 // ======================================================================================
 void uipaint_cycleLength() {
   
-  tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-  tft.setFont(uicore_fonts[uicore_font_index].font);
-    
-  sprintf(temp,"%.1f", ((float) setup_interval_length) / 1000.0);
-  strcat(temp, string_6_short); // s
+  if  (core_mode == MODE_TIMELAPSE) {
   
-  
-  if (system_cycle_too_long) {
-    strcat(temp, STR_EXCLAMATION);
-  }
-  
-  if (core_isProgramRunningFlag()) {
-    tft.setBackColor(color_schemes[uicore_col_scheme].background);
-    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
-    tft.print(temp, 7, 125);   
-  } else {
     tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-    tft.setColor(color_schemes[uicore_col_scheme].font_header);
-    tft.print(temp, 7, 30);   
+    tft.setFont(uicore_fonts[uicore_font_index].font);
+      
+    sprintf(temp,"%.1f", ((float) setup_interval_length) / 1000.0);
+    strcat(temp, string_6_short); // s
+    
+    
+    if (system_cycle_too_long) {
+      strcat(temp, STR_EXCLAMATION);
+    }
+    
+    if (core_isProgramRunningFlag()) {
+      tft.setBackColor(color_schemes[uicore_col_scheme].background);
+      tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+      tft.print(temp, 7, 125);   
+    } else {
+      tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+      tft.setColor(color_schemes[uicore_col_scheme].font_header);
+      tft.print(temp, 7, 30);   
+    }  
+    
   }
+  
 }
 
 
@@ -318,57 +323,61 @@ void uipaint_cycleLength() {
 // ======================================================================================
 void uipaint_shotCount() {
   
-  tft.setFont(uicore_fonts[uicore_font_index].font);
+  if  (core_mode == MODE_TIMELAPSE) {
+  
+    tft.setFont(uicore_fonts[uicore_font_index].font);
+      
+    strcpy(data_line, STR_RECBRACKOP);  // [
     
-  strcpy(data_line, STR_RECBRACKOP);  // [
-  
-  byte charCount;
-  
-  // determinte the amount of digits we need to display
-  if      ((setup_frame_count <  100) && (cam_shoot_count <  100)) { charCount = 2; }
-  else if ((setup_frame_count < 1000) && (cam_shoot_count < 1000)) { charCount = 3; }
-  else                                                             { charCount = 4; }
-  
-  // add spaces to the string if needed
-  if (cam_shoot_count < 10) {
+    byte charCount;
     
-    for (byte i=1; i<charCount; i++) {
-      strcat(data_line, STR_SPACE1);
+    // determinte the amount of digits we need to display
+    if      ((setup_frame_count <  100) && (cam_shoot_count <  100)) { charCount = 2; }
+    else if ((setup_frame_count < 1000) && (cam_shoot_count < 1000)) { charCount = 3; }
+    else                                                             { charCount = 4; }
+    
+    // add spaces to the string if needed
+    if (cam_shoot_count < 10) {
+      
+      for (byte i=1; i<charCount; i++) {
+        strcat(data_line, STR_SPACE1);
+      }
+      
+    } else if (cam_shoot_count < 100) {
+      
+      for (byte i=2; i<charCount; i++) {
+        strcat(data_line, STR_SPACE1);
+      }
+      
+    } else if ((cam_shoot_count < 1000) &&
+               (charCount == 4)) {
+      strcat(data_line, STR_SPACE1);  
+      
     }
     
-  } else if (cam_shoot_count < 100) {
+    itoa(cam_shoot_count, temp, 10);
+    strcat(data_line, temp);
+    strcat(data_line, STR_SLASH);
     
-    for (byte i=2; i<charCount; i++) {
+    if (setup_frame_count < 10) {
       strcat(data_line, STR_SPACE1);
+    } 
+    
+    
+    itoa(setup_frame_count, temp, 10);
+    strcat(data_line, temp);
+    strcat(data_line, STR_RECBRACKCL);
+    
+    if (core_isProgramRunningFlag()) {
+      tft.setBackColor(color_schemes[uicore_col_scheme].background);
+      tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
+      tft.print(data_line, 130, 125);   // [0000/XXXX]
+    } else {
+      tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+      tft.setColor(color_schemes[uicore_col_scheme].font_header);
+      tft.print(data_line, 141 + ((4-charCount) << 5),  28);   // [0000/XXXX]
     }
     
-  } else if ((cam_shoot_count < 1000) &&
-             (charCount == 4)) {
-    strcat(data_line, STR_SPACE1);  
-    
-  }
-  
-  itoa(cam_shoot_count, temp, 10);
-  strcat(data_line, temp);
-  strcat(data_line, STR_SLASH);
-  
-  if (setup_frame_count < 10) {
-    strcat(data_line, STR_SPACE1);
-  } 
-  
-  
-  itoa(setup_frame_count, temp, 10);
-  strcat(data_line, temp);
-  strcat(data_line, STR_RECBRACKCL);
-  
-  if (core_isProgramRunningFlag()) {
-    tft.setBackColor(color_schemes[uicore_col_scheme].background);
-    tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
-    tft.print(data_line, 130, 125);   // [0000/XXXX]
-  } else {
-    tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
-    tft.setColor(color_schemes[uicore_col_scheme].font_header);
-    tft.print(data_line, 141 + ((4-charCount) << 5),  28);   // [0000/XXXX]
   }
   
 }
@@ -536,8 +545,16 @@ void uipaint_menu(boolean full_repaint) {
        ) { 
          
       
-      // generate the data string for the current line
-      uicore_generateDataString(line_codes[i + menu_offset]);
+      
+      // if this item is not disabled
+      if (lines_disabled[i + menu_offset] == false) {
+        // generate the data string for the current line  
+        uicore_generateDataString(line_codes[i + menu_offset]);
+      } else {
+        // empty the string
+        strcpy(data_line, STR_NONE);  
+      }
+            
       byte data_len = strlen(data_line) - 1;
          
       // calculate the top-y-position for the current line
@@ -551,14 +568,17 @@ void uipaint_menu(boolean full_repaint) {
         // set the colors for the bar   
         tft.setColor(color_schemes[uicore_col_scheme].font_bg_selected);
         tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
-        
-        
+                
         // paint the selection bar
         tft.fillRect(0, y, display_width - 8, y + menu_screen_line_height - 1);
-                
+               
                 
         // paint the text line
-        tft.setColor(color_schemes[uicore_col_scheme].font_selected);
+        if (lines_disabled[i + menu_offset] == false) {
+          tft.setColor(color_schemes[uicore_col_scheme].font_selected);
+        } else {
+          tft.setColor(color_schemes[uicore_col_scheme].font_disabled);
+        }
         tft.setFont(uicore_fonts[uicore_font_index].font);
         tft.print(lines[i + menu_offset], 2, y + 7);   
         tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 25, y + 7);   
@@ -579,7 +599,11 @@ void uipaint_menu(boolean full_repaint) {
         tft.fillRect(0, y, display_width - 8, y + menu_screen_line_height - 1);
                 
         // paint the text line
-        tft.setColor(color_schemes[uicore_col_scheme].font);
+        if (lines_disabled[i + menu_offset] == false) {
+          tft.setColor(color_schemes[uicore_col_scheme].font);
+        } else {
+          tft.setColor(color_schemes[uicore_col_scheme].font_disabled);
+        }
         tft.setFont(uicore_fonts[uicore_font_index].font);
         tft.print(lines[i + menu_offset], 2, y + 7);   
         tft.print(data_line, display_width - (data_len * tft.getFontXsize()) - 25, y + 7);   
@@ -600,7 +624,7 @@ void uipaint_menu(boolean full_repaint) {
         
       }   
     
-    } // this line needs to be painted
+    } // end: this line needs to be painted
      
     odd = !odd; 
         
@@ -611,11 +635,12 @@ void uipaint_menu(boolean full_repaint) {
   // that possibly don't need to be painted again the next time
   menu_screen_pos_old = menu_screen_pos;
   menu_offset_old     = menu_offset;
-  //menu_editing_old    = menu_editing;
   
   
   // paint the scroll bar if more than 5 menu lines
   if (full_repaint) uipaint_scrollbar(menu_length > menu_max_screen_lines, false);
+  
+  Serial.println();
     
 }
 
