@@ -198,6 +198,7 @@ void trigger_setTriggerType(byte index, byte type) {
 }
 
 
+// ============================================================================
 void trigger_setTriggerAction(byte index, byte action) {
   
   trigger_triggers[index].action = action;    
@@ -327,6 +328,22 @@ boolean trigger_isStartTriggered() {
     return true;
   } else if (isBit(trigger_status, BIT_1) &&
       (trigger_triggers[1].action == ACTION_START)) {
+    return true;
+  }  
+  
+  return false;
+}
+
+
+// ============================================================================
+boolean trigger_isStopTriggered() {
+  
+  // do we have a trigger event on one of the triggers?
+  if (isBit(trigger_status, BIT_0) &&
+      (trigger_triggers[0].action == ACTION_STOP)) {
+    return true;
+  } else if (isBit(trigger_status, BIT_1) &&
+      (trigger_triggers[1].action == ACTION_STOP)) {
     return true;
   }  
   

@@ -131,53 +131,53 @@ struct colorScheme color_schemes[uicore_color_scheme_count] = {
     
   // COLOR SCHEME 0
   { "Default",                          // name (max 8 character)
-    uicode_getRGB565(  0,   0,   0),    // background 
-    uicode_getRGB565( 90,  80,  60),    // background_header
-    uicode_getRGB565(230, 220, 200),    // scrollbar
-    uicode_getRGB565(150, 140, 130),    // seperator
-    uicode_getRGB565(255, 250, 240),    // font
-    uicode_getRGB565(200, 195, 185),    // font_soft
-    uicode_getRGB565(255, 255, 220),    // font_header
-    uicode_getRGB565(215, 235, 255),    // font_dashboard
-    uicode_getRGB565(  0,   0,   0),    // font_bg_even
-    uicode_getRGB565( 50,  40,  30),    // font_bg_odd
-    uicode_getRGB565( 40,  45, 120),    // font_selected
-    uicode_getRGB565(160, 165, 235),    // font_bg_selected
-    uicode_getRGB565(  0,   0,   0),    // font_menu_selected
+    uicore_getRGB565(  0,   0,   0),    // background 
+    uicore_getRGB565( 90,  80,  60),    // background_header
+    uicore_getRGB565(230, 220, 200),    // scrollbar
+    uicore_getRGB565(150, 140, 130),    // seperator
+    uicore_getRGB565(255, 250, 240),    // font
+    uicore_getRGB565(200, 195, 185),    // font_soft
+    uicore_getRGB565(255, 255, 220),    // font_header
+    uicore_getRGB565(215, 235, 255),    // font_dashboard
+    uicore_getRGB565(  0,   0,   0),    // font_bg_even
+    uicore_getRGB565( 50,  40,  30),    // font_bg_odd
+    uicore_getRGB565( 40,  45, 120),    // font_selected
+    uicore_getRGB565(160, 165, 235),    // font_bg_selected
+    uicore_getRGB565(  0,   0,   0),    // font_menu_selected
   },
   
   // COLOR SCHEME 1
   { "Night",                            // name (max 8 character)
-    uicode_getRGB565(  0,   0,   0),    // background 
-    uicode_getRGB565( 80,   0,   0),    // background_header
-    uicode_getRGB565(200,   0,   0),    // scrollbar
-    uicode_getRGB565(100,   0,   0),    // seperator
-    uicode_getRGB565(255,   0,   0),    // font
-    uicode_getRGB565(200,   0,   0),    // font_soft
-    uicode_getRGB565(170,   0,   0),    // font_header
-    uicode_getRGB565(225,   0,   0),    // font_dashboard
-    uicode_getRGB565(  0,   0,   0),    // font_bg_even
-    uicode_getRGB565( 70,   0,   0),    // font_bg_odd
-    uicode_getRGB565(  0,   0,   0),    // font_selected
-    uicode_getRGB565(255,   0,   0),    // font_bg_selected
-    uicode_getRGB565(  0,   0,   0),    // font_menu_selected
+    uicore_getRGB565(  0,   0,   0),    // background 
+    uicore_getRGB565( 80,   0,   0),    // background_header
+    uicore_getRGB565(200,   0,   0),    // scrollbar
+    uicore_getRGB565(100,   0,   0),    // seperator
+    uicore_getRGB565(255,   0,   0),    // font
+    uicore_getRGB565(200,   0,   0),    // font_soft
+    uicore_getRGB565(170,   0,   0),    // font_header
+    uicore_getRGB565(225,   0,   0),    // font_dashboard
+    uicore_getRGB565(  0,   0,   0),    // font_bg_even
+    uicore_getRGB565( 70,   0,   0),    // font_bg_odd
+    uicore_getRGB565(  0,   0,   0),    // font_selected
+    uicore_getRGB565(255,   0,   0),    // font_bg_selected
+    uicore_getRGB565(  0,   0,   0),    // font_menu_selected
   },
   
   // COLOR SCHEME 2
   { "Contrast",                         // name (max 8 character)
-    uicode_getRGB565(  0,   0,   0),    // background
-    uicode_getRGB565( 40,  40,  40),    // background_header 
-    uicode_getRGB565(255, 255, 255),    // scrollbar
-    uicode_getRGB565(255, 255, 255),    // seperator
-    uicode_getRGB565(255, 255, 255),    // font
-    uicode_getRGB565(235, 235, 235),    // font_soft
-    uicode_getRGB565(255, 255, 255),    // font_header
-    uicode_getRGB565(255, 255, 255),    // font_dashboard
-    uicode_getRGB565(  0,   0,   0),    // font_bg_even
-    uicode_getRGB565( 60,  60,  60),    // font_bg_odd
-    uicode_getRGB565(  0,   0,   0),    // font_selected
-    uicode_getRGB565(255, 255, 255),    // font_bg_selected
-    uicode_getRGB565(  0,   0,   0),    // font_menu_selected
+    uicore_getRGB565(  0,   0,   0),    // background
+    uicore_getRGB565( 40,  40,  40),    // background_header 
+    uicore_getRGB565(255, 255, 255),    // scrollbar
+    uicore_getRGB565(255, 255, 255),    // seperator
+    uicore_getRGB565(255, 255, 255),    // font
+    uicore_getRGB565(235, 235, 235),    // font_soft
+    uicore_getRGB565(255, 255, 255),    // font_header
+    uicore_getRGB565(255, 255, 255),    // font_dashboard
+    uicore_getRGB565(  0,   0,   0),    // font_bg_even
+    uicore_getRGB565( 60,  60,  60),    // font_bg_odd
+    uicore_getRGB565(  0,   0,   0),    // font_selected
+    uicore_getRGB565(255, 255, 255),    // font_bg_selected
+    uicore_getRGB565(  0,   0,   0),    // font_menu_selected
   }
     
 };
@@ -284,11 +284,15 @@ uint32_t uicore_message_duration;
 // T H E   M A I N   M E N U   T R E E                                                        //
 //                                                                                            // 
 // screen IDs (left side in the array):                                                       //       
-// ------------------------                                                                   //
-// 10:  SMS            run setup                                                              //
-// 20:  Stop moption   run setup                                                              //
-// 30:  Continuous     run setup                                                              //
-// 40:  Video          run setup                                                              //
+// ------------------------------------                                                       //
+// 10:  SMS            run setup         >> Timelapse                                         //
+// 11:  SMS            keyframes         >> Timelapse                                         //
+// 20:  Continuous     run setup         >> Timelapse                                         //
+// 21:  Continuous     keyframes         >> Timelapse                                         //
+// 30:  Video          run setup         >> Video                                             //
+// 31:  Video          keyframes         >> Video                                             //
+// 40:  Panorama       n.a.              >> Panorama                                          //
+//                                                                                            //
 //                                                                                            //
 // 100: Settings GENeral                                                                      //
 // 101: Settings CAMera                                                                       //
@@ -296,7 +300,9 @@ uint32_t uicore_message_duration;
 // 103: Settings CHAIN                                                                        //
 // 104: Settings TRIGGER                                                                      //
 //                                                                                            //
+//                                                                                            //
 // 200: popup menu                                                                            //
+//                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 // the structure used for our menu relations
@@ -306,16 +312,20 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 50;
+const uint8_t uicore_content_relation_count = 65;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
     
   {  10, 202 }, {  10, 203 }, {  10, 204 }, {  10, 205 }, {  10, 140 }, {  10, 200 }, {  10, 201 }, {  10, 206 }, {  10, 207 }, 
+  {  11, 202 }, {  11, 204 }, {  11, 205 },
+  {  20, 202 }, {  20, 203 }, {  20, 204 }, {  20, 205 }, {  20, 140 }, {  20, 200 }, {  20, 201 }, {  20, 206 }, {  20, 207 },
+  {  21, 202 }, {  21, 204 }, {  21, 205 },
+  {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
+  {  31,  23 },
   
-  {  30, 202 }, {  30, 203 }, {  30, 204 }, {  30, 205 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
     
-  { 100, 108 }, /*{ 100, 109 },*/ { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
+  { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
   { 101, 120 }, { 101, 121 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
@@ -340,9 +350,11 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
 
 const char  STR_LINEFEED    = '\n'; 
 const char* STR_EMPTY       = ""; 
-const char* STR_SPACE       = " ";
-const char* STR_PUNKT       = ".";
-const char* STR_DPUNKT      = ":";
+const char* STR_SPACE1      = " ";
+const char* STR_SPACE2      = "  ";
+const char* STR_SPACE3      = "   ";
+const char* STR_POINT       = ".";
+const char* STR_DPOINT      = ":";
 const char* STR_NULL        = "0";
 const char* STR_RECBRACKOP  = "[";
 const char* STR_RECBRACKCL  = "]";
@@ -358,8 +370,8 @@ const char* STR_PERCENT     = "%";
 // MAIN STRINGS AND UNITS
     
 const char* string_0_short   = "miniEngine";
-const char* string_1_short   = "ON "; 
-const char* string_2_short   = "OFF";
+const char* string_1_short   = "";            // unused 
+const char* string_2_short   = "";            // unused 
 const char* string_3_short   = "}";
 const char* string_4_short   = "{";
 const char* string_5_short   = "cm";
@@ -383,7 +395,7 @@ const char* string_22_short  = "`";       // `=°
 const char* string_23_short  = "empty";
 const char* string_24_short  = "Running...";
 const char* string_25_short  = "Frames";
-const char* string_26_short  = "Intervall";
+const char* string_26_short  = "Interval";
 const char* string_27_short  = "Mode";
 const char* string_28_short  = "Battery";
 
@@ -393,14 +405,27 @@ const char* string_28_short  = "Battery";
 // SYSTEM MODES
 
 const char* string_30_short = "SMS";
-const char* string_31_short = "Continous";
-const char* string_32_short = "Stop-Motn";
-const char* string_33_short = "Video";
+const char* string_31_short = "Cont.";
 
 const char* string_30_long = "Shoot-Move-Shoot";
 const char* string_31_long = "Continuous";
-const char* string_32_long = "Stop-Motion";
-const char* string_33_long = "Video";
+
+
+const char* string_50_short = "Run";
+const char* string_51_short = "Keyfrm.";
+
+const char* string_50_long = "Run based setup";
+const char* string_51_long = "Keyframes";
+
+
+const char* string_60_short = "Timelapse";
+const char* string_61_short = "Video";
+const char* string_62_short = "Panorama";
+
+const char* string_60_long = "Timelapse";
+const char* string_61_long = "Video";
+const char* string_62_long = "Panorama";
+
 
 ////////////////////////////////////////////////////////
 // GENERAL EDIT-SCREEN & JOG STRINGS
@@ -419,9 +444,15 @@ const char* string_92_short = "Settings";
 const char* string_93_short = "GEN";  
 const char* string_94_short = "CAM";  
 const char* string_95_short = "MOT";  
-const char* string_96_short = "CHN";  
+const char* string_96_short = "DCH";  
 const char* string_97_short = "TRG";  
 const char* string_98_short = "Battery:";  
+
+const char* string_93_long = "       General";  
+const char* string_94_long = "        Camera";  
+const char* string_95_long = "        Motors";  
+const char* string_96_long = "Daisy Chaining";  
+const char* string_97_long = "      Triggers";  
 
 ////////////////////////////////////////////////////////
 // SETTINGS GENERAL
@@ -434,17 +465,19 @@ const char* string_105_short = "Show Info";
 const char* string_106_short = "Deflt Setg";
 const char* string_107_short = "Start Home";
 const char* string_108_short = "Mode";
-const char* string_109_short = "Setup Styl";
+const char* string_109_short = "Setup Style";
 const char* string_110_short = "Menu Font";
+const char* string_111_short = "Move Style";
 
 const char* string_100_long  = "Power of the backlight.\nValues above 100% are above 5V and\nabove the specifications of the\ndisplay (Overdrive)!";
 const char* string_101_long  = "Time after which the backlight\nturns off.";
 const char* string_102_long  = "The global color scheme. Use\nthis to improve dislay readability.";
 const char* string_103_long  = "Invert the rotary-knob response.";
 const char* string_107_long  = "Move all motors to their home\nposition before the program starts.\nThis takes effect on all\nnon-keyframe modes.";
-const char* string_108_long  = "The way in which the motors moves.";
-const char* string_109_long  = "The way the moves are defined.";
+const char* string_108_long  = "The way in which the motors move.";
+const char* string_109_long  = "The way the moves are defined.\n'Keyframes' requires a connection to\na computer!";
 const char* string_110_long  = "The used font on the display.";
+const char* string_111_long  = "How should the motors move?";
 
 
 ////////////////////////////////////////////////////////
@@ -510,7 +543,7 @@ const char* string_187_short = "Debounce";
 const char* string_180_long  = "Select the trigger you want to edit.";
 const char* string_181_long  = "Status of this trigger - On / Off.";
 const char* string_182_long  = "This defines the action that should be\ndone when the trigger is triggered.\nStart = Start the program\nStop  = Stop the program\nShoot = Trigger the camera";
-const char* string_183_long  = "The actual signal type to which this\ntrigger should listen.\nRAISING EDGE (0V -> 3.3V)\nFALLING EDGE (3.3V -> 0V)";
+const char* string_183_long  = "The actual signal type to which this\ntrigger should listen.\nRAISING EDGE (0V --> 3.3V)\nFALLING EDGE (3.3V --> 0V)";
 const char* string_187_long  = "Smoothens the trigger signal via\nsoftware when enabled.";
 
 ////////////////////////////////////////////////////////
@@ -544,7 +577,7 @@ const char* string_221_long = "Waiting for the start-signal.";
 const char* string_222_long = "Press [SELECT] to abort.";
 
 const char* string_225_long = "Motor";
-const char* string_226_long = "Moving motor to the home-position.";
+const char* string_226_long = "Moving motors to the home-position.";
 
 
 
@@ -714,7 +747,7 @@ void uicore_process() {
         uicore_setBacklight(false);     
       } else {
         // fade out the backlight
-        uicore_fadeOutBacklight(50);
+        uicore_fadeOutBacklight(20);
       }
        
     }
@@ -798,8 +831,10 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     
     case  30: strcpy(lines[target_line], string_30_short);      return;  
     case  31: strcpy(lines[target_line], string_31_short);      return;  
-    case  32: strcpy(lines[target_line], string_32_short);      return;  
-    case  33: strcpy(lines[target_line], string_33_short);      return;  
+
+    case  60: strcpy(lines[target_line], string_60_short);      return;  
+    case  61: strcpy(lines[target_line], string_61_short);      return;  
+    case  62: strcpy(lines[target_line], string_62_short);      return;  
     
     
     ///////////////////////////////////////////////////////////////////
@@ -836,6 +871,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 108: strcpy(lines[target_line], string_108_short);     return; 
     case 109: strcpy(lines[target_line], string_109_short);     return;  
     case 110: strcpy(lines[target_line], string_110_short);     return;  
+    case 111: strcpy(lines[target_line], string_111_short);     return;  
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CAMERA
@@ -922,8 +958,7 @@ void uicore_getLongString(uint16_t buf_number) {
     
     case  30: strcpy(data_line, string_30_long);      return;  
     case  31: strcpy(data_line, string_31_long);      return;  
-    case  32: strcpy(data_line, string_32_long);      return;  
-    case  33: strcpy(data_line, string_33_long);      return;  
+    
     
     ///////////////////////////////////////////////////////////////////
     // GENERAL EDIT- & JOG SCREEN STRINGS
@@ -932,6 +967,10 @@ void uicore_getLongString(uint16_t buf_number) {
     ///////////////////////////////////////////////////////////////////
     // GENERAL SETTING STRINGS
     
+    case 93: strcpy(data_line, string_93_long);       return;
+    case 94: strcpy(data_line, string_94_long);       return;
+    case 95: strcpy(data_line, string_95_long);       return;
+    case 96: strcpy(data_line, string_96_long);       return;
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS GENERAL
@@ -944,6 +983,7 @@ void uicore_getLongString(uint16_t buf_number) {
     case 108: strcpy(data_line, string_108_long);     return;
     case 109: strcpy(data_line, string_109_long);     return;
     case 110: strcpy(data_line, string_110_long);     return;
+    case 111: strcpy(data_line, string_111_long);     return;
     
     
     ///////////////////////////////////////////////////////////////////
@@ -1071,11 +1111,14 @@ void uicore_handleKeyEvent(uint8_t key) {
         
         // not editing ?
         if (!menu_editing) {
+          
           // jump back to the main screen
-          screen_code     = uicore_checkScreenPos();
+          screen_code = uicore_checkScreenPos();
           menu_screen_pos = 0;
           menu_pos        = 0;
+          
         }
+        
       } 
       // if non of the above...
       else {
@@ -1344,6 +1387,12 @@ void uicore_handleRotary() {
 // ===================================================================================
 void uicore_repaint(boolean fullRepaint) {
   
+  boolean debug = false;
+  
+  if (debug) Serial.println();
+  if (debug) Serial.println("print");
+  
+  
   
   // check if we need to do a full 
   // repaint on certain ui-changes 
@@ -1363,6 +1412,8 @@ void uicore_repaint(boolean fullRepaint) {
   // paint the dashboard if the program is running
   if (core_isProgramRunningFlag()) {
     
+    if (debug) Serial.print("Dsh");
+    
     uipaint_dashboard(full);  
     
   }
@@ -1370,6 +1421,8 @@ void uicore_repaint(boolean fullRepaint) {
   
   // Are we in jog Mode?
   else if (core_isJogModeFlag()) {
+    
+    if (debug) Serial.print("Jog");
     
     if (!uicore_isRepaintBatteryFlag()) {
       // paint the jog window
@@ -1380,6 +1433,8 @@ void uicore_repaint(boolean fullRepaint) {
     
   // we are displaying a popup menu
   else if (isBit(uicore_status, BIT_7)) {
+    
+    if (debug) Serial.print("Pop");
     
     if (!uicore_isRepaintBatteryFlag()) {
       // load the menu strings
@@ -1394,22 +1449,28 @@ void uicore_repaint(boolean fullRepaint) {
   // we are editing a value right now
   else if (menu_editing) {
     
+    if (debug) Serial.print("Edi");
+    
     if (!uicore_isRepaintBatteryFlag()) {
       // paint the edit-screen-header
       uipaint_headerEdit(full);
       // paint the edit screen
       uipaint_editScreen(full);
+
     }
         
   } 
   
   
-  // regular screen
+  // menu based screen
   else {
     
+    if (debug) Serial.print("Mnu");
     
     // we are in the settings menu
     if (uicore_isSettingsScreen()) {
+      
+      if (debug) Serial.print("Stg");
       
       if (!uicore_isRepaintBatteryFlag()) {
         boolean paintFullSettingsHeader = (screen_code_old < 100) ||
@@ -1424,17 +1485,28 @@ void uicore_repaint(boolean fullRepaint) {
     // regular screen
     else {
       
-      if (!uicore_isRepaintBatteryFlag()) {
+      if (debug) Serial.print("Reg");
+      
+      // check the screen ID
+      screen_code = uicore_checkScreenPos();
+      
+      
+      if (!uicore_isRepaintBatteryFlag() ||
+          full) {
         
+        if (debug) Serial.print("Hed");    
+            
         // paint the header
         uipaint_header(full);
               
         if (full) {
           // paint battery info on a full repaint
-          uipaint_battery(full); 
+          uipaint_battery(true); 
         }
               
       } else {
+        
+        if (debug) Serial.print("Bat");
         
         uipaint_battery(true); 
         
@@ -1446,8 +1518,11 @@ void uicore_repaint(boolean fullRepaint) {
     }
     
     // paint the menu items
-    if (!uicore_isRepaintBatteryFlag()) {
+    if (!uicore_isRepaintBatteryFlag() ||
+        full) {
       
+      if (debug) Serial.print("Bdy");
+          
       // load the menu strings
       uicore_loadMenuStrings();
       // paint the menu
@@ -1456,6 +1531,7 @@ void uicore_repaint(boolean fullRepaint) {
   
   }
   
+  if (debug) Serial.println();
   
   menu_editing_old          = menu_editing;
   uicore_col_scheme_old     = uicore_col_scheme;
@@ -1464,7 +1540,8 @@ void uicore_repaint(boolean fullRepaint) {
   program_is_running_old    = core_isProgramRunningFlag();
   core_is_jog_mode_old      = core_isJogModeFlag(); 
   uicore_status_old         = uicore_status; 
-
+  
+  
 }
 
 
@@ -1621,39 +1698,85 @@ void uicore_generateDataString(uint16_t line_code) {
                   if (menu_editing) {
                     
                     if (isBit(key, KEY_UP)) {
-                     
-                      if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {       core_setSystemMode(SYSTEM_MODE_SMS);          }
-                      else if (isBit(core_mode, SYSTEM_MODE_SMS)) {         core_setSystemMode(SYSTEM_MODE_CONTINUOUS);   }
+                      
+                     if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
+                     else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_TIMELAPSE; 
+                     // else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
                                                                   
                     }
                    
                     if (isBit(key, KEY_DOWN)) {
                       
-                      if (isBit(core_mode, SYSTEM_MODE_SMS)) {              core_setSystemMode(SYSTEM_MODE_CONTINUOUS);  }
-                      else if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {  core_setSystemMode(SYSTEM_MODE_SMS);         }
+                      if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
+                      else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_TIMELAPSE; 
+                      // else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
                       
                     }
                                              
                     sd_setSettingsChangedFlag();  
-                  
-                    if (isBit(core_mode, SYSTEM_MODE_SMS))        strcpy(data_line, string_30_long);
-                    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) strcpy(data_line, string_31_long);
-                    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) strcpy(data_line, string_32_long);
-                    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      strcpy(data_line, string_33_long);  
-                  
-                  } // end: value is edited
-                  else {
-                  
-                    if (isBit(core_mode, SYSTEM_MODE_SMS))        strcpy(data_line, string_30_short);
-                    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) strcpy(data_line, string_31_short);
-                    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) strcpy(data_line, string_32_short);
-                    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      strcpy(data_line, string_33_short);
+                    
+                    core_checkModes();
+                    
+                    // show the long strings when in editing mode
+                    if      (isBit(core_mode, MODE_TIMELAPSE)) strcpy(data_line, string_60_long);
+                    else if (isBit(core_mode, MODE_VIDEO))     strcpy(data_line, string_61_long);
+                    else if (isBit(core_mode, MODE_PANORAMA))  strcpy(data_line, string_62_long);
+                    
+                  } else {
+                   
+                   // show the short strings when in editing mode 
+                   if      (isBit(core_mode, MODE_TIMELAPSE)) strcpy(data_line, string_60_short);
+                   else if (isBit(core_mode, MODE_VIDEO))     strcpy(data_line, string_61_short);
+                   else if (isBit(core_mode, MODE_PANORAMA))  strcpy(data_line, string_62_short); 
+                     
                   }
+                  
+                  
                   
                   break;
             
     }
     
+    
+    // setup style
+    case 109 : {
+                  if (!isBit(core_mode, MODE_PANORAMA)) {
+                    
+                    if (menu_editing) {
+                      
+                      if (isBit(key, KEY_UP)) {
+                        
+                       if      (isBit(core_setup_style, SETUP_STYLE_RUN))         core_setup_style = SETUP_STYLE_KEYFRAMES; 
+                       else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES))   core_setup_style = SETUP_STYLE_RUN; 
+                                                                    
+                      }
+                     
+                      if (isBit(key, KEY_DOWN)) {
+                        
+                        if      (isBit(core_setup_style, SETUP_STYLE_RUN))        core_setup_style = SETUP_STYLE_KEYFRAMES; 
+                        else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES))  core_setup_style = SETUP_STYLE_RUN; 
+                        
+                      }
+                                               
+                      sd_setSettingsChangedFlag();  
+                    
+                      // show the long strings when in editing mode
+                      if      (isBit(core_setup_style, SETUP_STYLE_RUN))         strcpy(data_line, string_50_long);
+                      else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES))   strcpy(data_line, string_51_long);
+                    
+                    } else {
+                      
+                      // show the short strings when in editing mode
+                      if      (isBit(core_setup_style, SETUP_STYLE_RUN))         strcpy(data_line, string_50_short);
+                      else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES))   strcpy(data_line, string_51_short);
+                        
+                    }
+                    
+                  }
+                  
+                  break;
+            
+    }
     
     
     // system font
@@ -1674,6 +1797,50 @@ void uicore_generateDataString(uint16_t line_code) {
                    // generate the data string 
                    strcpy(data_line, uicore_fonts[uicore_font_index].name);
                    break;
+    }
+    
+    
+    // move style
+    case 111 : {
+                  if (!isBit(core_mode, MODE_VIDEO)     &&
+                      !isBit(core_mode, MODE_PANORAMA)) {
+                    
+                    if (menu_editing) {
+                      
+                      if (isBit(key, KEY_UP)) {
+                        
+                       if      (isBit(core_move_style, MOVE_STYLE_SMS))          core_move_style = MOVE_STYLE_CONTINUOUS; 
+                       else if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS))   core_move_style = MOVE_STYLE_SMS; 
+                                                                    
+                      }
+                     
+                      if (isBit(key, KEY_DOWN)) {
+                        
+                        if      (isBit(core_move_style, MOVE_STYLE_SMS))         core_move_style = MOVE_STYLE_CONTINUOUS; 
+                        else if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS))  core_move_style = MOVE_STYLE_SMS; 
+                        
+                      }
+                                               
+                      sd_setSettingsChangedFlag();  
+                      
+                      core_checkModes();
+                      
+                      // show the long strings when in editing mode
+                      if      (isBit(core_move_style, MOVE_STYLE_SMS))          strcpy(data_line, string_30_long);
+                      else if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS))   strcpy(data_line, string_31_long);
+                    
+                    } else {
+                      
+                      // show the short strings when in editing mode
+                      if      (isBit(core_move_style, MOVE_STYLE_SMS))          strcpy(data_line, string_30_short);
+                      else if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS))   strcpy(data_line, string_31_short);
+                    
+                    }
+                    
+                  }
+                  
+                  break;
+            
     }
     
     
@@ -2216,13 +2383,13 @@ void uicore_generateDataString(uint16_t line_code) {
                    // hours
                    itoa(hours, data_line, 10);
                    // double punkt
-                   strcat(data_line, STR_DPUNKT);
+                   strcat(data_line, STR_DPOINT);
                    // minutes
                    itoa(minutes, temp, 10);
                    if (minutes < 10) strcat(data_line, STR_NULL); 
                    strcat(data_line, temp); 
                    // double punkt 
-                   strcat(data_line, STR_DPUNKT); 
+                   strcat(data_line, STR_DPOINT); 
                    // seconds
                    itoa(seconds, temp, 10);
                    if (seconds < 10) strcat(data_line, STR_NULL); 
@@ -2262,13 +2429,13 @@ void uicore_generateDataString(uint16_t line_code) {
                    // hours
                    itoa(hours, data_line, 10);
                    // double punkt
-                   strcat(data_line, STR_DPUNKT);
+                   strcat(data_line, STR_DPOINT);
                    // minutes
                    itoa(minutes, temp, 10);
                    if (minutes < 10) strcat(data_line, STR_NULL); 
                    strcat(data_line, temp); 
                    // double punkt 
-                   strcat(data_line, STR_DPUNKT); 
+                   strcat(data_line, STR_DPOINT); 
                    // seconds
                    itoa(seconds, temp, 10);
                    if (seconds < 10) strcat(data_line, STR_NULL); 
@@ -2546,33 +2713,59 @@ void uicore_loadPopupMenuStrings(uint8_t menu_code) {
 // ======================================================================================
 byte uicore_checkScreenPos() {
   
-  // setup style = RUN
-  if (isBit(core_mode, SETUP_MODE_RUN)) {
+  // 10:  SMS            run setup         >> Timelapse
+  // 11:  SMS            keyframes         >> Timelapse
+  // 20:  Continuous     run setup         >> Timelapse
+  // 21:  Continuous     keyframes         >> Timelapse
+  // 30:  Video          run setup         >> Video
+  // 31:  Video          keyframes         >> Video
+  // 40:  Panorama       n.a.              >> Panorama
   
-    if (isBit(core_mode, SYSTEM_MODE_SMS))        return 10;  
-    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) return 20;  
-    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) return 30;  
-    
-  }
   
-  // setup style = CYCLE
-  else if (isBit(core_mode, SETUP_MODE_CYCLE)) {
+  ///////////////////////////////
+  // TIMELPASE
+  if (isBit(core_mode, MODE_TIMELAPSE)) {
+    
+    if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
+    
+      if (isBit(core_move_style, MOVE_STYLE_SMS))        return 10;  
+      if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) return 20;  
+        
+    } else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
+      
+      if (isBit(core_move_style, MOVE_STYLE_SMS))        return 11;  
+      if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) return 21;  
+    
+    }
+    
+  } // end: timelapse
   
-    if (isBit(core_mode, SYSTEM_MODE_SMS))        return 11;  
-    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) return 21;  
-    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) return 31;  
+  ///////////////////////////////
+  // VIDEO
+  else if (isBit(core_mode, MODE_VIDEO)) {
     
-  }
+    if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
+    
+      return 30;  
+        
+    } else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
+      
+      return 31;
+    
+    }
+    
+  } // end: video
   
-  // setup style = KEYFRMAES  
-  else if (isBit(core_mode, SETUP_MODE_KEYFRAMES)) {
+  
+  ///////////////////////////////
+  // VIDEO
+  else if (isBit(core_mode, MODE_PANORAMA)) {
     
-    if (isBit(core_mode, SYSTEM_MODE_SMS))        return 12;  
-    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) return 22;  
-    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) return 32;  
-    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      return 42;  
+    return 40;
     
-  }
+  } // end: panorama
+  
+    
     
   // default return = SMS with RUN Setup  
   return 10;    
@@ -2711,7 +2904,7 @@ void uicore_fadeInString(String str, int x, int y, int stp, byte r, byte g, byte
 // ============================================================================
 // converts RGB to RGB565
 // ============================================================================
-uint16_t uicode_getRGB565(uint8_t r, uint8_t g, uint8_t b) {
+uint16_t uicore_getRGB565(uint8_t r, uint8_t g, uint8_t b) {
   return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);  
 }
 

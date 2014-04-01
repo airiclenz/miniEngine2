@@ -20,7 +20,8 @@
 */
 
 
-#define CONFIG_FILE   "miniE.cnf"
+#define CONFIG_FILE    "miniE.cnf"
+#define BATTERY_FILE   "battery.cal"
 
 
 
@@ -33,13 +34,13 @@
 
 // our file object to write to
 File sd_file;
-
+File sd_battery_file;
 
 // general SD routines status flags
 // B0 = sd ok & config file existant
 // B1 = settings were changed
 // B2 = save power calibration data
-// B3 = 
+// B3 = sd ok & battery file existant
 // B4 = 
 // B5 = 
 // B6 = 
@@ -48,6 +49,11 @@ boolean sd_status = 0;
 
 // the address where the data starts...
 uint16_t sd_data_start;
+
+
+byte sd_file_version;
+byte sd_file_subversion;
+byte sd_file_subsubversion;
 
 
 // ============================================================================
@@ -64,6 +70,12 @@ boolean sd_isSettingsChangedFlag()           { return isBit(sd_status, BIT_1); }
 void    sd_setSavePowerCalibrationFlag()     { setBit(sd_status, BIT_2); }
 void    sd_deleteSavePowerCalibrationFlag()  { deleteBit(sd_status, BIT_2); }
 boolean sd_isSavePowerCalibrationFlag()      { return isBit(sd_status, BIT_2); }
+
+// ============================================================================
+void    sd_setSDBat_OK()                     { setBit(sd_status, BIT_3); }
+void    sd_deleteSDBat_OK()                  { deleteBit(sd_status, BIT_3); }
+boolean sd_isSDBat_OK()                      { return isBit(sd_status, BIT_3); }
+
 
 
 // ============================================================================
@@ -86,7 +98,7 @@ void sd_init() {
 // ============================================================================
 void sd_process() {
   
-  // only save something is the program is not running...
+  // only save the settings if the program is not running...
   
   if (!core_isProgramRunningFlag()) {
   
@@ -100,19 +112,22 @@ void sd_process() {
       sd_deleteSettingsChangedFlag();
     }  
     
-    // are we supposed to save the calibration data?
-    if (sd_isSavePowerCalibrationFlag() &&
-        sd_isSD_OK()) {
-  
-      // save the new power calibration data    
-      sd_savePowerCalibration();
-          
-      // remove the flag that we need to save power data...    
-      sd_deleteSavePowerCalibrationFlag();      
-            
-    }
-  
   } // end: program running?
+  
+  
+  // are we supposed to save the calibration data?
+  // save this even if the program is running:
+  
+  if (sd_isSavePowerCalibrationFlag() && 
+      sd_isSDBat_OK()) {
+
+    // save the new power calibration data    
+    sd_saveBatteryCalibration();
+        
+    // remove the flag that we need to save power data...    
+    sd_deleteSavePowerCalibrationFlag();      
+          
+  }
   
 }
 
@@ -123,8 +138,63 @@ boolean sd_initCard() {
   
   pinMode(PIN_SD_SS, OUTPUT);
   
+  
+  // can we access the SD card?
   if (SD.begin(PIN_SD_SS)) {
     
+    
+    /////////////////////////////////////////
+    // check the battery file
+    // does the battery calibration file exist?
+    if (SD.exists(BATTERY_FILE)) {
+      
+      sd_battery_file = SD.open(BATTERY_FILE, FILE_READ);
+      
+      // could we open the battery calibration file?  
+      if (sd_battery_file) {
+        
+        // load the battery calibration
+        if (sd_loadBatteryCalibration()) {
+          
+          // set the OK flag for the battery file
+          sd_setSDBat_OK();
+          
+        } else {
+          
+          // create a new file
+          if (sd_saveBatteryCalibration()) {
+            
+            // set the OK flag for the battery file
+            sd_setSDBat_OK();  
+            
+          } else {
+            sd_deleteSDBat_OK();
+          }
+          
+        }
+        
+        
+      } else {
+        sd_deleteSDBat_OK();
+      }
+      
+    } else {
+      
+      // create a new battery calibration file
+      if (sd_saveBatteryCalibration()) {
+        
+        // set the OK flag for the battery file
+        sd_setSDBat_OK();
+        
+      } else {
+        sd_deleteSDBat_OK();
+      }
+      
+    }
+      
+    
+    /////////////////////////////////////////
+    // check the regular settings file
     // does the configuration file exist?
     if (SD.exists(CONFIG_FILE)) {
       
@@ -140,7 +210,10 @@ boolean sd_initCard() {
           
         } else {
           
-          // re create the config file
+          // load the older version of the config
+          sd_loadOldVersionSettings();
+          
+          // re create the new config file
           if (sd_saveConfig()) {
                         
             return true;
@@ -164,6 +237,7 @@ boolean sd_initCard() {
     
   } // end: SD-reader init
   
+  
   // if we land here, something went really wrong  
   return false;  
 }
@@ -183,6 +257,13 @@ boolean sd_isVersionOK() {
     i++;
   }
   
+  
+  // remember the old version of the settings file
+  sd_file_version =       version[1] - 48;
+  sd_file_subversion =    version[3] - 48;
+  sd_file_subsubversion = version[5] - 48;
+    
+  
   // check if the file content is as expected
   if ((version[0] == 118)                  &&  // v
       (version[1] == (VERSION + 48))       &&  // ASCII numbers start at 48
@@ -192,14 +273,56 @@ boolean sd_isVersionOK() {
       (version[5] == (SUBSUBVERSION + 48)) &&  // ASCII numbers start at 48
       (version[6] == 13)                   &&  // LF
       (version[7] == 10)) {                    // CR
-  
+    
     return true;    
   }
+  
+  
   
   return false;
 }
 
 
+
+// ============================================================================
+boolean sd_saveBatteryCalibration() {
+    
+  // if the file is open, close it
+  if (sd_battery_file) {
+    sd_battery_file.close();  
+  }
+  
+  // delete the old config file
+  SD.remove(BATTERY_FILE);
+  
+  // create a new file and open it
+  sd_battery_file = SD.open(BATTERY_FILE, FILE_WRITE);
+  
+  if (sd_battery_file) {
+    
+    uint16_t value1 = power_getCalibrationEmpty(); 
+    uint16_t value2 = power_getCalibrationFull(); 
+    
+    // create a byte array pointer to the value  
+    byte* ptr;
+    ptr = (byte*) &value1;  
+    // save the content of the byte array value to the SD 
+    // (basically it saves the value cut into bytes)
+    sd_battery_file.write(ptr, 2);  
+    
+    // do the same for the other value
+    ptr = (byte*) &value2;  
+    sd_battery_file.write(ptr, 2);  
+    
+    // close the file
+    sd_battery_file.close();
+    
+    return true;
+  }
+  
+  return false;
+  
+}
 
 // ============================================================================
 boolean sd_saveConfig() {
@@ -226,12 +349,7 @@ boolean sd_saveConfig() {
     sd_file.print(SUBSUBVERSION);
     sd_file.write(13);
     sd_file.write(10);
-    
-    
-    
-    // Battery calibration
-    sd_writeData((uint16_t)   power_getCalibrationEmpty()); 
-    sd_writeData((uint16_t)   power_getCalibrationFull());  
+
         
     // backlight and UI layout    
     sd_writeData((byte)       uicore_getBacklightLevel());      // backlight power
@@ -241,12 +359,15 @@ boolean sd_saveConfig() {
     
     // core variables
     sd_writeData((byte)       core_mode);                       // the core mode
+    sd_writeData((byte)       core_setup_style);                // the setup style
+    sd_writeData((byte)       core_move_style);                 // the move style
     sd_writeData((byte)       core_settings);                   // some core settings 
     
     // camera data
     sd_writeData((byte)     isBit(cam_status, BIT_7));          // camera type
     sd_writeData((byte)       cam_fps_index);                   // clip fps value
-    sd_writeData((uint32_t)   cam_exposure);                    // camera exposure       
+    sd_writeData((uint32_t)   cam_exposure);                    // camera exposure     
+    sd_writeData((byte)       cam_exposure_index);              // camera exposure  
     sd_writeData((uint32_t)   cam_focus);                       // camera focus time        
     sd_writeData((uint32_t)   cam_post_delay);                  // camera post delay time
 
@@ -257,6 +378,7 @@ boolean sd_saveConfig() {
             
     // motor data
     for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+      
       sd_writeData((byte)     motors[i].getType());             // motor 1 type
       sd_writeData((float)    motors[i].getCalibration());      // motor calibration  
       sd_writeData((float)    motors[i].getMaxSpeed());         // motor max speed  
@@ -267,6 +389,8 @@ boolean sd_saveConfig() {
       sd_writeData((float)    motor_total_distance[i]);         // the run-setup move dist 
       sd_writeData((byte)     motor_sleep[i]);                  // motor sleep after moves
       sd_writeData((byte)     motors[i].isDirectionFlipped());  // motor direction flipped
+      sd_writeData((byte)     motors[i].isKeepPowered());       // keep the motor powered
+      
       
       // a lille bit of motor specific run-setup-data
       sd_writeData((uint8_t)  setup_run_ramp_in[i]);            // the ramp-in-amount in percent for run setup
@@ -295,15 +419,46 @@ boolean sd_saveConfig() {
 }
 
 
+
+
 // ============================================================================
-boolean sd_savePowerCalibration() {
+boolean sd_loadBatteryCalibration() {
   
-  // TODO
-  // for now just save everything...
-  sd_saveConfig();
+  // open the config file
+  sd_battery_file = SD.open(BATTERY_FILE, FILE_READ);
+    
+  // if openeing the file succeeded
+  if (sd_battery_file) {
+    
+    uint32_t fileSize = sd_battery_file.size();
+    
+    // create a byte buffer for storing the file in the RAM
+    byte buffer[fileSize];
+    
+    // read the file into the buffer
+    for (uint16_t i=0; i<fileSize; i++) {
+      buffer[i] = sd_battery_file.read();
+    }
+    
+    sd_battery_file.close();
 
+        
+    // has the file the right size of 4 byte?
+    if (fileSize == 4) {
+    
+      // set the battery calibration
+      power_setCalibrationEmpty( sd_readUInt(buffer, 0) );
+      power_setCalibrationFull(  sd_readUInt(buffer, 2) );
+      
+      return true;
+    
+    }
+  
+  }
+  
+  return false;
+  
 }
-
 
 
 
@@ -346,10 +501,6 @@ boolean sd_loadConfig() {
     }
         
     
-    
-    // Battery calibration
-    power_setCalibrationEmpty(      sd_readUInt  (buffer, address));            address += 2;
-    power_setCalibrationFull(       sd_readUInt  (buffer, address));            address += 2;
      
     // backlight and UI layout    
     uicore_setBacklightLevel(       sd_readByte  (buffer, address));            address += 1;
@@ -359,6 +510,8 @@ boolean sd_loadConfig() {
         
     // core variables
     core_mode =                     sd_readByte(buffer, address);               address += 1; 
+    core_setup_style =              sd_readByte(buffer, address);               address += 1; 
+    core_move_style =               sd_readByte(buffer, address);               address += 1; 
     core_settings =                 sd_readByte(buffer, address);               address += 1; 
     
     
@@ -369,6 +522,7 @@ boolean sd_loadConfig() {
     
     cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
     cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
+    cam_exposure_index =            sd_readByte(buffer, address);               address += 1;
     cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
     cam_post_delay =                (uint32_t) sd_readULong(buffer, address);   address += 4; 
     
@@ -391,6 +545,7 @@ boolean sd_loadConfig() {
       motor_total_distance[i] =     sd_readFloat (buffer, address);             address += 4;
       motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
       motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
+      motors[i].setKeepPowered(     (boolean) sd_readByte(buffer, address));     address += 1;       
             
       // a lille bit of motor specific run-setup-data
       setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
@@ -419,6 +574,134 @@ boolean sd_loadConfig() {
   }
   
   return false;
+}
+
+
+
+// ============================================================================
+void sd_loadOldVersionSettings() {
+    
+  // open the config file
+  sd_file = SD.open(CONFIG_FILE, FILE_READ);
+    
+  // if openeing the file succeeded
+  if (sd_file) {
+  
+    uint32_t fileSize = sd_file.size();
+    
+    // create a byte buffer for storing the file in the RAM
+    byte buffer[fileSize];
+    
+    // read the file into the buffer
+    for (uint16_t i=0; i<fileSize; i++) {
+      buffer[i] = sd_file.read();
+    }
+    
+    sd_file.close();
+    
+    uint16_t address = 0;
+    boolean dataFound = false;
+    // look for the first line break
+    while ((address < fileSize) && !dataFound) {
+      
+      if ((buffer[address + 0] == 13) && 
+          (buffer[address + 1] == 10)) {
+        
+        address++;
+        sd_data_start = address + 1;
+        dataFound = true;
+          
+      }
+      // go to the next charakter
+      address++;  
+    }
+    
+    if ((sd_file_version       == 2) &&
+        (sd_file_subversion    == 0) &&
+        (sd_file_subsubversion == 4)) {
+          
+      sd_loadVersion_2_0_4(buffer, address);        
+    }
+    
+    // save the loaded battery calibration to the new separate battery file
+    sd_saveBatteryCalibration();
+    
+  }
+  
+}
+
+
+// ============================================================================
+void sd_loadVersion_2_0_4(byte* buffer, uint16_t address) {
+  
+  // Battery calibration
+  power_setCalibrationEmpty(      sd_readUInt  (buffer, address));            address += 2;
+  power_setCalibrationFull(       sd_readUInt  (buffer, address));            address += 2;
+   
+  // backlight and UI layout    
+  uicore_setBacklightLevel(       sd_readByte  (buffer, address));            address += 1;
+  uicore_setBacklightTime(        sd_readULong (buffer, address));            address += 4;
+  uicore_setColorScheme(          sd_readByte  (buffer, address));            address += 1;
+  uicore_setFont(                 sd_readByte  (buffer, address));            address += 1;
+      
+  // core variables
+  core_mode =                     sd_readByte(buffer, address);               address += 1; 
+  core_settings =                 sd_readByte(buffer, address);               address += 1; 
+  
+  
+  // camera data
+  boolean camType =               (boolean) sd_readByte(buffer, address);     address += 1;
+  if (camType) setBit(cam_status, BIT_7);
+  else         deleteBit(cam_status, BIT_7);    
+  
+  cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
+  cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
+  cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
+  cam_post_delay =                (uint32_t) sd_readULong(buffer, address);   address += 4; 
+  
+  
+  // setup data
+  setup_record_time =             (uint32_t) sd_readULong(buffer, address);   address += 4; 
+  setup_play_time =               (uint32_t) sd_readULong(buffer, address);   address += 4; 
+     
+      
+  // motor data
+  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+    
+    motors[i].setType(            sd_readByte  (buffer, address));            address += 1;
+    motors[i].setCalibration(     sd_readFloat (buffer, address));            address += 4;
+    motors[i].setMaxSpeed(        sd_readFloat (buffer, address));            address += 4;
+    motor_ramp_time[i] =          sd_readFloat (buffer, address) ;            address += 4;
+    motors[i].setPostDelay(       sd_readULong (buffer, address));            address += 4;
+    motor_program_direction[i] =  (boolean) sd_readByte(buffer, address);     address += 1;
+    
+    motor_total_distance[i] =     sd_readFloat (buffer, address);             address += 4;
+    motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
+    motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
+          
+    // a lille bit of motor specific run-setup-data
+    setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
+    setup_run_ramp_out[i] =       sd_readByte(buffer, address);               address += 1; 
+    
+  }
+  
+  
+  // trigger data
+  for (int i=0; i<trigger_getTriggercount(); i++) {
+    
+    boolean enabled =             (boolean) sd_readByte(buffer, address);     address += 1;
+    byte action =                 sd_readByte(buffer, address);               address += 1;
+    byte type =                   sd_readByte(buffer, address);               address += 1;
+    boolean debounce =            (boolean) sd_readByte(buffer, address);     address += 1;
+    
+    trigger_setTriggerType(i, type);
+    trigger_setTriggerAction(i, action);
+    trigger_setDebounce(i, debounce);
+    trigger_setEnabled(i, enabled);
+    
+  }
+  
+  
 }
 
 

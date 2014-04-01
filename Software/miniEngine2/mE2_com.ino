@@ -44,7 +44,7 @@ void com_init() {
 
 // ============================================================================
 void com_process() {
-  com.executeCommunication();
+  //com.executeCommunication();
 }
 
 

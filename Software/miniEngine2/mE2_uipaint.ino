@@ -70,13 +70,19 @@ void uipaint_header(boolean full_repaint) {
     tft.setColor(color_schemes[uicore_col_scheme].font_header);
     tft.setFont(SMALL_FONT);
     
-    if (isBit(core_mode, SYSTEM_MODE_SMS))        uicore_getLongString( 30 ); 
-    if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) uicore_getLongString( 31 ); 
-    if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) uicore_getLongString( 32 ); 
-    if (isBit(core_mode, SYSTEM_MODE_VIDEO))      uicore_getLongString( 33 ); 
-     
-    tft.print(data_line, 7, 2);  
+    if (isBit(core_mode, MODE_TIMELAPSE))     uicore_getShortString(60, 0);
+    else if (isBit(core_mode, MODE_VIDEO))    uicore_getShortString(61, 0);
+    else if (isBit(core_mode, MODE_PANORAMA)) uicore_getShortString(62, 0);
     
+    if (!isBit(core_mode, MODE_PANORAMA)) {
+      strcat(lines[0], STR_SPACE2);
+
+      if      (core_setup_style == SETUP_STYLE_RUN)       strcat(lines[0], string_50_short);
+      else if (core_setup_style == SETUP_STYLE_KEYFRAMES) strcat(lines[0], string_51_short);
+    } 
+        
+    tft.print(lines[0], 7, 2); 
+        
   }
   
 }
@@ -96,6 +102,8 @@ void uipaint_headerSettings(boolean full_repaint) {
     tft.setFont(SMALL_FONT);
     
     uicore_getShortString( 92, 0); // Settings
+    
+    // print the string
     tft.print(lines[0], 3, 1); 
   }
   
@@ -106,8 +114,7 @@ void uipaint_headerSettings(boolean full_repaint) {
   uicore_getShortString( 95, 2); // MOT
   uicore_getShortString( 96, 3); // CHN
   uicore_getShortString( 97, 4); // TRG
-    
-  tft.setFont(uicore_fonts[uicore_font_index].font);  
+  
     
   byte cnt;
   
@@ -126,7 +133,41 @@ void uipaint_headerSettings(boolean full_repaint) {
         ( (screen_code_old == i) &&
           (screen_code != screen_code_old))) {
         
-    
+      // paint the long settings name
+      tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
+      tft.setColor(color_schemes[uicore_col_scheme].font_header);
+      tft.setFont(SMALL_FONT);
+      
+      
+      uint16_t str_len;
+          
+      // paint the long version of the settings name
+      switch (screen_code) {
+        case 100:    str_len = strlen(string_93_long) * tft.getFontXsize();        // General
+                     tft.print(string_93_long, display_width - str_len - 4, 1);    
+                     break;
+                     
+        case 101:    str_len =strlen(string_94_long) * tft.getFontXsize();        // Camera
+                     tft.print(string_94_long, display_width - str_len - 4, 1);    
+                     break;
+                     
+        case 102:    str_len =strlen(string_95_long) * tft.getFontXsize();        // Motors
+                     tft.print(string_95_long, display_width - str_len - 4, 1);    
+                     break;
+                     
+        case 103:    str_len =strlen(string_96_long) * tft.getFontXsize();        // Daisy Chaining
+                     tft.print(string_96_long, display_width - str_len - 4, 1);    
+                     break;
+                     
+        case 104:    str_len =strlen(string_97_long) * tft.getFontXsize();        // Triggers
+                     tft.print(string_97_long, display_width - str_len - 4, 1);    
+                     break;
+      }    
+      
+      
+      // Set the main font      
+      tft.setFont(uicore_fonts[uicore_font_index].font);  
+                  
       // are we standing on the current settings screen?
       if (screen_code == i) {
         
@@ -210,7 +251,12 @@ void uipaint_battery(boolean paint) {
       tft.setBackColor(color_schemes[uicore_col_scheme].background);
       tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
       
+      // add the unit percent
       strcat(temp, STR_PERCENT);
+      // add a space to clear the last position
+      // this is needed if the total length of the percent
+      // string goeas down by one: 10% -> 9%
+      strcat(temp, STR_SPACE1);
       tft.print(temp, 7, 195);
       
     } else {
@@ -221,9 +267,9 @@ void uipaint_battery(boolean paint) {
       tft.setColor(color_schemes[uicore_col_scheme].font_header);
       tft.setFont(SMALL_FONT);
       
-      if (batProcent == 100)   strcat(lines[0], " ");
-      else if (batProcent > 9) strcat(lines[0], "  ");
-      else                     strcat(lines[0], "   ");
+      if (batProcent == 100)   strcat(lines[0], STR_SPACE1);
+      else if (batProcent > 9) strcat(lines[0], STR_SPACE2);
+      else                     strcat(lines[0], STR_SPACE3);
       
       strcat(lines[0], temp);
       strcat(lines[0], STR_PERCENT);
@@ -287,18 +333,18 @@ void uipaint_shotCount() {
   if (cam_shoot_count < 10) {
     
     for (byte i=1; i<charCount; i++) {
-      strcat(data_line, STR_SPACE);
+      strcat(data_line, STR_SPACE1);
     }
     
   } else if (cam_shoot_count < 100) {
     
     for (byte i=2; i<charCount; i++) {
-      strcat(data_line, STR_SPACE);
+      strcat(data_line, STR_SPACE1);
     }
     
   } else if ((cam_shoot_count < 1000) &&
              (charCount == 4)) {
-    strcat(data_line, STR_SPACE);  
+    strcat(data_line, STR_SPACE1);  
     
   }
   
@@ -307,7 +353,7 @@ void uipaint_shotCount() {
   strcat(data_line, STR_SLASH);
   
   if (setup_frame_count < 10) {
-    strcat(data_line, STR_SPACE);
+    strcat(data_line, STR_SPACE1);
   } 
   
   
@@ -360,14 +406,13 @@ void uipaint_dashboard(boolean fullRepaint) {
     
     // paint the mode string
     tft.setBackColor(color_schemes[uicore_col_scheme].background);
-    if (isBit(core_mode, SYSTEM_MODE_SMS)) {
-      tft.print(string_30_short, 130, 195);  // SMS
-    } else if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {
-      tft.print(string_31_short, 130, 195);  // Continous
-    } else if (isBit(core_mode, SYSTEM_MODE_STOPMOTION)) {
-      tft.print(string_32_short, 130, 195);  // Stop-Motn
-    } else if (isBit(core_mode, SYSTEM_MODE_VIDEO)) {
-      tft.print(string_33_short, 130, 195);  // Video
+    
+    if (isBit(core_mode, MODE_TIMELAPSE)) {
+      tft.print(string_60_short, 130, 195);  
+    } else if (isBit(core_mode, MODE_VIDEO)) {
+      tft.print(string_61_short, 130, 195);  
+    } else if (isBit(core_mode, MODE_PANORAMA)) {
+      tft.print(string_62_short, 130, 195);  
     }
     
     // Paint the section headers
@@ -863,7 +908,7 @@ void uipaint_jogWindow(boolean full_repaint) {
     tft.setBackColor(color_schemes[uicore_col_scheme].font_bg_selected);
     tft.setColor(color_schemes[uicore_col_scheme].font_selected);
     strcpy(data_line, string_81_short);
-    strcat(data_line, STR_SPACE);
+    strcat(data_line, STR_SPACE1);
     itoa(motor_selected + 1, temp, 10);
     strcat(data_line, temp);
     tft.print(data_line, xstart + 11, ystart + 7);  
@@ -897,7 +942,7 @@ void uipaint_jogWindow(boolean full_repaint) {
   tft.setColor(color_schemes[uicore_col_scheme].font);
   
   sprintf(temp,"%.2f", jspd);
-  strcpy(lines[0], STR_SPACE);
+  strcpy(lines[0], STR_SPACE1);
   strcat(lines[0], temp);
   
   // motor type for correct unit 
@@ -911,7 +956,7 @@ void uipaint_jogWindow(boolean full_repaint) {
   tft.print(lines[0], display_width - xstart - str_len - 7, ystart + headerh + 12);  
    
   sprintf(temp,"%.1f", mpos);
-  strcpy(lines[1], STR_SPACE);
+  strcpy(lines[1], STR_SPACE1);
   strcat(lines[1], temp);
   
   // motor type for correct unit 
@@ -970,14 +1015,14 @@ void uipaint_splashScreen() {
   char version[16];
   char subversion[8];
   itoa(VERSION, version, 10);
-  strcat(version, ".");
+  strcat(version, STR_POINT);
   itoa(SUBVERSION, subversion, 10);
   strcat(version, subversion);
   
   // alpha
-  strcat(version, STR_SPACE);
+  strcat(version, STR_SPACE1);
   strcat(version, STR_VER);
-  strcat(version, STR_SPACE);
+  strcat(version, STR_SPACE1);
   
   itoa(SUBSUBVERSION, temp, 10);
   strcat(version, temp);

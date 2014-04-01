@@ -162,12 +162,12 @@ uint8_t power_readBatteryLevel() {
   */
 
   
-  // map the measured value to our 8 displayable battery levels
+  // map the measured value to percent
   val = map(val, 
             battery_val_empty, battery_val_full,
             0, 100); 
     
-  // constraint to these 100 (percent) levels  
+  // constraint to 100 (percent) levels  
   val = constrain(val, 0, 100); 
 
   // store the val in the battery average buffer array

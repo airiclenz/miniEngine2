@@ -67,7 +67,7 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define SUBSUBVERSION                4
+#define SUBSUBVERSION                5
 
 const char* STR_VER                  = "BETA";
 
@@ -168,17 +168,30 @@ extern uint8_t Arial[];
 ////////////////////////////////////////////////////////
 
 
-#define  SYSTEM_MODE_SMS             B00000001    // BIT 0
-#define  SYSTEM_MODE_CONTINUOUS      B00000010    // BIT 1
-#define  SYSTEM_MODE_STOPMOTION      B00000100    // ... 
-#define  SYSTEM_MODE_VIDEO           B00001000   
 
-#define  SETUP_MODE_RUN              B00100000    // ...
-#define  SETUP_MODE_CYCLE            B01000000    // BIT 6 
-#define  SETUP_MODE_KEYFRAMES        B10000000    // BIT 7 
+// System Modes
+#define  MODE_COUNT              3
+#define  MODE_TIMELAPSE          B00000001
+#define  MODE_VIDEO              B00000010    
+#define  MODE_PANORAMA           B00000100    
 
-// the system setup variable
-uint8_t core_mode = SYSTEM_MODE_SMS | SETUP_MODE_RUN;  // B0010 0001
+// setup styles
+#define  SETUP_STYLE_COUNT       2
+#define  SETUP_STYLE_RUN         B00000001
+#define  SETUP_STYLE_KEYFRAMES   B00000010
+
+// move styles
+#define  MOVE_STYLE_COUNT        2
+#define  MOVE_STYLE_SMS          B00000001    
+#define  MOVE_STYLE_CONTINUOUS   B00000010    
+
+
+
+uint8_t core_mode         = MODE_TIMELAPSE;
+uint8_t core_setup_style  = SETUP_STYLE_RUN;
+uint8_t core_move_style   = MOVE_STYLE_SMS;
+
+
 
 
 ////////////////////////////////////////////////////////
@@ -269,6 +282,7 @@ uint32_t now;
 ////////////////////////////////////////////////////////
 
 
+
 // B0 = camera phase
 // B1 = motor phase
 // B2 = motor post delay phase
@@ -321,10 +335,8 @@ float motor_total_distance[DEF_MOTOR_COUNT] = { 0.0,
 // ============================================================================
 void setup() {
   
-  #ifdef DEBUG
-    Serial.begin(57600);
-    Serial.println();
-  #endif
+  //Serial.begin(57600);
+  Serial.begin(19200);
   
   // randomize
   randomSeed(analogRead(A0));
@@ -339,35 +351,31 @@ void setup() {
   trigger_init();
   //touch_init();
   
-  
-  
-  
-  
-  
-  #ifdef DEBUG
-    printFreeRam();
-  #endif
-  
+    
+  printFreeRam();
+    
   
   // paint the splashscreen  
   uipaint_splashScreen();  
   // clear the screen
   tft.clrScr();
-  // set the repaint flag
-  uicore_setRepaintFlag();
+  
+  
+  sd_init();  // also loads the settings
+  power_init();
+  // check if all values are calculated correctly after loading
+  // the settings from the SD card
+  core_checkValues();
+  
+  
+  // do a full repaint
+  uicore_repaint(true);
   // enable the backlight
   uicore_setBacklight(true);
   // clear all input events that might have happened so far
   input_clearKeyEvent();
   
   
-  
-  sd_init();  // also loads the settings
-  power_init();
-  
-  // check if all values are calculated correctly after loading
-  // the settings from the SD card
-  core_checkValues();
   
 }
 
@@ -393,116 +401,138 @@ void loop() {
     cam_process();
     sd_process();
     trigger_process();
-    
+    uplink_process();
     //core_process();
     
     
     //////////////////////////////////
     if (core_isProgramRunningFlag()) {
       
-      ////////////////////////////
-      // did the next cycle start?    
-      if (
-           (system_phase == 0) &&
-           (
-             core_isNextCycle() ||
-             core_isStartImmediatelyFlag()
-           )
-         ) {
-           
-        // when did this cycle start?   
-        system_cycle_start = millis();   
-            
-        // set the system status to the camera-phase
-        system_phase = BIT_0;    
-            
-        // delete the start.immediately flag  
-        if (core_isStartImmediatelyFlag()) {
-          core_deleteStartImmediatelyFlag();  
-        }
-         
-        // trigger the camera  
-        cam_start();
-                    
-      } // end: the next cycle started
       
-     
-      ////////////////////////////   
-      // camera phase
-      if (isBit(system_phase, BIT_0)) {
+      ////////////////////////////
+      // T I M E L A P S E
+      if (isBit(core_mode, MODE_TIMELAPSE)) {
+      
+        ////////////////////////////
+        // did the next cycle start?    
+        if (
+             (system_phase == 0) &&
+             (
+               core_isNextCycle() ||
+               core_isStartImmediatelyFlag()
+             )
+           ) {
+             
+          // when did this cycle start?   
+          system_cycle_start = millis();   
+              
+          // set the system status to the camera-phase
+          system_phase = BIT_0;    
+              
+          // delete the start.immediately flag  
+          if (core_isStartImmediatelyFlag()) {
+            core_deleteStartImmediatelyFlag();  
+          }
+           
+          // trigger the camera  
+          cam_start();
+                      
+        } // end: the next cycle started
         
-        // is the camer phase over?
-        if (!cam_isCameraWorking()) {
+       
+        ////////////////////////////   
+        // camera phase
+        if (isBit(system_phase, BIT_0)) {
           
-          // check if the program is done
-          core_checkIfProgramDone();
-          
-          // if we are in a curve-based-move mode, just go back to
-          // the cycle start
-          if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {
+          // is the camer phase over?
+          if (!cam_isCameraWorking()) {
+            
+            // check if the program is done
+            core_checkIfProgramDone();
+            
+            // if we are in a curve-based-move mode, just go back to
+            // the cycle start
+            if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) {
+              
+              // reset the system phase flag and thus restart the cycle
+              system_phase = 0;
+                          
+              // check if we need tp print a warning sign
+              core_checkIfCycleWasToLong();
+              
+            } 
+            
+            // if we are in a SMS mode, do the motor move stuff now
+            else {
+              
+              // go to the post delay phase 
+              // (shift the phase bit one position to the left)
+              system_phase = system_phase << 1;
+              
+              // initiate the motor stuff
+              motor_startMotorPhase();
+              
+            }
+                               
+            
+          } // end: camera is done
+           
+        } // end: camera phase ended
+         
+         
+         
+        ////////////////////////////
+        // motor phase
+        if (isBit(system_phase, BIT_1)) {
+           
+          // check if the motor moves are done
+          if (!motor_isMoveToPositionRunning()) {
+            
+            // go to the motor post phase
+            system_phase = system_phase << 1;
+            
+          } 
+           
+        } // end: motor phase
+         
+         
+        ////////////////////////////
+        // motor post delay
+        if (isBit(system_phase, BIT_2)) {
+         
+          // when the motor post delay ended
+          if (!motor_isPostDelay()) {
+            
+            // checks and sets the sleep function if needed          
+            motor_startSleep();
             
             // reset the system phase flag and thus restart the cycle
             system_phase = 0;
-                        
+            
             // check if we need tp print a warning sign
             core_checkIfCycleWasToLong();
             
-          } 
           
-          // if we are in a SMS mode, do the motor move stuff now
-          else {
-            
-            // go to the post delay phase 
-            // (shift the phase bit one position to the left)
-            system_phase = system_phase << 1;
-            
-            // initiate the motor stuff
-            motor_startMotorPhase();
-            
-          }
-                             
-          
-        } // end: camera is done
+          } // end: motor post delay ended
          
-      } // end: camera phase ended
-       
-       
-       
+        } // end: motor post delay phase
+                    
+      } // end: Timelapse mode            
+             
+             
       ////////////////////////////
-      // motor phase
-      if (isBit(system_phase, BIT_1)) {
-         
-        // check if the motor moves are done
-        if (!motor_isMoveToPositionRunning()) {
-          
-          // go to the motor post phase
-          system_phase = system_phase << 1;
-          
-        } 
-         
-      } // end: motor phase
-       
-       
-      ////////////////////////////
-      // motor post delay
-      if (isBit(system_phase, BIT_2)) {
-       
-        // when the motor post delay ended
-        if (!motor_isPostDelay()) {
-          
-          // checks and sets the sleep function if needed          
-          motor_startSleep();
-          
-          // reset the system phase flag and thus restart the cycle
-          system_phase = 0;
-          
-          // check if we need tp print a warning sign
-          core_checkIfCycleWasToLong();
-          
+      // T I M E L A P S E
+      else if (isBit(core_mode, MODE_VIDEO)) {      
+      
+        // if the program time is over
+        if (core_isProgramOver()) {
         
-        } // end: motor post delay ended
-       
-      } // end: motor post delay phase
+          // stop the program
+          core_stopProgram();
+          
+        }  
+        
+      } 
                      
     } // end: program is running
         
@@ -516,7 +546,7 @@ void loop() {
 
 
 
-#ifdef DEBUG
+
 
 // ============================================================================
 void printFreeRam () {
@@ -526,21 +556,30 @@ void printFreeRam () {
   struct mallinfo mi=mallinfo();
 
   Serial.println();
-  Serial.print("Dynamic ram used: ");
-  Serial.println(mi.uordblks);
+  Serial.println();
+  Serial.println();
   
-  Serial.print("Program static ram used: ");
-  Serial.println(&_end - ramstart); 
+  Serial.print(F("Dynamic ram used: ...... "));
+  Serial.print(mi.uordblks);
+  Serial.println(F(" bytes"));
   
-  Serial.print("Stack ram used: ");
-  Serial.println(ramend - stack_ptr);
+  Serial.print(F("Program static ram used: "));
+  Serial.print(&_end - ramstart); 
+  Serial.println(F(" bytes"));
+  
+  Serial.print(F("Stack ram used: ........ "));
+  Serial.print(ramend - stack_ptr);
+  Serial.println(F(" bytes")); 
  
-  Serial.print("~free mem: ");
-  Serial.println(stack_ptr - heapend + mi.fordblks);
+  Serial.print(F("~ Free mem: ............ "));
+  Serial.print(stack_ptr - heapend + mi.fordblks);
+  Serial.println(F(" bytes"));
+  
+  Serial.println();
   Serial.println();
 }
 
-#endif
+
 
 
 

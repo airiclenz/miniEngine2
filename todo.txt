@@ -3,6 +3,5 @@
 TODO
 ====
 
-
-
+-	check cycle length times before program start
 -	check limit switch sensitivity

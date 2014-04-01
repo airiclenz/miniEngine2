@@ -19,7 +19,7 @@
 
 */
 
-#define TIMER_PERIOD            100         // call the timers every 80 microseconds
+#define TIMER_PERIOD            100         // call the timers every X microseconds 
 #define DEF_LS_DEBOUNCE         50          // ms debounce for limit switches
 #define DEF_MIN_POS_ERROR       0.00001     // unit: cm/°; used for accuracy check of float variables
 
@@ -100,15 +100,20 @@ float motor_sleep[DEF_MOTOR_COUNT];
 // >> SMS or Continuous (=Video)
 volatile uint8_t motor_move_mode[DEF_MOTOR_COUNT];
 	
+
 // an array that stores which of the available curves are used
 // by the different motors 
 // dimension 1: all motors
-// dimension 2: no of the curve in the main curves array
+// dimension 2: # of the curve in the main curves array (index pointer)
 volatile uint8_t motor_used_curves[DEF_MOTOR_COUNT][CURVE_COUNT];
 
 // how much of the used-curves-array did we actually use?
+// stis array is used together with motor_used_curves and defines up to 
+// where the stack (motor_used_curves) is filled
 volatile uint8_t motor_used_curves_count[DEF_MOTOR_COUNT];
+
 // the current curve being used (position in the motor_used_curves array)
+// this little array is for running the curves
 volatile uint8_t motor_used_curves_index[DEF_MOTOR_COUNT];
 
 
@@ -134,11 +139,14 @@ volatile float  motor_reference_pos[DEF_MOTOR_COUNT] = { 0.0, 0.0 };
 // When running a timer is called 20000 times per second.
 
 
-DueTimer timer_jog(3);
-DueTimer timer_move(4);
+DueTimer timer_move(0);  // --> All curve based motor moves
+DueTimer timer_jog(1);   // --> Jogging
 
-// Timer 3 --> Jogging
-// Timer 4 --> All curve based motor moves
+
+
+
+// ============================================================================
+float motor_getTimeFactor() { return motor_time_factor; }
 
 
 
@@ -167,13 +175,8 @@ void motor_init() {
   // in which they are active
   motor_attachLimitSwitchInterrupts(LOW);
   
-  // get the first available timer  
-  timer_jog = Timer.getAvailable();
   // attach the interrupt function to the jog timer
   timer_jog.attachInterrupt(motor_handleJog);
-  
-  // get the second available timer
-  timer_move = Timer.getAvailable();
   // attach the interrupt function to the general motor timer
   timer_move.attachInterrupt(motor_handleMove);
   
@@ -192,7 +195,13 @@ void motor_init() {
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
   
     // motor ramp time
-    motor_ramp_time[i] = 1.0;
+    motor_ramp_time[i] = 0.5;
+    
+    // motor calibration
+    motors[i].setCalibration(500);
+    
+    // motor max speed
+    motors[i].setMaxSpeed(20);
     
     // motor sleep
     motor_sleep[i] = false;
@@ -372,7 +381,7 @@ void motor_disableAll() {
   timer_move.stop();
 	
   // delete the "timer running flags"
-  deleteBit(motor_timer_status, BIT_0 || BIT_2);
+  deleteBit(motor_timer_status, BIT_0 || BIT_2 || BIT_3);
 
 	
   // finally disable the motors
@@ -389,13 +398,30 @@ void motor_disableAll() {
 	
 }
 
+// ============================================================================
+// Does a basic check if at least one curve is assigned to every motor
+// ============================================================================
+void motor_checkIfCurveExists() {
+ 
+  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+      
+    // if not, then assign one curve because even the simplest
+    // moves require one curve 
+    if (motor_used_curves_count[i] < 1) {
+      motor_assignNewCurve(i);
+    }
+    
+  } 
+  
+}
+
 
 
 // ============================================================================
 // Assigns a new curve to the motor. The info about that gets stored 
 // in the motor specific curve-assignment/addressing-array
 // ============================================================================
-void motor_assignNewCurve(uint8_t motorNum) {
+int16_t motor_assignNewCurve(uint8_t motorNum) {
   
   // which is the next free curve in the main curves array?
   uint8_t nextFreeCurve = motor_getNextFreeCurve();  
@@ -411,9 +437,35 @@ void motor_assignNewCurve(uint8_t motorNum) {
     // count the used curves value one up
     motor_used_curves_count[motorNum]++;  
     
+    return nextFreeCurve;
+    
   }
   
+  return -1;
+  
 }
+
+
+// ============================================================================
+// Unassigns all curves from the currently selected motor
+// ============================================================================
+void motor_freeAllCurves(uint8_t motorNum) {
+  
+  
+  // loop all esed curves of the motor
+  for (int i=0; i<motor_used_curves_count[motorNum]; i++) {
+    
+    // set the curve as unused
+    mCurves[motor_used_curves[motorNum][i]].used = false;
+    
+  }
+  
+  // set the amount of curves used to zero
+  motor_used_curves_count[motorNum] = 0;
+    
+  
+}
+
 
 
 // ============================================================================
@@ -448,40 +500,6 @@ void motor_storeMotorReferencePositions() {
     motor_reference_pos[i] = motors[i].getMotorPosition();  
   }  
 }
-
-
-
-// ============================================================================
-// starts the motor phase. this means defining the motor target and initiating
-// the motor start
-// ============================================================================
-void motor_startContinuousMove() {
-
-  // loop all motors
-  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-    
-    // set the motor to the start position
-    motor_move_mode[i] = MOVE_MODE_CURVE;
-    
-    // jump to the first curve
-    motor_used_curves_index[i] = 0;
-    
-    // loop all curves of the motor
-    
-    // add reference offset
-    
-    // set motor direction
-    
-    
-    // set the flag for the current motor that
-    // the time will be stored when the timer is process
-    // (needed for calculation the position versus time)
-    setBit(motor_time_status, (1 << i));
-    
-  }
-  
-}
-
 
 
 // ============================================================================
@@ -531,13 +549,6 @@ void motor_startMotorPhase() {
     // calculate the position where the motor needs to be at this moment in time (in cm / °)
     new_motor_pos = mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.getY(x); 
     
-    
-    #ifdef DEBUG
-    Serial.print("defining SMS move ");
-    Serial.println(i);
-    #endif
-    
-    
     // set the new position
     motor_defineMoveToPosition(i, new_motor_pos, false);  
   
@@ -549,6 +560,7 @@ void motor_startMotorPhase() {
 
 // ============================================================================
 // initiates a simple move to a specific position
+// smooth: multiply the regular ramp time by 3
 // ============================================================================
 void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
   	
@@ -614,16 +626,6 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       }
       
         
-      #ifdef SHOW_CURVES
-      Serial.print("curve "); Serial.println(mNum);
-      Serial.print(curve.p0.x); Serial.print(", "); Serial.println(curve.p0.y);
-      Serial.print(curve.p1.x); Serial.print(", "); Serial.println(curve.p1.y);
-      Serial.print(curve.p2.x); Serial.print(", "); Serial.println(curve.p2.y);
-      Serial.print(curve.p3.x); Serial.print(", "); Serial.println(curve.p3.y);
-      Serial.println();
-      #endif  
-      
-        
       // get the min and max values of the curves
       curve.updateDimension();
         
@@ -662,6 +664,9 @@ void motor_startMovesToPosition() {
     // init this motor if needed
     if (isBit(motor_move_mode[i], MOVE_MODE_TO_POS)) {
       
+      // jump to the first curve
+      motor_used_curves_index[i] = 0;
+      
       // enable the motor      
       motors[i].enable();  
       
@@ -696,6 +701,31 @@ boolean motor_isMoveToPositionRunning() {
 
 
 // ============================================================================
+// starts the motor phase. this means defining the motor target and initiating
+// the motor start
+// ============================================================================
+void motor_startContinuousMove() {
+
+  // loop all motors
+  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+    
+    // set the motor to the start position
+    motor_move_mode[i] = MOVE_MODE_CURVE;
+    
+    // jump to the first curve
+    motor_used_curves_index[i] = 0;
+    
+    // set the flag for the current motor that
+    // the time will be stored when the timer is process
+    // (needed for calculation the position versus time)
+    setBit(motor_time_status, (1 << i));
+    
+  }
+  
+}
+
+
+// ============================================================================
 // check if any of the motors is doing a move to a position
 // ============================================================================
 boolean motor_isCurveBasedMoveRunning() {
@@ -725,6 +755,80 @@ boolean motor_isPostDelay() {
 }
 
 
+// ============================================================================
+// Check if we need to create keyframes (when not in Keyframes Mode) or
+// if we need to check the runtine (when in Keyfrmes mode)
+// ============================================================================
+void motor_checkKeyframes() {
+
+  if (isBit(core_mode, MODE_TIMELAPSE) ||
+      isBit(core_mode, MODE_VIDEO)) {
+    
+    ///////////////////////////////////
+    // Setup Style   R U N
+    if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
+     
+      motor_makeKeyframes();
+     
+    } // end: setup style run
+    
+    ///////////////////////////////////
+    // Setup Style   K E Y F R A M E S
+    else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
+    
+      // the variable for our max duration
+      uint32_t duration = 0;
+      
+      // check which motor needs the most time for its curves;
+      // loop all motors fir this:
+      for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+        
+        int curveIndex;
+        
+        // loop all curves
+        for (int c=0; c<motor_used_curves_count[i]; c++) {
+        
+          // and initialize them for the comming move
+          curveIndex = motor_used_curves[i][c];
+          mCurves[curveIndex].curve.initMove();
+        
+        } // end: loop all curves
+        
+        
+        // if this motor has curves:
+        if (motor_used_curves_count[i] > 0) {
+          
+          // get the index of the last curve of the current motor  
+          curveIndex = motor_used_curves[i][motor_used_curves_count[i] - 1];
+          
+          // is this curve running longer than your current duration?
+          if (mCurves[curveIndex].curve.getEndX() > duration) {
+            
+            // set the new max value
+            duration = mCurves[curveIndex].curve.getEndX();
+            
+          } // end: new max value
+        
+        } // end: motor has curves
+        
+      } // end: loop all motors
+      
+      // set the program duration to our new value
+      setup_record_time = duration * 1000;
+            
+      // recalculate core values if needed
+      core_checkValues();
+            
+            
+    } // end: setup style keyframes
+       
+  } 
+
+}
+
+
+
+
 
 // ============================================================================
 // creates keyframes for the moves that are not based on keyframes
@@ -740,12 +844,29 @@ void motor_makeKeyframes() {
   
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+        
+    Serial.print("motor ");
+    Serial.println(i);
+        
+    // remove all existing curves for this motor
+    motor_freeAllCurves(i);
     
+    Serial.print("curve count after free ");
+    Serial.println(motor_used_curves_count[i]);
+    
+    // assign a new curve for this motor
+    int res = motor_assignNewCurve(i);
+    
+    Serial.print("assigned curve index ");
+    Serial.println(res);
+        
+    Serial.print("curve count after assign ");
+    Serial.println(motor_used_curves_count[i]);
+        
     // the duration of the curve to be defined.
     curveDuration = ((float)setup_record_time) / 1000.0;
-
     
-    // the position to where the motr needs to go
+    // the position to where the motor needs to go
     // (our start point is the motor ref-point - not home! - because we
     // might want to start from a non-home position)
     if (motor_program_direction[i]) {
@@ -770,18 +891,93 @@ void motor_makeKeyframes() {
     // curve array
     curveIndex = motor_used_curves[i][0];
     
+    Serial.print("curve index ");
+    Serial.println(curveIndex);
+    
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
+    //mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
     mCurves[curveIndex].curve.segmentateCurve(curve); //segmentateCurveOptimized(curve);
            
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
+    
+    Serial.println();
         
   }
   
 }
 
 
+
+
+// ============================================================================
+// moves all motors to their start-keyframe position
+// ============================================================================
+boolean motor_moveToStartKeyframe() {
+  
+  int curveIndex;
+  
+  Serial.println("moving to start keyframes");
+  
+  // move all motors home first
+  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+    
+    Serial.print("motor ");
+    Serial.println(i);
+    
+    // if the motor has curves
+    if (motor_used_curves_count[i] > 0) {
+      
+      Serial.print("motor has curves");
+      
+      // get the index of the first used curve
+      curveIndex = motor_used_curves[i][0];
+      // get the motor position at time 0
+      float pos = mCurves[curveIndex].curve.getY(0);
+      
+      Serial.print("start pos ");
+      Serial.println(pos);
+      
+      // move the motor to this position
+      motor_defineMoveToPosition(i, pos, true);  
+       
+    } // end: motor has curves defines 
+    
+  } // end: loop all motors
+  
+  
+  // start the moves
+  motor_startMovesToPosition();
+  
+  Serial.print("moves to positions started");
+  
+  // wait until all motors reached home
+  while (motor_isMoveToPositionRunning()) {
+    
+    // abort if the select key is pressed
+    if (input_isKeyEvent()) {
+      
+      if (input_getPressedKey() == KEY_1) {
+        
+        input_clearKeyEvent(); 
+        
+        return false;  
+      
+      } // end: user input
+ 
+      input_clearKeyEvent();   
+      
+    } // end: key event
+    
+  } // end: while motors are moving 
+  
+  
+  Serial.print("moves to positions done");
+  
+  return true;
+  
+}
 
 
 
@@ -841,11 +1037,6 @@ void motor_handleMove() {
             // if the direction changed...
             if (dir != motors[i].getDirection()) {
               
-              #ifdef DEBUG
-              Serial.print("dirTo ");
-              Serial.println(dir);
-              #endif
-              
               motors[i].setDirection(dir);
               //motor_dir_old[i] = dir;
             }
@@ -855,7 +1046,7 @@ void motor_handleMove() {
               motors[i].step();   
               
               // wait a little bit if we need to do more steps
-	      if (i<(stepsToDo-1)) delayMicroseconds(3);
+	      if (i<(stepsToDo-1)) delayMicroseconds(1);
             }
           }
           
@@ -877,16 +1068,16 @@ void motor_handleMove() {
       // C O N T I N U O U S   /   V I D E O   M O D E 
       else if (motor_move_mode[i] == MOVE_MODE_CURVE) {
         
-        
         // check if we are still using the correct curve  
         while ( x > mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.getEndX() ) {
-      
+          
           // don't use more curves than availabe
           if (motor_used_curves_index[i] < (motor_used_curves_count[i] - 1)) {
+            
             motor_used_curves_index[i]++;  
             
           } else {
-        
+          
             // deactivate this motor
             motor_move_mode[i] = MOVE_MODE_NONE;
             // store the post delay start time
@@ -928,7 +1119,7 @@ void motor_handleMove() {
               motors[i].step();   
               
               // wait a little bit if we need to do more steps
-	      if (i<(stepsToDo-1)) delayMicroseconds(3);
+	      if (i<(stepsToDo-1)) delayMicroseconds(1);
             }
           
           } // end: if steps are available
@@ -955,7 +1146,7 @@ void motor_handleMove() {
           
       // turn all motor-action off
       motor_disableAll(); 
-
+      
     }
     
     

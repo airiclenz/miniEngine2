@@ -125,101 +125,132 @@ void core_checkIfProgramDone() {
 // ============================================================================
 void core_startProgram() {
   
-  //////////////////////////////////////////////
-  // P R O G R A M   I N I T I A L I Z A T I O N  
-  // reset the camera shoot count
-  cam_resetShootCount();
-  // set the program-is-running-flag
-  core_setProgramRunningFlag();   
-  // repaint the user interface
-  uicore_setRepaintFlag();
-  uicore_process(); 
+  // if the program is not yet running
+  if (!core_isProgramRunningFlag()) {
   
-  // turn all trigger interrupts on
-  trigger_enableAllInterrupts();
-  
-  
-  //////////////////////////////////////////////
-  // M O V I N G   H O M E
-  // print a "moving motor to home" message
-  uicore_showMessage(225, 226, 226, 1);
-  // enable the motors
-  motor_powerAll();  
-  // check if the motors need to be moved home first and
-  // move them home in case "yes"
-  core_checkMoveHomeBeforeStart();
-  // store the current motor pos as start reference
-  motor_storeMotorReferencePositions();
-  // define the moves we need to do
-  motor_makeKeyframes();
-  
-  
-  //////////////////////////////////////////////
-  // S T A R T   T R I G G E R S
-  // check triggers
-  if (trigger_isStartTriggerDefined()) {
     
+    //////////////////////////////////////////////
+    // P R O G R A M   I N I T I A L I Z A T I O N 
+    ////////////////////////////////////////////// 
+    // reset the camera shoot count
+    cam_resetShootCount();
+    // set the program-is-running-flag
+    core_setProgramRunningFlag();   
+    // repaint the user interface
+    uicore_setRepaintFlag();
+    uicore_process(); 
+    // turn all trigger interrupts on
+    trigger_enableAllInterrupts();
+    
+    
+    //////////////////////////////////////////////
+    // M O T O R   P R E P A R A T I O N
+    //////////////////////////////////////////////
+    // do we have curves assigned?
+    motor_checkIfCurveExists();
+    // print a "moving motor to home" message
+    uicore_showMessage(225, 226, 226, 1);
+    // enable the motors
+    motor_powerAll();  
+    // define / check the moves we need to do
+    motor_checkKeyframes();
+    // check if the motors need to be moved home first and
+    // move them home in case "yes"
+    core_checkMoveHomeBeforeStart();
+    // store the current motor pos as start reference
+    motor_storeMotorReferencePositions();
+    
+   
+
+    
+    
+    
+    //////////////////////////////////////////////
+    // S T A R T   T R I G G E R S
+    //////////////////////////////////////////////
     // clear the trigger cache for making sure we have not false
     // trigger events cause by enabling the interrupts
     trigger_clearEvents();  
     
-    // print a "waiting for trigger" message and show it for
-    // at least on millisecond
-    uicore_showMessage(220, 221, 222, 1);
-
-    // wait until the trigger signal comes
-    while (!trigger_isStartTriggered()) {
+    // check triggers
+    if (trigger_isStartTriggerDefined()) {
       
-      // check the keys for abort events
-      if (input_isKeyEvent()) {
+      // print a "waiting for trigger" message and show it for
+      // at least on millisecond
+      uicore_showMessage(220, 221, 222, 1);
+  
+      // wait until the trigger signal comes
+      while (!trigger_isStartTriggered()) {
         
-        // clear the key input event buffer
-        input_clearKeyEvent();
-        
-        // stop the program
-        core_stopProgram();
-        
-        // and now leave this function
-        return;
+        // check the keys for abort events or
+        // if the stop trigger came before the
+        // start
+        if (input_isKeyEvent() ||
+            trigger_isStopTriggered()) {
+          
+          // clear the key input event buffer
+          input_clearKeyEvent();
+          
+          // stop the program
+          core_stopProgram();
+          
+          // remove all possible meessages from the screen
+          uicore_deleteMessageOnScreenFlag();
+          // do a full repaint to have a fresh dashboard
+          uicore_repaint(true);
+          // remove the repaint flag
+          uicore_deleteRepaintFlag();
+                  
+          // and now leave this function
+          return;
+        }
+          
       }
-        
+          
+      // trigger the backlight on the trigger event
+      uicore_setBacklight(true);
+            
     }
         
-    // trigger the backlight on the trigger event
-    uicore_setBacklight(true);
-          
-  }
-      
-      
-  //////////////////////////////////////////////
-  // R E P A I N T
-  // remove all possible meessages from the screen
-  uicore_deleteMessageOnScreenFlag();
-  // do a full repaint to have a fresh dashboard
-  uicore_repaint(true);
-  // remove the repaint flag
-  uicore_deleteRepaintFlag();
-   
-  
-  //////////////////////////////////////////////
-  // S T A R T
-  // start the timer...
-  motor_startMoveTimer();
-  // set the start-immediately-flag
-  core_setStartImmediatelyFlag(); 
-  // remember the time when we started  
-  core_program_start_time = millis();
-  system_cycle_start = millis();
-  
-  
-  
-  // if we are in one of the following modes,
-  // start the curve based move for all motors
-  if (isBit(core_mode, SYSTEM_MODE_CONTINUOUS)) {
+        
+    //////////////////////////////////////////////
+    // R E P A I N T
+    //////////////////////////////////////////////
+    // remove all possible meessages from the screen
+    uicore_deleteMessageOnScreenFlag();
+    // do a full repaint to have a fresh dashboard
+    uicore_repaint(true);
+    // remove the repaint flag
+    uicore_deleteRepaintFlag();
+     
     
-    // start a continuous move if we are in continuous mode
-    motor_startContinuousMove();
-  }
+    //////////////////////////////////////////////
+    // S T A R T
+    //////////////////////////////////////////////
+    
+    // set the start-immediately-flag
+    core_setStartImmediatelyFlag(); 
+    
+    // if we are in one of the following modes,
+    // start the curve based move for all motors
+    if (isBit(core_mode, MODE_TIMELAPSE) || 
+        isBit(core_mode, MODE_VIDEO)) {
+            
+      if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) {
+        
+        // start a continuous move if we are in continuous mode
+        motor_startContinuousMove();
+      }
+      
+    }
+    
+    // remember the time when we started  
+    core_program_start_time = millis();
+    system_cycle_start = millis();
+    // start the timer...
+    motor_startMoveTimer();
+    
+  } // end: program running? 
   
 }
 
@@ -239,12 +270,19 @@ void core_stopProgram() {
   // turn all trigger interrupts off
   trigger_disableAllInterrupts(); 
  
+  // clear all remaining trigger events
+  trigger_clearEvents();  
+ 
   // reset the cycle warning
   system_cycle_too_long = false;
  
-  // request a repaint of the user interface
+  // enable the backlight 
+  uicore_setBacklight(true); 
+ 
+  // do a full repaint to have everything updated
   uicore_setRepaintFlag();
-
+  //uicore_repaint(true);
+    
 }
 
 
@@ -256,7 +294,7 @@ void core_checkIfCycleWasToLong() {
   // paint a warning if the cycles take too long
   // but only if we are in SMS mode
   if (((system_cycle_start + setup_interval_length) < millis()) &&
-      (isBit(core_mode, SYSTEM_MODE_SMS))) {
+      (isBit(core_mode, MOVE_STYLE_SMS))) {
     
     system_cycle_too_long = true;
     
@@ -277,6 +315,16 @@ boolean core_isNextCycle() {
 }
 
 
+// ============================================================================
+// next shot needed?
+// ============================================================================
+boolean core_isProgramOver() {
+  
+  return (core_program_start_time + (setup_record_time * motor_getTimeFactor())) <= millis();
+    
+}
+
+
 
 // ============================================================================
 // checks if the motors need to be moved home before start - 
@@ -284,37 +332,64 @@ boolean core_isNextCycle() {
 // ============================================================================
 boolean core_checkMoveHomeBeforeStart() {
   
-  // are we requested to move the motor to home before starting?
-  if (core_isMoveToHomeBeforeStartFlag()) {
+  /////////////////////////////
+  // TIMELAPSE OR VIDEO
+  if ((core_mode == MODE_TIMELAPSE) ||
+      (core_mode == MODE_VIDEO)) {
     
-    // move all motors home first
-    for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-      motor_defineMoveToPosition(i, 0, true);  
-    }
-                   
-    // start the moves
-    motor_startMovesToPosition();
-    
-    // wait until all motors reached home
-    while (motor_isMoveToPositionRunning()) {
+    if (core_setup_style == SETUP_STYLE_RUN) {
       
-      // abort if the select key is pressed
-      if (input_isKeyEvent()) {
+      // are we requested to move the motor to home before starting?
+      if (core_isMoveToHomeBeforeStartFlag()) {
         
-        if (input_getPressedKey() == KEY_1) {
-          
-          input_clearKeyEvent(); 
-          
-          return false;  
+        // move all motors home first
+        for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+          motor_defineMoveToPosition(i, 0, true);  
         }
-   
-        input_clearKeyEvent();   
         
-      } // end: key event
+        Serial.println("moves to home defined");
+                       
+        // start the moves
+        motor_startMovesToPosition();
+                
+        Serial.println("moves to home started");
+        
+        // wait until all motors reached home
+        while (motor_isMoveToPositionRunning()) {
+          
+          // abort if the select key is pressed
+          if (input_isKeyEvent()) {
+            
+            if (input_getPressedKey() == KEY_1) {
+              
+              input_clearKeyEvent(); 
+              
+              return false;  
+            }
+       
+            input_clearKeyEvent();   
+            
+          } // end: key event
+          
+        } // end: while motors are moving 
+        
+        
+        Serial.println("moves to home done");
+          
+      } // end: move home first  
+            
+    } // end: setup style run
+    
+    else if (core_setup_style == SETUP_STYLE_KEYFRAMES) {
       
-    } // end: while motors are moving 
+      // move all motors to the position of their start keyframe
+      motor_moveToStartKeyframe();
+      
+    } // end: setup style keyframes
+    
+  } // end: timelapse / video
   
-  } // end: move home first  
+  
   
   return true;
   
@@ -324,66 +399,20 @@ boolean core_checkMoveHomeBeforeStart() {
 
 
 
-
 // ============================================================================
-// sets the new setup style
+// checks the system modes for any invalid configurations
 // ============================================================================
-boolean core_setSetupMode(uint8_t new_setup_mode) {
+void core_checkModes() {
   
-  // SETUP_MODE_RUN
-  // SETUP_MODE_CYCLE
-  // SETUP_MODE_KEYFRAMES
-  
-  // these combinations are not allowed
-  if (isBit(core_mode, SYSTEM_MODE_VIDEO) &&
-       (
-         isBit(new_setup_mode, SETUP_MODE_CYCLE) ||
-         isBit(new_setup_mode, SETUP_MODE_RUN) 
-       ) 
-     ) {
-       
-    return false;
+  if (isBit(core_mode, MODE_VIDEO)) {
+    
+    if (isBit(core_move_style, MOVE_STYLE_SMS)) {
+      core_move_style = MOVE_STYLE_CONTINUOUS;
+    }  
+    
   }
     
-  // delete the old mode (all possible bits)
-  deleteBit(core_mode, B11100000);
-    
-  // set the new mode
-  setBit(core_mode, new_setup_mode);
-
-  return true;
-
 }
-
-
-// ============================================================================
-// sets the new setup mode
-// ============================================================================
-boolean core_setSystemMode(uint8_t new_system_mode) {
-  
-  // SYSTEM_MODE_SMS
-  // SYSTEM_MODE_CONTINUOUS
-  // SYSTEM_MODE_STOPMOTION
-  // SYSTEM_MODE_VIDEO
-  
-  // these combinations are not allowed
-  if (isBit(new_system_mode, SYSTEM_MODE_VIDEO) &&
-       (
-         isBit(core_mode, SETUP_MODE_CYCLE) ||
-         isBit(core_mode, SETUP_MODE_RUN) 
-       ) 
-     ) return false;
-  
-  // delete the old mode (all possible bits)
-  deleteBit(core_mode, B00001111);
-  
-  // set the new system mode
-  setBit(core_mode, new_system_mode);
-
-  return true;
-
-}
-
 
 
 
@@ -392,21 +421,18 @@ boolean core_setSystemMode(uint8_t new_system_mode) {
 // ============================================================================
 void core_checkValues() {
   
-  ////////////////////////////  
-  // run setup?
-  if (isBit(core_mode, SETUP_MODE_RUN)) {
-    
+  ////////////////////////////
+  // T I M E L A P S E
+  if (isBit(core_mode, MODE_TIMELAPSE)) {
+      
     setup_frame_count     = cam_fps_values[cam_fps_index] * (setup_play_time / 1000.0); 
     setup_interval_length = setup_record_time / (setup_frame_count - 1);
     
-  }
+  } // end: timalpse
   
-  ////////////////////////////  
-  // cycle setup
-  if (isBit(core_mode, SETUP_MODE_CYCLE)) {
-    
-    // TODO
-  }
+  
+  
+ 
   
   
   ////////////////////////////  
@@ -427,3 +453,5 @@ void core_delay(unsigned int milliseconds) {
   } 
     
 }
+
+
