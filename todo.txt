@@ -1,8 +1,14 @@
+TODO New Functionality
+======================
 
-TODO
-====
-
-
-
--	check limit switch sensitivity
+- check limit switch sensitivity
 - save "Keep powered status"
+- add "Bouncing" functionality
+
+
+
+
+TODO Bugs
+=========
+
+- Motor not moving when "Motor Sleep" enabled?
