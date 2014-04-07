@@ -1,8 +1,8 @@
 
-
 TODO
 ====
 
 
 
 -	check limit switch sensitivity
+- save "Keep powered status"
