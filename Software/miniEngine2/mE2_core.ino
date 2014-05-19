@@ -216,7 +216,7 @@ void core_startProgram() {
     //////////////////////////////////////////////
     // R E P A I N T
     //////////////////////////////////////////////
-    // remove all possible meessages from the screen
+    // remove all possible messages from the screen
     uicore_deleteMessageOnScreenFlag();
     // do a full repaint to have a fresh dashboard
     uicore_repaint(true);
@@ -426,7 +426,10 @@ void core_checkValues() {
   
   
   ////////////////////////////  
-  // TODO
+  // V I D E O
+
+  ////////////////////////////  
+  // P A N O R A M A
  
   
 }
@@ -444,5 +447,26 @@ void core_delay(unsigned int milliseconds) {
   } 
     
 }
+
+
+// ============================================================================
+void core_deleteSettings() {
+  
+  // remove the old settings file
+  sd_deleteSettings(); 
+  // show the reset message
+  uicore_showMessage(113, 114, 116, 1000);  
+
+  // wait forever until the user removed the power
+  while(1){};  
+  
+}
+
+
+// ======================================================================================
+// Function to restart the Arduino
+// ======================================================================================
+//core_reset() function:
+void(* core_reset) (void) = 0; //declare reset function @ address 0
 
 

@@ -390,8 +390,7 @@ boolean sd_saveConfig() {
       sd_writeData((byte)     motor_sleep[i]);                  // motor sleep after moves
       sd_writeData((byte)     motors[i].isDirectionFlipped());  // motor direction flipped
       sd_writeData((byte)     motors[i].isKeepPowered());       // keep the motor powered
-      
-      
+        
       // a lille bit of motor specific run-setup-data
       sd_writeData((uint8_t)  setup_run_ramp_in[i]);            // the ramp-in-amount in percent for run setup
       sd_writeData((uint8_t)  setup_run_ramp_out[i]);           // the ramp-out-amount in percent for run setup
@@ -545,7 +544,7 @@ boolean sd_loadConfig() {
       motor_total_distance[i] =     sd_readFloat (buffer, address);             address += 4;
       motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
       motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
-      motors[i].setKeepPowered(     (boolean) sd_readByte(buffer, address));     address += 1;       
+      motors[i].setKeepPowered(     (boolean) sd_readByte(buffer, address));    address += 1;       
             
       // a lille bit of motor specific run-setup-data
       setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
@@ -835,6 +834,19 @@ float sd_readFloat(byte* buf, uint16_t index) {
   }  
   
   return result;
+  
+}
+
+
+// ============================================================================
+void sd_deleteSettings() {
+  
+  if (sd_file) {
+    sd_file.close();  
+  }
+  
+  // delete the old config file
+  SD.remove(CONFIG_FILE);
   
 }
 

@@ -335,7 +335,7 @@ float motor_total_distance[DEF_MOTOR_COUNT] = { 0.0,
 // ============================================================================
 void setup() {
   
-  //Serial.begin(57600);
+  // used for uplink functionality
   Serial.begin(19200);
   
   // randomize
@@ -407,8 +407,7 @@ void loop() {
     
     //////////////////////////////////
     if (core_isProgramRunningFlag()) {
-      
-      
+            
       ////////////////////////////
       // T I M E L A P S E
       if (isBit(core_mode, MODE_TIMELAPSE)) {

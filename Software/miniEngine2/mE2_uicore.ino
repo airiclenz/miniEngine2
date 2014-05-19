@@ -319,7 +319,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 65;
+const uint8_t uicore_content_relation_count = 66;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -332,7 +332,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   {  31,  23 },
   
     
-  { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, /*{ 100, 104 }, { 100, 106 }, { 100, 105 }, */
+  { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
   { 101, 120 }, { 101, 121 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
@@ -476,6 +476,7 @@ const char* string_108_short = "Mode";
 const char* string_109_short = "Setup Style";
 const char* string_110_short = "Menu Font";
 const char* string_111_short = "Move Style";
+const char* string_112_short = "Reset all settings";
 
 const char* string_100_long  = "Power of the backlight.\nValues above 100% are above 5V and\nabove the specifications of the\ndisplay (Overdrive)!";
 const char* string_101_long  = "Time after which the backlight\nturns off.";
@@ -486,7 +487,11 @@ const char* string_108_long  = "The way in which the motors move.";
 const char* string_109_long  = "The way the moves are defined.\n'Keyframes' requires a connection to\na computer!";
 const char* string_110_long  = "The used font on the display.";
 const char* string_111_long  = "How should the motors move?";
-
+const char* string_112_long  = "This will reset all settings\nto the default values.\nPress the Rotary button to Reset.\nPress [Start] to abort.";
+const char* string_113_long  = "Reset";
+const char* string_114_long  = "The configuration was deleted.";
+const char* string_115_long  = "Please turn the miniEngine OFF";
+const char* string_116_long  = "and then ON again.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
@@ -880,6 +885,8 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 109: strcpy(lines[target_line], string_109_short);     return;  
     case 110: strcpy(lines[target_line], string_110_short);     return;  
     case 111: strcpy(lines[target_line], string_111_short);     return;  
+    case 112: strcpy(lines[target_line], string_112_short);     return;  
+    
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CAMERA
@@ -992,6 +999,12 @@ void uicore_getLongString(uint16_t buf_number) {
     case 109: strcpy(data_line, string_109_long);     return;
     case 110: strcpy(data_line, string_110_long);     return;
     case 111: strcpy(data_line, string_111_long);     return;
+    case 112: strcpy(data_line, string_112_long);     return;
+    case 113: strcpy(data_line, string_113_long);     return;
+    case 114: strcpy(data_line, string_114_long);     return;
+    case 115: strcpy(data_line, string_115_long);     return;
+    case 116: strcpy(data_line, string_116_long);     return;
+    
     
     
     ///////////////////////////////////////////////////////////////////
@@ -1221,8 +1234,16 @@ void uicore_handleKeyEvent(uint8_t key) {
       } else {
       
         // check if the menu point we are standing on
-        // is an action menu point
+        // is an action menu point (this also executed
+        // the action if it is an action)
         if (!uicode_doAction(line_codes[menu_pos])) {
+          
+          // a special case: reset the settings
+          if ((line_codes[menu_pos] == 112) &&
+              (menu_editing == true))  {
+            core_deleteSettings();      
+          }
+          
           
           // if this line is not disabled
           if (!lines_disabled[menu_pos]) {

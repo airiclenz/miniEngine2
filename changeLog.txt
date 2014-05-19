@@ -1,6 +1,44 @@
 
 
 /////////////////////////////////////////////////////
+version:	2.0 alpha 5
+date:		2014-05-19
+
+Documentation:
+
+-	added a detailed assembly description for the BED
+	Boards
+
+Software:
+
+-	added connectivity to the minEngine Studio software
+	*	added new "Keyframes Mode" which is dedicated to work 
+		only together with the miniEngine Studio
+-	added a function that updates settings to the new version
+	(no settings get lost during an update)
+-	improved dashboards
+-	improved settings menu-header
+-	optimized system modes and run styles for easier use
+-	fixed a bug where the motor was not moving when
+	motor sleep was enabled
+-	fixed a bug that not saved the keep powered status
+
+
+/////////////////////////////////////////////////////
+version:	2.0 alpha 4
+date:		2014-02-19
+
+Software:
+
+-	added external trigger input system (starting, stopping 
+	and shooting the camera)
+-	added a Dashboards that is displayed when the miniEngine 
+	is running
+-	added a messaging system
+-	added a new system font
+
+
+/////////////////////////////////////////////////////
 version:	2.0 alpha 3
 date:		2014-01-25
 

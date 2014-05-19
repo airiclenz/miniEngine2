@@ -551,7 +551,10 @@ void motor_startMotorPhase() {
     
     // set the new position
     motor_defineMoveToPosition(i, new_motor_pos, false);  
-  
+        
+    // enable the motor
+    motors[i].enable();
+    
   } // end: loop all motors
       
 }
@@ -657,7 +660,7 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
 // dummy function for processing timer 2
 // ============================================================================
 void motor_startMovesToPosition() {
-    
+  
   // enable all the motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
@@ -842,24 +845,12 @@ void motor_makeKeyframes() {
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
         
-    Serial.print("motor ");
-    Serial.println(i);
-        
     // remove all existing curves for this motor
     motor_freeAllCurves(i);
     
-    Serial.print("curve count after free ");
-    Serial.println(motor_used_curves_count[i]);
-    
     // assign a new curve for this motor
     int res = motor_assignNewCurve(i);
-    
-    Serial.print("assigned curve index ");
-    Serial.println(res);
-        
-    Serial.print("curve count after assign ");
-    Serial.println(motor_used_curves_count[i]);
-        
+            
     // the duration of the curve to be defined.
     curveDuration = ((float)setup_record_time) / 1000.0;
     
@@ -888,9 +879,6 @@ void motor_makeKeyframes() {
     // curve array
     curveIndex = motor_used_curves[i][0];
     
-    Serial.print("curve index ");
-    Serial.println(curveIndex);
-    
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
     //mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
@@ -898,8 +886,6 @@ void motor_makeKeyframes() {
            
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
-    
-    Serial.println();
         
   }
   

@@ -304,14 +304,27 @@ void uipaint_cycleLength() {
     }
     
     if (core_isProgramRunningFlag()) {
+      
       tft.setBackColor(color_schemes[uicore_col_scheme].background);
       tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
-      tft.print(temp, 7, 125);   
+      tft.print(temp, 7, 125); 
+        
     } else {
       tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
       tft.setColor(color_schemes[uicore_col_scheme].font_header);
       tft.print(temp, 7, 30);   
     }  
+    
+  }
+  
+  else if (isBit(core_mode, MODE_VIDEO)) {
+    
+    if (core_isProgramRunningFlag()) { 
+      
+      tft.setBackColor(color_schemes[uicore_col_scheme].background);
+      tft.setColor(color_schemes[uicore_col_scheme].font_disabled);
+      tft.print(STR_NONE, 7, 125); 
+    }
     
   }
   
@@ -323,6 +336,7 @@ void uipaint_cycleLength() {
 // ======================================================================================
 void uipaint_shotCount() {
   
+  // for the timelapse mode
   if  (core_mode == MODE_TIMELAPSE) {
   
     tft.setFont(uicore_fonts[uicore_font_index].font);
@@ -372,10 +386,22 @@ void uipaint_shotCount() {
       tft.setBackColor(color_schemes[uicore_col_scheme].background);
       tft.setColor(color_schemes[uicore_col_scheme].font_dashboard);
       tft.print(data_line, 130, 125);   // [0000/XXXX]
+      
     } else {
       tft.setBackColor(color_schemes[uicore_col_scheme].background_header);
       tft.setColor(color_schemes[uicore_col_scheme].font_header);
       tft.print(data_line, 141 + ((4-charCount) << 5),  28);   // [0000/XXXX]
+    }
+    
+  }
+  
+  else if (isBit(core_mode, MODE_VIDEO)) {
+    
+    if (core_isProgramRunningFlag()) {
+      
+      tft.setBackColor(color_schemes[uicore_col_scheme].background);
+      tft.setColor(color_schemes[uicore_col_scheme].font_disabled);
+      tft.print(STR_NONE, 130, 125);   
     }
     
   }
@@ -639,8 +665,7 @@ void uipaint_menu(boolean full_repaint) {
   
   // paint the scroll bar if more than 5 menu lines
   if (full_repaint) uipaint_scrollbar(menu_length > menu_max_screen_lines, false);
-  
-  Serial.println();
+
     
 }
 
