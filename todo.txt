@@ -2,32 +2,11 @@ TODO New Functionality
 ======================
 
 - check limit switch sensitivity
-<<<<<<< HEAD
-<<<<<<< HEAD
 - add "Bouncing" functionality
 - make keyframes from the minEngine Studio savable on the miniEngine
 - add "About" screen
-=======
-- save "Keep powered status"
-- add "Bouncing" functionality
->>>>>>> FETCH_HEAD
-=======
-- save "Keep powered status"
-- add "Bouncing" functionality
->>>>>>> FETCH_HEAD
 
 
 TODO Bugs
 =========
 
-<<<<<<< HEAD
-=======
-
-TODO Bugs
-=========
-
-- Motor not moving when "Motor Sleep" enabled?
-<<<<<<< HEAD
->>>>>>> FETCH_HEAD
-=======
->>>>>>> FETCH_HEAD
