@@ -41,20 +41,6 @@ MotorBezier::MotorBezier() {
 	_endX			= 0;
 }
 
-/*
-// ============================================================================
-MotorBezier::MotorBezier(int count) {
-	
-	_functionArray[count];
-	
-	_index 		  = 0;
-	_segmentCount = count;
-	_endX		  = 0;
-	
-	Serial.print("count: ");
-	Serial.println(count);
-}
-*/
 
 // ============================================================================
 MotorBezier::~MotorBezier() { 

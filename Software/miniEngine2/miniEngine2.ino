@@ -236,15 +236,15 @@ typedef struct motorCurve {
 
 
 // Kurves for keyframes:
-// every curve has 200 segments (which consist of 12 byte each) and 8 byte other stuff
+// every curve has 200 segments (which consist of 12 byte each) and 9 bytes other stuff
 // variables: 
 // --> (200 * 12 byte) + 9 bytes = 2409 byte
 // --> 2409 byte * 25 = 60225 byte of RAM
 #define CURVE_COUNT  25
 struct motorCurve mCurves[CURVE_COUNT];
 // curves for on demand moves like in SMS or Motor go home:
-// --> 2 more curves in the RAM: 60200 byte + (2 * 2408 byte) 
-// --> 60200 byte + 4816 byte = 65016 byte 
+// --> 2 more curves in the RAM: 60200 byte + (2 * 2409 byte) 
+// --> 60200 byte + 4818 byte = 65018 byte 
 MotorBezier tempCurves[DEF_MOTOR_COUNT];
 
 
@@ -259,7 +259,7 @@ MotorBezier tempCurves[DEF_MOTOR_COUNT];
 
 // a global variable for the current "time" in milliseconds since the CPU
 // was powered up. This is to be used for non-precision events like the 
-// displays backlight
+// display backlight
 uint32_t now;
 
 
@@ -402,7 +402,7 @@ void loop() {
     sd_process();
     trigger_process();
     uplink_process();
-    //core_process();
+    
     
     
     //////////////////////////////////

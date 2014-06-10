@@ -137,44 +137,15 @@ boolean MoCoM::isDataAvailable() {
 // ============================================================================
 boolean MoCoM::executeCommunication() {
 	
-	//if (!_serial.available()) return false;
-	
-	//if (!__isStatusBlocked()) {
-		
-		// block this function
-		//__setStatusBlocked();
-		
-		/*
-		if (__isStatusWait()) {
-			if (_waitEndTime <= millis()) {
-		
-				_waitEndTime = 0;
-				__deleteStatusWait();
-			
-				if (_sendCharCnt > 0) {
-					__send();
-				}
-			}
-		}
-		*/
-	
-		// check if we received anything 
-		if (__receive()) {
+	// check if we received anything 
+	if (__receive()) {
   		
-			// decode the packet
- 		   __decode(true);
-  		   
-		   // delete the block for this function
-		   //__deleteStatusBlocked();
-		   
-		   return true;
-  	  	}
+		// decode the packet
+	    __decode(true);
+ 		   		   
+	    return true;
+	}
 		
-		// delete the block for this function
-		//__deleteStatusBlocked();
-		
-	//} // end: not blocked 
-	
   	return false;
 
 }
@@ -341,9 +312,6 @@ byte MoCoM::addMotor(byte type) {
      			} 
      		}
 		}
-		
-		//__deleteStatusBlocked();
-		
 	}
 	
 	return  MOCOM_NO_ID;
