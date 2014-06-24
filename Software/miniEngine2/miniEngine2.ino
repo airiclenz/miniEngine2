@@ -67,7 +67,7 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define SUBSUBVERSION                5
+#define SUBSUBVERSION                6
 
 const char* STR_VER                  = "BETA";
 
@@ -196,33 +196,6 @@ uint8_t core_move_style   = MOVE_STYLE_SMS;
 
 ////////////////////////////////////////////////////////
 //                                                    //
-//  G L O B A L   O B J E C T S                       //
-//                                                    //
-////////////////////////////////////////////////////////
-
-// Display:                
-UTFT tft(ITDB24E_16, PIN_TFT_RS, 
-                     PIN_TFT_WR, 
-                     PIN_TFT_CS, 
-                     PIN_TFT_RST);    
-
-
-
-
-// RotaryEncoder:
-RotaryEncoder rotary(PIN_ROTARY_A, PIN_ROTARY_B);
-
-// StepperMotor:
-StepperMotor motors[DEF_MOTOR_COUNT] = { StepperMotor(PIN_MOTOR1_STEP, PIN_MOTOR1_DIR),
-                                         StepperMotor(PIN_MOTOR2_STEP, PIN_MOTOR2_DIR)
-                                       };
-
-// COM (for daisy chaingin):
-MoCoM com(PIN_COM_DIR, Serial1);
-
-
-////////////////////////////////////////////////////////
-//                                                    //
 //  K E Y F R A M E   C U R V E S                     //
 //                                                    //
 ////////////////////////////////////////////////////////
@@ -330,12 +303,41 @@ float motor_total_distance[DEF_MOTOR_COUNT] = { 0.0,
 
 
 
+////////////////////////////////////////////////////////
+//                                                    //
+//  G L O B A L   O B J E C T S                       //
+//                                                    //
+////////////////////////////////////////////////////////
+
+// Display:                
+UTFT tft(ITDB24E_16, PIN_TFT_RS, 
+                     PIN_TFT_WR, 
+                     PIN_TFT_CS, 
+                     PIN_TFT_RST); 
+
+
+
+
+// RotaryEncoder:
+RotaryEncoder rotary(PIN_ROTARY_A, PIN_ROTARY_B);
+
+// StepperMotor:
+StepperMotor motors[DEF_MOTOR_COUNT] = { StepperMotor(PIN_MOTOR1_STEP, PIN_MOTOR1_DIR),
+                                         StepperMotor(PIN_MOTOR2_STEP, PIN_MOTOR2_DIR)
+                                       };
+
+// COM (for daisy chaingin):
+MoCoM com(PIN_COM_DIR, Serial1);
+
+
+
+
 // ============================================================================
 // ============================================================================
 // ============================================================================
 void setup() {
   
-  // used for uplink functionality
+  // used for uplink functionality (miniEngine Studio)
   Serial.begin(19200);
   
   // randomize
@@ -353,7 +355,6 @@ void setup() {
   
     
   printFreeRam();
-    
   
   // paint the splashscreen  
   uipaint_splashScreen();  
@@ -520,7 +521,7 @@ void loop() {
              
              
       ////////////////////////////
-      // T I M E L A P S E
+      // V I D E O
       else if (isBit(core_mode, MODE_VIDEO)) {      
       
         // if the program time is over

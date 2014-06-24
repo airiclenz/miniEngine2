@@ -1,5 +1,31 @@
 
 
+
+/////////////////////////////////////////////////////
+version:	2.0 alpha 6
+date:		2014-XX-XX
+
+Documentation:
+
+-	
+
+Software:
+
+-	fixed a bug that causes the inital move in SMS move to be
+	wrong
+-	optimized code for ad-hoc curve generation (e.g. one move in
+	SMS; move to home) for smoother and faster moves
+-	added core functions for analyzing a curves max speed
+-	changed edit-granularity for the option "record time" 
+	to 1 second for all values below 1 minute
+-	added new pop-up menu functionalities:
+	*	Set start > Defines the new start position for a move
+		(equals "set home for all motors" and updates move-distance
+		as well as move direction)
+	*	Set End > Defines the new end positoon for a move
+		(updates move-distance as well as move direction)
+-	
+
 /////////////////////////////////////////////////////
 version:	2.0 alpha 5
 date:		2014-05-19

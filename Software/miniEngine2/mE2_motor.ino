@@ -524,7 +524,7 @@ void motor_startMotorPhase() {
     // calculate the time for the last cycle start and then add
     // one cycle because the motor needs to be "ahead of the camera" by
     // one cycle
-    x = ((float)(system_cycle_start - core_program_start_time + setup_interval_length)) / 1000.0; // * motor_time_factor;
+    x = ((float)(system_cycle_start - core_program_start_time + setup_interval_length)) / 1000.0; 
     
     
     // check if we need to move on to the next curve 
@@ -545,9 +545,26 @@ void motor_startMotorPhase() {
       }
 
     }
+        
+    
+    // reset the current curve
+    mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.initMove();
       
     // calculate the position where the motor needs to be at this moment in time (in cm / °)
     new_motor_pos = mCurves[motor_used_curves[i][motor_used_curves_index[i]]].curve.getY(x); 
+  
+    /*
+    if (i==0) {
+      Serial.print("m");
+      Serial.print(i);
+      Serial.print(" x=");
+      Serial.print(x);
+      Serial.print(";  ");
+      Serial.print("to curvepos ");
+      Serial.println(new_motor_pos);
+    }    
+    */
+    
     
     // set the new position
     motor_defineMoveToPosition(i, new_motor_pos, false);  
@@ -572,37 +589,33 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
     
     // if we used the smooth option, multiply the regular ramp time by 3
     // just for this move (used for long move-home-moves for example)
-    float ramptime;
+    float ramptime = motor_ramp_time[mNum];
+    
     if (smooth) {
-      ramptime = motor_ramp_time[mNum] * 3.0;
-    } else {
-      ramptime = motor_ramp_time[mNum];  
+      ramptime *= 2.0;
     }
     
-    
     QuadBezierCurve curve;
-    float fac, rampTime100, totalTime;
+    float fac, rampTime50, totalTime;
     
       
     // calculate the distance after which we need to do a curve with
     // a linear segment (every move shorter than this ditance can be done 
     // as a 100% ramp curve)
-    float rampChangeDist = ramptime * motors[mNum].getMaxSpeed();
+    float rampChangeDist = motors[mNum].getMaxSpeed() * ramptime;
     
     // calculate the total distances we are asked to move for the motor
     float moveDist = abs(newPos - motors[mNum].getMotorPosition());
     
-    
-    
     // if we are asked to move at least a tiny bit
     if (moveDist >= DEF_MIN_POS_ERROR) {
-    
-      // calculate the full time needed for the curve
-      totalTime = (ramptime * 2.0) + ((moveDist - rampChangeDist) / motors[mNum].getMaxSpeed());
-        
+      
       // is the distance to be moved is bigger than the 100%-ramp-curve-distance:
       if (moveDist > rampChangeDist) {
         
+        // calculate the full time needed for the curve
+        totalTime = (ramptime * 2.0) + ((moveDist - rampChangeDist) / motors[mNum].getMaxSpeed());
+
         curve.p0 = Point(0,                    motors[mNum].getMotorPosition());
         curve.p1 = Point(ramptime,             motors[mNum].getMotorPosition());
         curve.p2 = Point(totalTime - ramptime, newPos);
@@ -612,30 +625,55 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       // do a 100%-ramp curve
       else {
         
-        // calculate the full time needed for a 100% ramp curve
-        // when ramping to full speed at 50% distance
-        rampTime100 = (moveDist / motors[mNum].getMaxSpeed()) * 2.0; 
-        // prevent to fast moves on short distances - 
-        // the motor would otherwise always speed up to full speed.
-        // this means we need to extend the move-time artificially
-        fac = rampTime100 / (ramptime * 2);
-        rampTime100 = (((1 - fac) * rampTime100) + totalTime + (fac * totalTime)) / 2.0;
+        // calculate the time needed for 50% of the 100% ramping-curve
+        // = ramp in time 
+        // = ramp out time
+        // we square root it to compensate for speed up effects to get
+        // a move as smooth as possible (movedist is at this point always
+        // smaller than rampChangeDist)
+        rampTime50 = sqrt(moveDist / rampChangeDist) * ramptime;
             
-        curve.p0 = Point(0,                 motors[mNum].getMotorPosition());
-        curve.p1 = Point(rampTime100,       motors[mNum].getMotorPosition());
-        curve.p2 = Point(rampTime100,       newPos);
-        curve.p3 = Point(rampTime100 * 2.0, newPos);
+        curve.p0 = Point(0,                       motors[mNum].getMotorPosition());
+        curve.p1 = Point(rampTime50,              motors[mNum].getMotorPosition());
+        curve.p2 = Point(rampTime50,              newPos);
+        curve.p3 = Point(rampTime50 + rampTime50, newPos);
         
       }
       
+      
+      /*
+      if (mNum == 0) {
+        
+        Serial.print("Point 1: x");
+        Serial.print(curve.p0.x, DEC);
+        Serial.print(" y");
+        Serial.println(curve.p0.y, DEC);
+        
+        Serial.print("Point 2: x");
+        Serial.print(curve.p1.x, DEC);
+        Serial.print(" y");
+        Serial.println(curve.p1.y, DEC);
+        
+        Serial.print("Point 3: x");
+        Serial.print(curve.p2.x, DEC);
+        Serial.print(" y");
+        Serial.println(curve.p2.y, DEC);
+        
+        Serial.print("Point 4: x");
+        Serial.print(curve.p3.x, DEC);
+        Serial.print(" y");
+        Serial.println(curve.p3.y, DEC);
+        
+      }
+      */     
         
       // get the min and max values of the curves
       curve.updateDimension();
         
       // convert the just defined Bezier curve into linear segments
-      tempCurves[mNum].segmentateCurveOptimized(curve);
-      //tempCurves[mNum].segmentateCurve(curve);
-             
+      float maxSlope = tempCurves[mNum].segmentateCurveOptimized(curve);
+      // float maxSlope = tempCurves[mNum].segmentateCurve(curve);
+ 
       // init the motor move 
       tempCurves[mNum].initMove(); 
             
@@ -878,12 +916,48 @@ void motor_makeKeyframes() {
     // get the index of the first used curve in the global
     // curve array
     curveIndex = motor_used_curves[i][0];
+  
+    /*
+    if (i==0) {
+      
+      Serial.println();
+      Serial.print("Point 1: x");
+      Serial.print(curve.p0.x);
+      Serial.print(" y");
+      Serial.println(curve.p0.y);
+      
+      Serial.print("Point 2: x");
+      Serial.print(curve.p1.x);
+      Serial.print(" y");
+      Serial.println(curve.p1.y);
+      
+      Serial.print("Point 3: x");
+      Serial.print(curve.p2.x);
+      Serial.print(" y");
+      Serial.println(curve.p2.y);
+      
+      Serial.print("Point 4: x");
+      Serial.print(curve.p3.x);
+      Serial.print(" y");
+      Serial.println(curve.p3.y);
+      Serial.println();
+
+    }
+    */
+    
     
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
-    //mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
-    mCurves[curveIndex].curve.segmentateCurve(curve); //segmentateCurveOptimized(curve);
-           
+    //float maxSlope = mCurves[curveIndex].curve.segmentateCurve(curve); 
+    float maxSlope = mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
+    
+    /*
+    Serial.print("curves max slope (kf) for motor ");
+    Serial.print(i);
+    Serial.print(": ");   
+    Serial.println(maxSlope);
+    */
+    
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
         

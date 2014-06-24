@@ -1,10 +1,10 @@
 TODO New Functionality
 ======================
 
-- check limit switch sensitivity
-- add "Bouncing" functionality
-- make keyframes from the minEngine Studio savable on the miniEngine
-- add "About" screen
+- 	check limit switch sensitivity
+- 	add "Bouncing" functionality
+- 	make keyframes from the minEngine Studio savable on the miniEngine
+- 	add "About" screen
 
 
 TODO Bugs

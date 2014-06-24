@@ -319,7 +319,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 66;
+const uint8_t uicore_content_relation_count = 67;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -340,7 +340,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   { 104, 180 }, { 104, 181 }, { 104, 182 }, { 104, 183 }, { 104, 187 },
   
   
-  { 200, 152 }, { 200, 148 }, { 200, 149 }, { 200, 156 }, { 200, 157 } 
+  { 200, 152 }, { 200, 148 }, { 200, 149 }, { 200, 156 }, { 200, 157 }, { 200, 160 },  
     
 };
 
@@ -522,10 +522,11 @@ const char* string_152_short = "Go Home (all)";
 const char* string_153_short = "Motor ";  
 const char* string_154_short = "Motr Sleep";
 const char* string_155_short = "Dir Flippd";
-const char* string_156_short = "Set Home Mot 1";
-const char* string_157_short = "Set Home Mot 2";
+const char* string_156_short = "Set Start";
+const char* string_157_short = "Set End";
 const char* string_158_short = "GO!";
 const char* string_159_short = "SET!";
+const char* string_160_short = "Preview";
 
 const char* string_140_long  = "Select the motor you want to edit.";
 const char* string_143_long  = "Delay after a motor move. Use this\ndelay for letting the motor\nsettle after a move.";
@@ -917,12 +918,12 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 157: strcpy(lines[target_line], string_157_short);     return; 
     case 158: strcpy(lines[target_line], string_158_short);     return; 
     case 159: strcpy(lines[target_line], string_159_short);     return; 
-    
+    case 160: strcpy(lines[target_line], string_159_short);     return; 
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
-    //case 160: strcpy(lines[target_line], string_160_short);     return;
-    //case 161: strcpy(lines[target_line], string_161_short);     return;  
+    //case 170: strcpy(lines[target_line], string_170_short);     return;
+    //case 171: strcpy(lines[target_line], string_171_short);     return;  
     
     
     ///////////////////////////////////////////////////////////////////
@@ -2394,12 +2395,29 @@ void uicore_generateDataString(uint16_t line_code) {
   
     // record time
     case 203 :   {
-                   if (menu_editing) {
-                     uicore_changeValueULong(&setup_record_time, rotary.getLowVelocity() * 10000, 1000, ULONG_MAX);
+                     if (menu_editing) {
                      
-                     // it needs to be at least ten seconds
-                     if (setup_record_time < 10000) {
-                       setup_record_time = 10000;
+                     
+                     int stepSize;
+                  
+                     if (isBit(key, KEY_UP)) {
+                    
+                       if   (setup_record_time <  60000)  stepSize = 1000;
+                       else                               stepSize = 10000;
+                        
+                     } else if(isBit(key, KEY_DOWN)) {
+                      
+                       if   (setup_record_time >  60000)  stepSize = 10000;
+                       else                               stepSize = 1000;
+                    
+                     }
+                     
+                     uicore_changeValueULong(&setup_record_time, rotary.getLowVelocity() * stepSize, 1000, ULONG_MAX);
+                     
+                     
+                     // it needs to be at least 1 second
+                     if (setup_record_time < 1000) {
+                       setup_record_time = 1000;
                      }
                      
                      // update the set up vlaues
@@ -2644,20 +2662,83 @@ boolean uicode_doAction(uint16_t line_code) {
     }
     
     
-    // set home motor 1
+    // set Start
     case 156 :  {
                    
-                   motors[0].setMotorPosition(0);
-                   return true; 
-    }
-    
-    
-    // set home motor 2
-    case 157 :  {
+                   // loop all motors
+                   for (byte i=0; i<DEF_MOTOR_COUNT; i++) {
+                     
+                     float dist = 0;
+                     
+                     // caclulate the distance to be moved (basd on the old end point
+                     // which is defined by total move distance and direction)
+                     if (motor_program_direction[i]) {
+                       dist = -motor_total_distance[i] - motors[i].getMotorPosition();
+                     } else {
+                       dist = motor_total_distance[i] - motors[i].getMotorPosition();
+                     }
+                     
+                     // set the new values (total move distance and direction)
+                     if (dist < 0) {
+                       motor_program_direction[i] = true; 
+                       motor_total_distance[i] = -dist;
+                     } else {
+                       motor_program_direction[i] = false; 
+                       motor_total_distance[i] = dist;  
+                     }
+                     
+                     // now set the motor position to zero for the current motor
+                     // because this is our new start point
+                     motors[i].setMotorPosition(0);
+                     
+                   }
                    
-                   motors[1].setMotorPosition(0);
                    return true; 
     }
+    
+    
+    // set End
+    case 157 :  {
+                   // loop all motors
+                   for (byte i=0; i<DEF_MOTOR_COUNT; i++) {
+                     
+                     float dist = motors[i].getMotorPosition();
+                     
+                     // set the new values (total move distance and direction)
+                     if (dist < 0) {
+                       motor_program_direction[i] = true; 
+                       motor_total_distance[i] = -dist;
+                     } else {
+                       motor_program_direction[i] = false; 
+                       motor_total_distance[i] = dist;  
+                     }
+                     
+                   }
+                   return true; 
+    }
+    
+    // Preview
+    case 160 :  {
+                   
+                   // print a "moving motor to home" message
+                   uicore_showMessage(225, 226, 226, 1);
+                   // move all motors to their start position
+                   if (motor_moveToStartKeyframe()) {
+                     
+                     motor_time_factor = (float)((double) setup_record_time / (double) setup_play_time);
+                   
+                     return true; 
+                     
+                   } else {
+                     
+                     return false; 
+                   }
+                   
+    }               
+      
+      
+                   
+    
     
   } // end: switch  
 
@@ -2727,7 +2808,7 @@ void uicore_loadMenuStrings() {
 
 
 // ===================================================================================
-// This function gathers all strings for the current menu screen
+// This function gathers all strings for the popup menu screen
 // ===================================================================================
 void uicore_loadPopupMenuStrings(uint8_t menu_code) {
    

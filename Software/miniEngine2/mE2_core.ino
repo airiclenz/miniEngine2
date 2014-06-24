@@ -134,23 +134,20 @@ void core_startProgram() {
     //////////////////////////////////////////////
     // M O T O R   P R E P A R A T I O N
     //////////////////////////////////////////////
+    
     // do we have curves assigned?
     motor_checkIfCurveExists();
     // print a "moving motor to home" message
     uicore_showMessage(225, 226, 226, 1);
     // enable the motors
     motor_powerAll();  
-    // define / check the moves we need to do
-    motor_checkKeyframes();
     // check if the motors need to be moved home first and
     // move them home in case "yes"
     core_checkMoveHomeBeforeStart();
     // store the current motor pos as start reference
     motor_storeMotorReferencePositions();
-    
-   
-
-    
+    // define / check the moves we need to do
+    motor_checkKeyframes();    
     
     
     //////////////////////////////////////////////
@@ -322,10 +319,10 @@ boolean core_checkMoveHomeBeforeStart() {
   
   /////////////////////////////
   // TIMELAPSE OR VIDEO
-  if ((core_mode == MODE_TIMELAPSE) ||
-      (core_mode == MODE_VIDEO)) {
+  if (isBit(core_mode, MODE_TIMELAPSE) ||
+      isBit(core_mode, MODE_VIDEO)) {
     
-    if (core_setup_style == SETUP_STYLE_RUN) {
+    if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
       
       // are we requested to move the motor to home before starting?
       if (core_isMoveToHomeBeforeStartFlag()) {
@@ -361,7 +358,7 @@ boolean core_checkMoveHomeBeforeStart() {
             
     } // end: setup style run
     
-    else if (core_setup_style == SETUP_STYLE_KEYFRAMES) {
+    else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
       
       // move all motors to the position of their start keyframe
       motor_moveToStartKeyframe();
