@@ -21,7 +21,7 @@
 
 #define TIMER_PERIOD            100         // call the timers every X microseconds 
 #define DEF_LS_DEBOUNCE         50          // ms debounce for limit switches
-#define DEF_MIN_POS_ERROR       0.00001     // unit: cm/°; used for accuracy check of float variables
+#define DEF_MIN_POS_ERROR       0.000001    // unit: cm/°; used for accuracy check of float variables
 
 
 #define MOVE_MODE_NONE          0           // this motor is not supposed to move
@@ -103,12 +103,12 @@ volatile uint8_t motor_move_mode[DEF_MOTOR_COUNT];
 
 // an array that stores which of the available curves are used
 // by the different motors 
-// dimension 1: all motors
+// dimension 1: the motor #
 // dimension 2: # of the curve in the main curves array (index pointer)
 volatile uint8_t motor_used_curves[DEF_MOTOR_COUNT][CURVE_COUNT];
 
-// how much of the used-curves-array did we actually use?
-// stis array is used together with motor_used_curves and defines up to 
+// how many of the used-curves-array did we actually use?
+// this array is used together with motor_used_curves and defines up to 
 // where the stack (motor_used_curves) is filled
 volatile uint8_t motor_used_curves_count[DEF_MOTOR_COUNT];
 
@@ -671,8 +671,8 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       curve.updateDimension();
         
       // convert the just defined Bezier curve into linear segments
-      float maxSlope = tempCurves[mNum].segmentateCurveOptimized(curve);
-      // float maxSlope = tempCurves[mNum].segmentateCurve(curve);
+      tempCurves[mNum].segmentateCurveOptimized(curve);
+      // tempCurves[mNum].segmentateCurve(curve);
  
       // init the motor move 
       tempCurves[mNum].initMove(); 
@@ -948,15 +948,16 @@ void motor_makeKeyframes() {
     
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
-    //float maxSlope = mCurves[curveIndex].curve.segmentateCurve(curve); 
-    float maxSlope = mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
+    //mCurves[curveIndex].curve.segmentateCurve(curve); 
+    mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
+        
     
-    /*
-    Serial.print("curves max slope (kf) for motor ");
-    Serial.print(i);
+    
+    Serial.print("curves max slope (kf) for curveindex ");
+    Serial.print(curveIndex);
     Serial.print(": ");   
-    Serial.println(maxSlope);
-    */
+    Serial.println(mCurves[curveIndex].curve.getMaxSlope());
+    
     
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
@@ -965,8 +966,57 @@ void motor_makeKeyframes() {
   
 }
 
+// ============================================================================
+// checks if all curves keep the max-speed limit;
+// this is only needed for continuous moves (as in video) because
+// moves-to-positions (as in SMS) are calculated to 
+// not break the max-speed-rule.
+// ============================================================================
+boolean motor_checkCurvesMaxSpeedOk() {
+  
+  /*  
+  // an array that stores which of the available curves are used
+  // by the different motors 
+  // dimension 1: the motor #
+  // dimension 2: # of the curve in the main curves array (index pointer)
+  volatile uint8_t motor_used_curves[DEF_MOTOR_COUNT][CURVE_COUNT];
+  
+  // how many of the used-curves-array did we actually use?
+  // stis array is used together with motor_used_curves and defines up to 
+  // where the stack (motor_used_curves) is filled
+  volatile uint8_t motor_used_curves_count[DEF_MOTOR_COUNT];
 
-
+  */
+    
+  // loop all motors
+  for (byte m=0; m<DEF_MOTOR_COUNT; m++) {
+   
+    // loop all the used curves of this motor
+    for (byte i=0; i<motor_used_curves_count[m]; i++) {
+      
+      // what is the index of the next used curve for this motor?
+      byte cindex = motor_used_curves[m][i];
+      
+      // the max slope of the current curve (equals cm or degrees per second).
+      // this is multiplied with the current time-factor as it changes the final
+      // speed of the motor
+      float max_speed = mCurves[cindex].curve.getMaxSlope() * motor_time_factor;
+      
+      // does this curve exceed the max speed limit?
+      if (max_speed > motors[m].getMaxSpeed()) {
+        
+        // return false on any fault... 
+        return false; 
+      } 
+      
+    } // end: loop the curves of the motor
+        
+  } // end: loop all motors
+  
+  // is we reached this point, everything went well
+  return true;
+  
+}
 
 // ============================================================================
 // moves all motors to their start-keyframe position

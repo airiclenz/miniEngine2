@@ -339,7 +339,8 @@ void uplink_decode() {
           
           // now convert the curve to a usable version with linear segments
           //mCurves[cIndex].curve.segmentateCurveOptimized(curve);
-          mCurves[cIndex].curve.segmentateCurve(curve);
+          mCurves[cIndex].curve.segmentateCurveOptimized(curve);
+          //mCurves[cIndex].curve.segmentateCurve(curve);
           
           // ...and reset all settings of the new curve
           mCurves[cIndex].curve.initMove();

@@ -51,8 +51,28 @@ LinearFunction::LinearFunction(Point point0, Point point1) {
 	}
 	
 	this->xstart = p0.x;
-	this->slope = (p1.y - p0.y) / (p1.x - p0.x);
-	this->yoffset  = p0.y - (slope * p0.x);
+	
+	
+	this->slope = (float)(((double)p1.y - (double)p0.y) / ((double)p1.x - (double)p0.x));
+	
+	//Serial.print(" slope in lin func: ");
+	//Serial.println(this->slope);
+	
+	/*
+	float xdist = p1.x - p0.x;
+	if (xdist > 0.0001) {
+		this->slope = (p1.y - p0.y) / xdist;
+	} else {
+		
+		Serial.println("HERE!!!");
+		
+		// as division by zero results in an infinite value,
+		// the result should be really big here = 10 mio
+		this->slope = 99999999;
+	}
+	*/
+	
+	this->yoffset  = p0.y - (this->slope * p0.x);
 		
 }
 

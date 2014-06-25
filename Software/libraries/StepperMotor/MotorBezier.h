@@ -58,13 +58,15 @@ class MotorBezier {
 		uint16_t	setSegmentCount(uint16_t);
 		uint16_t 	getSegmentCount();
 		uint16_t 	getIndex();
+		float		getMaxSlope();
 		
 		float 		getStartX();
 		float 		getEndX();
 		
 		boolean 	setIndex(int);
 		Point 		getSegmentStartPoint();
-				
+		
+	//	boolean		debug;	
 		
 	///////////////////////////////////////////
 	private:
@@ -75,9 +77,10 @@ class MotorBezier {
 		float					_endX;
 		uint16_t				_segmentCount;
 		uint16_t				_index;
+		float					_maxSlope;
 		
 		float 		getAngleFromSlope(float);
-
+		
 		
 		
 };

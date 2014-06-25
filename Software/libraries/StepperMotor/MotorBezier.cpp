@@ -23,10 +23,6 @@
 
 
 
-
-
-
-
 // ============================================================================
 // P U B L I C   F U N C T I O N S
 // ============================================================================
@@ -39,6 +35,9 @@ MotorBezier::MotorBezier() {
 	_index 			= 0;
 	_segmentCount 	= MOTORBEZIER_SEGMENT_COUNT;
 	_endX			= 0;
+	_maxSlope		= 0;
+	
+	//debug = false;
 }
 
 
@@ -48,6 +47,7 @@ MotorBezier::~MotorBezier() {
 	free(&_segmentCount);
 	free(&_functionArray); 
 	free(&_endX); 
+	free(&_maxSlope);
 }
 
 
@@ -93,6 +93,7 @@ float MotorBezier::getY(float x) {
 			
 		_index++;
 	}
+	
 		
 	return _functionArray[_index].getY(x);
 				
@@ -124,6 +125,9 @@ float MotorBezier::getEndX() {
 //================================================================================
 void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
 	
+	this->_maxSlope = 0.0;
+	float abs_slope = 0.0;
+	
 	// the portion of sub segments for the curved parts (90%)	
 	int rampSubs = (int) round((float) (_segmentCount * 0.95));
 		
@@ -139,8 +143,8 @@ void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
 		
 		//default segmentation
 		segmentateCurve(curve);
-		return; 
-				
+		return;
+						
 	} else {
 		
 		// calculate the amount of segments for the different sections / parts of the curve
@@ -161,9 +165,8 @@ void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
 		// is there something strange? (position of the second t before the fist one?)
 		// then do the default segmentation (fallback)				
 		if (tSeg2 < tSeg1) {
-			
 			segmentateCurve(curve);
-			return; 
+			return;
 		}
 
 		int segNo = 0;
@@ -181,7 +184,14 @@ void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
 			p1 = curve.getPoint(t);
 			
 			// store the segment and the point in the result array
-			_functionArray[i-1] = LinearFunction(p0, p1);	
+			this->_functionArray[i-1] = LinearFunction(p0, p1);	
+			
+			// check the max - slope value
+			abs_slope = abs(this->_functionArray[i-1].slope);
+				
+			if (abs_slope > this->_maxSlope) {
+				this->_maxSlope = abs_slope;
+			}
 			
 			// do we need to change the s-step size because we reched the next phase?
 			if ((t >= tSeg1) && (segNo == 0)) {
@@ -197,7 +207,7 @@ void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
 
 		} // end: for
 		
-		_endX = curve.p3.x;
+		this->_endX = curve.p3.x;
 						
 	} // end: do intelligent segmentation 
 		
@@ -215,7 +225,9 @@ void MotorBezier::segmentateCurve(QuadBezierCurve curve) {
 	Point f, fd, fdd, fddd, fdd_per_2, fddd_per_2, fddd_per_6;
 	LinearFunction segment;
 	
-	float t = 1.0 / float(_segmentCount);
+	this->_maxSlope = 0.0;
+	float abs_slope = 0.0;
+	float t = (1.0 / (double)(_segmentCount));
 	float temp = t * t;
 	
 	f = curve.p0;
@@ -235,14 +247,60 @@ void MotorBezier::segmentateCurve(QuadBezierCurve curve) {
 	  	fd = fd + fdd + fddd_per_2;
 	  	fdd = fdd + fddd;
 	  	fdd_per_2 = fdd_per_2 + fddd_per_2;
-
-		_functionArray[i] = LinearFunction(pTemp, f);	
+		
+		/*
+		// print all the points
+		Serial.print("seg:");
+		Serial.print(i);
+		Serial.print(" - p1=");
+		Serial.print(pTemp.x);
+		Serial.print(",");
+		Serial.print(pTemp.y);
+		Serial.print(";  p2=");
+		Serial.print(f.x);
+		Serial.print(",");
+		Serial.println(f.y);
+		*/
+		
+		// check the max - slope value
+		this->_functionArray[i] = LinearFunction(pTemp, f);	
+				
+		abs_slope = abs(this->_functionArray[i].slope);
+		
+		if (abs_slope > this->_maxSlope) {
+			this->_maxSlope = abs_slope;
+		}
+				
+		/*
+		// print all the segments:
+		Serial.print("seg:");
+		Serial.print(i);
+		Serial.print(" xs:");
+		Serial.print(_functionArray[i].xstart, DEC);
+		Serial.print(" sl:");
+		Serial.print(_functionArray[i].slope, DEC);
+		Serial.print(" yo:");
+		Serial.println(_functionArray[i].yoffset, DEC);
+		*/
+		
+		
 		pTemp = f;
 	}
 	
-	_endX = curve.p3.x;
-	
+	this->_endX = curve.p3.x;
+
 }
+
+
+//================================================================================
+// Returns the max slope which is known after the curve was segmentated.
+// This value is always returned positively as an ABS(maxSlpe)
+//================================================================================
+float MotorBezier::getMaxSlope() {
+	return _maxSlope; 
+}
+
+
 
 /*
 //================================================================================

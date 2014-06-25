@@ -111,7 +111,7 @@ void core_checkIfProgramDone() {
 // ============================================================================
 // starts the program
 // ============================================================================
-void core_startProgram() {
+bool core_startProgram() {
   
   // if the program is not yet running
   if (!core_isProgramRunningFlag()) {
@@ -126,7 +126,7 @@ void core_startProgram() {
     core_setProgramRunningFlag();   
     // repaint the user interface
     uicore_setRepaintFlag();
-    uicore_process(); 
+    uicore_repaint(true);
     // turn all trigger interrupts on
     trigger_enableAllInterrupts();
     
@@ -181,13 +181,13 @@ void core_startProgram() {
           
           // remove all possible meessages from the screen
           uicore_deleteMessageOnScreenFlag();
-          // do a full repaint to have a fresh dashboard
+          // do a full repaint to have a fresh screen
           uicore_repaint(true);
           // remove the repaint flag
           uicore_deleteRepaintFlag();
                   
           // and now leave this function
-          return;
+          return false;
         }
           
       }
@@ -205,16 +205,11 @@ void core_startProgram() {
     uicore_deleteMessageOnScreenFlag();
     // do a full repaint to have a fresh dashboard
     uicore_repaint(true);
-    // remove the repaint flag
-    uicore_deleteRepaintFlag();
-     
     
     //////////////////////////////////////////////
     // S T A R T
     //////////////////////////////////////////////
-    
-    // set the start-immediately-flag
-    core_setStartImmediatelyFlag(); 
+        
     
     // if we are in one of the following modes,
     // start the curve based move for all motors
@@ -223,12 +218,28 @@ void core_startProgram() {
             
       if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) {
         
+        // check the max speeds...
+        if (!motor_checkCurvesMaxSpeedOk()) {
+
+          // stop everything
+          core_stopProgram();
+          // remove the repaint flag
+          uicore_deleteRepaintFlag();
+          // send a "max speed exceeded" message to the user
+          uicore_showMessage(227, 228, 229, 4000);
+          // leave this function
+          return false;
+          
+        }
+        
         // start a continuous move if we are in continuous mode
         motor_startContinuousMove();
       }
       
     }
     
+    // set the start-immediately-flag
+    core_setStartImmediatelyFlag(); 
     // remember the time when we started  
     core_program_start_time = millis();
     system_cycle_start = millis();
@@ -236,6 +247,8 @@ void core_startProgram() {
     motor_startMoveTimer();
     
   } // end: program running? 
+  
+  return true;
   
 }
 

@@ -19,6 +19,7 @@ multiply	KEYWORD2
 scale	KEYWORD2
 segmentateCurve	KEYWORD2
 segmentateCurveDynamic	KEYWORD2
+setMotorPosition	KEYWORD2
 shift	KEYWORD2
 substract	KEYWORD2
 updateDimension	KEYWORD2

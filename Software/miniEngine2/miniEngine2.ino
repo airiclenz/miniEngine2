@@ -211,13 +211,12 @@ typedef struct motorCurve {
 // Kurves for keyframes:
 // every curve has 200 segments (which consist of 12 byte each) and 9 bytes other stuff
 // variables: 
-// --> (200 * 12 byte) + 9 bytes = 2409 byte
-// --> 2409 byte * 25 = 60225 byte of RAM
+// --> (200 * 12 byte) + 13 bytes = 2413 byte
+// --> 2413 byte * 25 = 60325 byte of RAM
 #define CURVE_COUNT  25
 struct motorCurve mCurves[CURVE_COUNT];
 // curves for on demand moves like in SMS or Motor go home:
-// --> 2 more curves in the RAM: 60200 byte + (2 * 2409 byte) 
-// --> 60200 byte + 4818 byte = 65018 byte 
+// --> 2 more curves in the RAM: 60325 byte + (2 * 2413 byte) = 65151 bytes
 MotorBezier tempCurves[DEF_MOTOR_COUNT];
 
 

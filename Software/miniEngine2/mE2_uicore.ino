@@ -282,7 +282,7 @@ uint8_t key;
 
 // the time a message was displayed
 uint32_t uicore_message_start_time;
-// the duration for which a message should be displayed
+// the duration for which a message should be displayed (in ms)
 uint32_t uicore_message_duration;
 
 
@@ -593,6 +593,10 @@ const char* string_222_long = "Press [SELECT] to abort.";
 const char* string_225_long = "Motor";
 const char* string_226_long = "Moving motors to the home-position.";
 
+const char* string_227_long = "Motor";
+const char* string_228_long = "Motor speed limit for at least one";
+const char* string_229_long = "motor exceeded for this move!";
+
 
 
 
@@ -733,7 +737,11 @@ void uicore_process() {
   ///////////////////////////////////////////////////
   if (uicore_isMessageOnScreenFlag()) {
     
+    // if the message duration is zero (infinite) then keep
+    // it on the screen
     if (uicore_message_duration != 0) {
+      
+      // message duration time exceeded?
       if ((uicore_message_start_time + uicore_message_duration) < now) {
         
         // remove the message-is-on-screen-flag
@@ -918,7 +926,8 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 157: strcpy(lines[target_line], string_157_short);     return; 
     case 158: strcpy(lines[target_line], string_158_short);     return; 
     case 159: strcpy(lines[target_line], string_159_short);     return; 
-    case 160: strcpy(lines[target_line], string_159_short);     return; 
+    case 160: strcpy(lines[target_line], string_160_short);     return; 
+    
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
@@ -1062,6 +1071,11 @@ void uicore_getLongString(uint16_t buf_number) {
     
     case 225: strcpy(data_line, string_225_long);     return;  
     case 226: strcpy(data_line, string_226_long);     return;  
+    
+    case 227: strcpy(data_line, string_227_long);     return;  
+    case 228: strcpy(data_line, string_228_long);     return;  
+    case 229: strcpy(data_line, string_229_long);     return;  
+    
         
   }
 
@@ -1146,8 +1160,15 @@ void uicore_handleKeyEvent(uint8_t key) {
       else {
         
         // start / stop the program
-        if (core_isProgramRunningFlag()) core_stopProgram();
-        else                             core_startProgram();   
+        if (core_isProgramRunningFlag()) {
+          core_stopProgram();
+        } else {
+          if (!core_startProgram()) {
+            // the start did no succeed, leave this function
+            return; 
+          }
+          
+        }
         
       }
     
@@ -1424,12 +1445,6 @@ void uicore_handleRotary() {
 // ===================================================================================
 void uicore_repaint(boolean fullRepaint) {
   
-  boolean debug = false;
-  
-  if (debug) Serial.println();
-  if (debug) Serial.println("print");
-  
-  
   
   // check if we need to do a full 
   // repaint on certain ui-changes 
@@ -1448,9 +1463,7 @@ void uicore_repaint(boolean fullRepaint) {
   
   // paint the dashboard if the program is running
   if (core_isProgramRunningFlag()) {
-    
-    if (debug) Serial.print("Dsh");
-    
+
     uipaint_dashboard(full);  
     
   }
@@ -1458,8 +1471,6 @@ void uicore_repaint(boolean fullRepaint) {
   
   // Are we in jog Mode?
   else if (core_isJogModeFlag()) {
-    
-    if (debug) Serial.print("Jog");
     
     if (!uicore_isRepaintBatteryFlag()) {
       // paint the jog window
@@ -1470,8 +1481,6 @@ void uicore_repaint(boolean fullRepaint) {
     
   // we are displaying a popup menu
   else if (isBit(uicore_status, BIT_7)) {
-    
-    if (debug) Serial.print("Pop");
     
     if (!uicore_isRepaintBatteryFlag()) {
       // load the menu strings
@@ -1485,8 +1494,6 @@ void uicore_repaint(boolean fullRepaint) {
   
   // we are editing a value right now
   else if (menu_editing) {
-    
-    if (debug) Serial.print("Edi");
     
     if (!uicore_isRepaintBatteryFlag()) {
       // paint the edit-screen-header
@@ -1502,12 +1509,8 @@ void uicore_repaint(boolean fullRepaint) {
   // menu based screen
   else {
     
-    if (debug) Serial.print("Mnu");
-    
     // we are in the settings menu
     if (uicore_isSettingsScreen()) {
-      
-      if (debug) Serial.print("Stg");
       
       if (!uicore_isRepaintBatteryFlag()) {
         boolean paintFullSettingsHeader = (screen_code_old < 100) ||
@@ -1522,16 +1525,12 @@ void uicore_repaint(boolean fullRepaint) {
     // regular screen
     else {
       
-      if (debug) Serial.print("Reg");
-      
       // check the screen ID
       screen_code = uicore_checkScreenPos();
       
       
       if (!uicore_isRepaintBatteryFlag() ||
           full) {
-        
-        if (debug) Serial.print("Hed");    
             
         // paint the header
         uipaint_header(full);
@@ -1542,8 +1541,6 @@ void uicore_repaint(boolean fullRepaint) {
         }
               
       } else {
-        
-        if (debug) Serial.print("Bat");
         
         uipaint_battery(true); 
         
@@ -1558,8 +1555,6 @@ void uicore_repaint(boolean fullRepaint) {
     if (!uicore_isRepaintBatteryFlag() ||
         full) {
       
-      if (debug) Serial.print("Bdy");
-      
       // load the menu strings
       uicore_loadMenuStrings();
       
@@ -1568,9 +1563,6 @@ void uicore_repaint(boolean fullRepaint) {
     }
   
   }
-  
-  if (debug) Serial.println();
-  
   
   menu_editing_old          = menu_editing;
   uicore_col_scheme_old     = uicore_col_scheme;
@@ -1586,9 +1578,11 @@ void uicore_repaint(boolean fullRepaint) {
 
 
 // ===================================================================================
-// Prepared a message and initializes as needed values
+// Prepared a message and initializes as needed values.
+// If the message-duration = 0 then it will be displayed until the users presses
+// a key.
 // ===================================================================================
-void uicore_showMessage(byte title, byte fromLine, byte toLine, uint32_t duration){
+void uicore_showMessage(byte title, byte fromLine, byte toLine, uint32_t duration) {
   
   menu_length = 0;
   
@@ -2726,6 +2720,25 @@ boolean uicode_doAction(uint16_t line_code) {
                    if (motor_moveToStartKeyframe()) {
                      
                      motor_time_factor = (float)((double) setup_record_time / (double) setup_play_time);
+                   
+                     if (motor_checkCurvesMaxSpeedOk()) {
+                      
+                       // do the preview  
+                       // TODO
+                       
+                     } else {
+                       
+                       // message to the user that this exceeds the max speed of the motors
+                       // TODO
+                       
+                       // re-set the time-factor
+                       motor_time_factor = 1.0;
+                        
+                       return false;
+                     }
+                   
+                     // re-set the time-factor
+                     motor_time_factor = 1.0;
                    
                      return true; 
                      
