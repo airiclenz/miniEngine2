@@ -590,13 +590,16 @@ const char* string_220_long = "Trigger";
 const char* string_221_long = "Waiting for the start-signal.";
 const char* string_222_long = "Press [SELECT] to abort.";
 
-const char* string_225_long = "Motor";
+const char* string_225_long = "Home";
 const char* string_226_long = "Moving motors to the home-position.";
 
-const char* string_227_long = "Motor";
-const char* string_228_long = "Motor speed limit for at least one";
+const char* string_227_long = "Speed warning";
+const char* string_228_long = "Motor-speed limit for at least one";
 const char* string_229_long = "motor exceeded for this move!";
 
+const char* string_230_long = "Preview";
+const char* string_231_long = "The timelpase preview is now";
+const char* string_232_long = "done in real-speed...";
 
 
 
@@ -720,9 +723,26 @@ void uicore_process() {
         // receive the key flags and store them
         key = input_getPressedKey();
         
-        // handle the keys
-        uicore_handleKeyEvent(key);
-      }
+        // if a message is on the screen, end it
+        if (uicore_isMessageOnScreenFlag()) {
+          
+          // remove the message-is-on-screen-flag
+          uicore_deleteMessageOnScreenFlag();
+          
+          // paint everything that needs to be painted
+          uicore_repaint(true);
+          
+        // if not, do the regular - key handling
+        } else {
+       
+          // handle the keys
+          if (!uicore_handleKeyEvent(key)) {
+            return;
+          }
+          
+        } // end: no message on screen
+        
+      } // end: we have a key input
       
     } // Backlight on or off? 
     
@@ -742,71 +762,73 @@ void uicore_process() {
     if (uicore_message_duration != 0) {
       
       // message duration time exceeded?
-      if ((uicore_message_start_time + uicore_message_duration) < now) {
+      if ((uicore_message_start_time + uicore_message_duration) <= millis()) {
         
         // remove the message-is-on-screen-flag
         uicore_deleteMessageOnScreenFlag();
         
-        // do a repaint
-        uicore_setRepaintFlag();
+        // paint everything that needs to be painted
+        uicore_repaint(true);
           
       }
       
     }
-    
-  }
+ 
+  } else { // no message on screen  
    
   
-  ///////////////////////////////////////////////////
-  // B A C K L I G H T   T I M E O U T             //
-  ///////////////////////////////////////////////////
-  if (uicore_isBacklightFlag()) {
-    
-    if ((uicore_action_time + uicore_backlight_time) < now) {
+    ///////////////////////////////////////////////////
+    // B A C K L I G H T   T I M E O U T             //
+    ///////////////////////////////////////////////////
+    if (uicore_isBacklightFlag()) {
       
-      if (core_isProgramRunningFlag()) {
-        // deactivate the backlight
-        uicore_setBacklight(false);     
-      } else {
-        // fade out the backlight
-        uicore_fadeOutBacklight(20);
+      if ((uicore_action_time + uicore_backlight_time) < now) {
+        
+        if (core_isProgramRunningFlag()) {
+          // deactivate the backlight
+          uicore_setBacklight(false);     
+        } else {
+          // fade out the backlight
+          uicore_fadeOutBacklight(20);
+        }
+         
       }
-       
-    }
-        
-  } 
-  
-  
-  
-  ///////////////////////////////////////////////////
-  // R E P A I N T                                 //
-  ///////////////////////////////////////////////////
-  
-  // don't paint if the backlight is off 
-  if (uicore_isBacklightFlag()) {
-        
+          
+    } 
     
-    // is one of the repaint flags set?
-    if (isBit(uicore_status, B00011110)) {
-            
-      // paint everything that needs to be painted
-      uicore_repaint(false);
-            
-      // delete all repaint flags (out of the 2nd - repaint flag)
-      if (uicore_is2ndRepaintFlag()) {
-        
-        deleteBit(uicore_status, B00011110);
-        uicore_setRepaintFlag();
-        
-      } else {
-        
-        deleteBit(uicore_status, B00011110);
+    
+    
+    ///////////////////////////////////////////////////
+    // R E P A I N T                                 //
+    ///////////////////////////////////////////////////
+    
+    // don't paint if the backlight is off 
+    if (uicore_isBacklightFlag()) {
+          
+      
+      // is one of the repaint flags set?
+      if (isBit(uicore_status, B00011110)) {
+              
+        // paint everything that needs to be painted
+        uicore_repaint(false);
+              
+        // delete all repaint flags (out of the 2nd - repaint flag)
+        if (uicore_is2ndRepaintFlag()) {
+          
+          deleteBit(uicore_status, B00011110);
+          uicore_setRepaintFlag();
+          
+        } else {
+          
+          deleteBit(uicore_status, B00011110);
+          
+        }
         
       }
       
-    }
-    
-  } // end: REPAINT; backlight is on
+    } // end: REPAINT; backlight is on
+ 
+  } // end: no Message on Screen
   
 }
 
@@ -1076,6 +1098,9 @@ void uicore_getLongString(uint16_t buf_number) {
     case 228: strcpy(data_line, string_228_long);     return;  
     case 229: strcpy(data_line, string_229_long);     return;  
     
+    case 230: strcpy(data_line, string_230_long);     return;  
+    case 231: strcpy(data_line, string_231_long);     return;  
+    case 232: strcpy(data_line, string_232_long);     return;  
         
   }
 
@@ -1090,7 +1115,7 @@ void uicore_getLongString(uint16_t buf_number) {
 // ===================================================================================
 // handles the pressed key(s)
 // ===================================================================================
-void uicore_handleKeyEvent(uint8_t key) {
+boolean uicore_handleKeyEvent(uint8_t key) {
   
   uint8_t menu_pos_old = menu_pos;
   uint8_t popup_menu_pos_old = popup_menu_pos;
@@ -1108,7 +1133,7 @@ void uicore_handleKeyEvent(uint8_t key) {
     // clear the key event
     input_clearKeyEvent();  
     // and leave this function - there is nothing more to do here
-    return;  
+    return true;  
   } 
   
   
@@ -1165,7 +1190,7 @@ void uicore_handleKeyEvent(uint8_t key) {
         } else {
           if (!core_startProgram()) {
             // the start did no succeed, leave this function
-            return; 
+            return false; 
           }
           
         }
@@ -1402,6 +1427,8 @@ void uicore_handleKeyEvent(uint8_t key) {
     uicore_setRepaintFlag();  
     
   }
+  
+  return true;
     
 }
 
@@ -2499,7 +2526,7 @@ void uicore_generateDataString(uint16_t line_code) {
     // camera fps
     case 205 :   {
                    if (menu_editing) {
-                     uicore_changeValueUByte(&cam_fps_index, 1, 0, CAM_FPS_COUNT - 1, true);
+                     uicore_changeValueUByte(&cam_fps, 1, 1, 255, false);
                      
                      // update the set up vlaues
                      core_checkValues();
@@ -2508,7 +2535,7 @@ void uicore_generateDataString(uint16_t line_code) {
                      sd_setSettingsChangedFlag();
                    }
                    
-                   itoa(cam_fps_values[cam_fps_index], data_line, 10);
+                   itoa(cam_fps, data_line, 10);
                    strcat(data_line, string_18_short); // fps
                   
                    break; 
@@ -2716,24 +2743,40 @@ boolean uicode_doAction(uint16_t line_code) {
                    
                    // print a "moving motor to home" message
                    uicore_showMessage(225, 226, 226, 1);
+                   
+                   // define the curves (this needs to be done before the speed-check 
+                   // and before the move-to-start becuase otherwise the max speed would be zero
+                   // and the start position not defined
+                   motor_checkKeyframes(); 
+                   
                    // move all motors to their start position
                    if (motor_moveToStartKeyframe()) {
                      
+                     // set the time-factor now
+                     // (it will be needed for the max-speed-check that follows)
                      motor_time_factor = (float)((double) setup_record_time / (double) setup_play_time);
-                   
+                     
+                     // check if the planned move would exceed the max speed of any motor                 
                      if (motor_checkCurvesMaxSpeedOk()) {
-                      
-                       // do the preview  
-                       // TODO
+                       
+                       // message to the user that the preview is executed now
+                       uicore_showMessage(230, 231, 232, 0);
+                       
+                       // Execute Preview
+                       core_doPreview();
+                       
+                       // remove the meessages from the screen
+                       uicore_deleteMessageOnScreenFlag();
                        
                      } else {
                        
                        // message to the user that this exceeds the max speed of the motors
-                       // TODO
+                       uicore_showMessage(227, 228, 229, 3000);
                        
                        // re-set the time-factor
                        motor_time_factor = 1.0;
-                        
+                       
+                       // leave 
                        return false;
                      }
                    
@@ -2827,6 +2870,8 @@ void uicore_loadPopupMenuStrings(uint8_t menu_code) {
    
   // reset the menu length
   popup_menu_length = 0;
+  bool show;
+  
   
   // loop all menu-content relations we have
   for (int i=0; i<uicore_content_relation_count; i++) {
@@ -2834,14 +2879,30 @@ void uicore_loadPopupMenuStrings(uint8_t menu_code) {
     // if we found an entry that is on the current screen
     if (ui_content_relations[i].screen == menu_code) {
       
-      // store the corresponding string to the lines array
-      uicore_getShortString(ui_content_relations[i].menu_item, popup_menu_length);
+      show = true;
+      
+      // if we are not in timelapse mode,
+      // do now show the "preview" menu point 
+      if (
+          (! isBit(core_mode, MODE_TIMELAPSE)) &&
+          (ui_content_relations[i].menu_item == 160)
+         ){
+        show = false;
+      }
+      
+      
+      if (show) {
+      
+        // store the corresponding string to the lines array
+        uicore_getShortString(ui_content_relations[i].menu_item, popup_menu_length);
+          
+        // store the line_code
+        line_codes[popup_menu_length] = ui_content_relations[i].menu_item;
+           
+        // increment the menu length
+        popup_menu_length++;
         
-      // store the line_code
-      line_codes[popup_menu_length] = ui_content_relations[i].menu_item;
-         
-      // increment the menu length
-      popup_menu_length++;
+      }
 
     }  
     

@@ -13,20 +13,26 @@ Software:
 
 -	fixed a bug that causes the inital move in SMS move to be
 	wrong
--	optimized code for ad-hoc curve generation (e.g. one move in
-	SMS; move to home) for smoother and faster moves
 -	added core functions for analyzing a curves max speed
 -	added warning and abort if the motor-max-speed for a started
 	action exceeds the defined limits
--	changed edit-granularity for the option "record time" 
-	to 1 second for all values below 1 minute
 -	added new pop-up menu functionalities:
 	*	Set start > Defines the new start position for a move
 		(equals "set home for all motors" and updates move-distance
 		as well as move direction)
-	*	Set End > Defines the new end positoon for a move
+	*	Set End: Defines the new end positoon for a move
 		(updates move-distance as well as move direction)
--	
+	*	Preview: Runs the timelapse setup with real-speed (total 
+		preview duration = playbacl time) to get a feeling of the 
+		planned moves. 
+-	changed edit-granularity for the option "record time" 
+	to 1 second for all values below 1 minute
+- 	changed the FPS setting to be settable to any value between
+	1 and 255
+-	optimized code for ad-hoc curve generation (e.g. one move in
+	SMS; move to home) for smoother moves and more consistent 
+	behaviour
+	
 
 /////////////////////////////////////////////////////
 version:	2.0 alpha 5

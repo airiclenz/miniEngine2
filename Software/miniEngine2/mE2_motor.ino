@@ -771,7 +771,7 @@ boolean motor_isCurveBasedMoveRunning() {
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
-    // init this motor if needed
+    // is this motor in curve mode?
     if (isBit(motor_move_mode[i], MOVE_MODE_CURVE)) {
       return true;  
     }
@@ -952,12 +952,12 @@ void motor_makeKeyframes() {
     mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
         
     
-    
+    /*
     Serial.print("curves max slope (kf) for curveindex ");
     Serial.print(curveIndex);
     Serial.print(": ");   
     Serial.println(mCurves[curveIndex].curve.getMaxSlope());
-    
+    */
     
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
@@ -1171,7 +1171,7 @@ void motor_handleMove() {
             motor_used_curves_index[i]++;  
             
           } else {
-          
+            
             // deactivate this motor
             motor_move_mode[i] = MOVE_MODE_NONE;
             // store the post delay start time

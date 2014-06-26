@@ -273,26 +273,31 @@ uint32_t system_cycle_start;
 // interval warning (actions during cycle longer than defined cycle)
 bool system_cycle_too_long = false;
 
+
+/*
 #define CAM_FPS_COUNT 9
 // FPS VALUES                                       0   1,  2   3        4,       5,       6,       7,       8 
 const byte  cam_fps_values[CAM_FPS_COUNT]  = {      5, 10, 15, 20,      24,      25,      30,      50,      60 };
 //const float cam_fps_per_sec[CAM_FPS_COUNT] = {                   41.6667, 40.0000, 33.3333, 20.0000, 16.6667 };
 byte cam_fps_index = 5; // 25
+*/
+
+
+
+byte      cam_fps = 25;
+uint32_t  cam_exposure          = 100;
+uint32_t  cam_focus             = 0;
+uint32_t  cam_post_delay        = 200;
 
 
 uint32_t  setup_record_time     = 15 * MILLIS_PER_MINUTE;  // 15 minutes
 uint32_t  setup_play_time       = 12 * MILLIS_PER_SECOND;  // 12 seconds
 
 // the amount of photos we need to make during the run
-int16_t   setup_frame_count     = cam_fps_values[cam_fps_index] * (setup_play_time / 1000.0); 
+int16_t   setup_frame_count     = cam_fps * (setup_play_time / 1000.0); 
 uint32_t  setup_interval_length = setup_record_time / (setup_frame_count - 1);
 byte      setup_run_ramp_in[DEF_MOTOR_COUNT];
 byte      setup_run_ramp_out[DEF_MOTOR_COUNT];
-
-
-uint32_t  cam_exposure          = 100;
-uint32_t  cam_focus             = 0;
-uint32_t  cam_post_delay        = 200;
 
 
 float motor_total_distance[DEF_MOTOR_COUNT] = { 0.0, 

@@ -365,7 +365,7 @@ boolean sd_saveConfig() {
     
     // camera data
     sd_writeData((byte)     isBit(cam_status, BIT_7));          // camera type
-    sd_writeData((byte)       cam_fps_index);                   // clip fps value
+    sd_writeData((byte)       cam_fps);                         // clip fps value
     sd_writeData((uint32_t)   cam_exposure);                    // camera exposure     
     sd_writeData((byte)       cam_exposure_index);              // camera exposure  
     sd_writeData((uint32_t)   cam_focus);                       // camera focus time        
@@ -519,7 +519,7 @@ boolean sd_loadConfig() {
     if (camType) setBit(cam_status, BIT_7);
     else         deleteBit(cam_status, BIT_7);    
     
-    cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
+    cam_fps =                       sd_readByte(buffer, address);               address += 1;
     cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
     cam_exposure_index =            sd_readByte(buffer, address);               address += 1;
     cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
@@ -659,7 +659,7 @@ boolean sd_loadVersion_2_0_5(byte* buffer, uint16_t address) {
   if (camType) setBit(cam_status, BIT_7);
   else         deleteBit(cam_status, BIT_7);    
   
-  cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
+  cam_fps =                       sd_readByte(buffer, address);               address += 1;
   cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
   cam_exposure_index =            sd_readByte(buffer, address);               address += 1;
   cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
@@ -735,7 +735,7 @@ void sd_loadVersion_2_0_4(byte* buffer, uint16_t address) {
   if (camType) setBit(cam_status, BIT_7);
   else         deleteBit(cam_status, BIT_7);    
   
-  cam_fps_index =                 sd_readByte(buffer, address);               address += 1;
+  cam_fps =                       sd_readByte(buffer, address);               address += 1;
   cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
   cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
   cam_post_delay =                (uint32_t) sd_readULong(buffer, address);   address += 4; 

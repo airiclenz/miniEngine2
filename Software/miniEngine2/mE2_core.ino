@@ -223,10 +223,14 @@ bool core_startProgram() {
 
           // stop everything
           core_stopProgram();
+          // do a full repaint to have a fresh screen
+          // and updated variabled for not painting
+          // the screen unneededly
+          uicore_repaint(true);
           // remove the repaint flag
           uicore_deleteRepaintFlag();
           // send a "max speed exceeded" message to the user
-          uicore_showMessage(227, 228, 229, 4000);
+          uicore_showMessage(227, 228, 229, 3000);
           // leave this function
           return false;
           
@@ -281,6 +285,50 @@ void core_stopProgram() {
   uicore_setRepaintFlag();
   //uicore_repaint(true);
     
+}
+
+// ============================================================================
+// does a basic move of the saved curves
+// ============================================================================
+void core_doPreview() {
+  
+  // remeber the current move style
+  byte old_style = core_move_style;
+  
+  // set the move style to continuous
+  core_move_style = MOVE_STYLE_CONTINUOUS;
+
+  // enable the motors
+  motor_powerAll();  
+  
+  // start the moves
+  motor_startContinuousMove();
+  
+  // start the motor timer...
+  motor_startMoveTimer();
+
+  
+  // wait until the preview is done  
+  while (
+          (motor_isCurveBasedMoveRunning()) &&
+          (! input_isKeyEvent())
+        ) {
+    
+    motor_process();
+    input_process();
+            
+  }
+  
+  // disable all motors on program Stop 
+  motor_disableAll(); 
+        
+  // clear all possible input events;      
+  input_clearKeyEvent();      
+  
+  // re-set the old mode
+  core_move_style = old_style;
+  
+  
 }
 
 
@@ -416,7 +464,7 @@ void core_checkValues() {
   // T I M E L A P S E
   if (isBit(core_mode, MODE_TIMELAPSE)) {
       
-    setup_frame_count     = cam_fps_values[cam_fps_index] * (setup_play_time / 1000.0); 
+    setup_frame_count     = cam_fps * (setup_play_time / 1000.0); 
     setup_interval_length = setup_record_time / (setup_frame_count - 1);
     
   } // end: timalpse
