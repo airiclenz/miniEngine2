@@ -900,6 +900,8 @@ void motor_makeKeyframes() {
     } else {
       newPos = motor_reference_pos[i] + motor_total_distance[i];
     }
+       
+    
     
     // define a curve (linear when no ramping was defined)
     // the points p1 and p2 are the helper points of the Bezier which define

@@ -233,8 +233,8 @@ uint16_t display_width, display_height;
 // content of the menus (we initialize the array with some items - 
 // fitting the longest possible menu.
 char lines[32][MENU_MAX_LINES]; 
-char data_line[200];
-char temp[48];
+char data_line[255];
+char temp[255];
 
 // help array for the lines to know which value corresponds to which
 // line. this is filled by the item_codes when loading the menu content 
@@ -682,7 +682,7 @@ void uicore_process() {
   // I N P U T   A C T I O N                     //
   /////////////////////////////////////////////////
   if (input_isEvent()) {
-        
+    
     ///////////////////////////////////////////////
     // don't do anything if th backlight was off //
     ///////////////////////////////////////////////
@@ -719,9 +719,10 @@ void uicore_process() {
       /////////////////////////////////////////////
       // key event?
       if (input_isKeyEvent()) {  
-        
+                
         // receive the key flags and store them
         key = input_getPressedKey();
+        
         
         // if a message is on the screen, end it
         if (uicore_isMessageOnScreenFlag()) {
@@ -732,9 +733,10 @@ void uicore_process() {
           // paint everything that needs to be painted
           uicore_repaint(true);
           
+          
         // if not, do the regular - key handling
         } else {
-       
+          
           // handle the keys
           if (!uicore_handleKeyEvent(key)) {
             return;
@@ -775,8 +777,7 @@ void uicore_process() {
     }
  
   } else { // no message on screen  
-   
-  
+    
     ///////////////////////////////////////////////////
     // B A C K L I G H T   T I M E O U T             //
     ///////////////////////////////////////////////////
@@ -795,7 +796,7 @@ void uicore_process() {
       }
           
     } 
-    
+
     
     
     ///////////////////////////////////////////////////
@@ -804,17 +805,16 @@ void uicore_process() {
     
     // don't paint if the backlight is off 
     if (uicore_isBacklightFlag()) {
-          
       
       // is one of the repaint flags set?
       if (isBit(uicore_status, B00011110)) {
-              
+        
         // paint everything that needs to be painted
         uicore_repaint(false);
-              
+                      
         // delete all repaint flags (out of the 2nd - repaint flag)
         if (uicore_is2ndRepaintFlag()) {
-          
+         
           deleteBit(uicore_status, B00011110);
           uicore_setRepaintFlag();
           
@@ -1486,11 +1486,11 @@ void uicore_repaint(boolean fullRepaint) {
                  (isBit(uicore_status_old, B01000000)   != isBit(uicore_status, B01000000))   ||
                  (core_is_jog_mode_old                  != core_isJogModeFlag())              ||
                  (uicore_is2ndRepaintFlag());
-  
+
   
   // paint the dashboard if the program is running
   if (core_isProgramRunningFlag()) {
-
+    
     uipaint_dashboard(full);  
     
   }
@@ -1523,11 +1523,13 @@ void uicore_repaint(boolean fullRepaint) {
   else if (menu_editing) {
     
     if (!uicore_isRepaintBatteryFlag()) {
+      
       // paint the edit-screen-header
       uipaint_headerEdit(full);
+      
       // paint the edit screen
       uipaint_editScreen(full);
-
+      
     }
         
   } 
@@ -1535,7 +1537,7 @@ void uicore_repaint(boolean fullRepaint) {
   
   // menu based screen
   else {
-    
+
     // we are in the settings menu
     if (uicore_isSettingsScreen()) {
       
@@ -1555,7 +1557,6 @@ void uicore_repaint(boolean fullRepaint) {
       // check the screen ID
       screen_code = uicore_checkScreenPos();
       
-      
       if (!uicore_isRepaintBatteryFlag() ||
           full) {
             
@@ -1565,6 +1566,7 @@ void uicore_repaint(boolean fullRepaint) {
         if (full) {
           // paint battery info on a full repaint
           uipaint_battery(true); 
+          
         }
               
       } else {
@@ -1572,24 +1574,27 @@ void uicore_repaint(boolean fullRepaint) {
         uipaint_battery(true); 
         
       }
-      
+
       uipaint_cycleLength();
       uipaint_shotCount();
       
     }
     
+    
     // paint the menu items
     if (!uicore_isRepaintBatteryFlag() ||
         full) {
-      
+          
       // load the menu strings
       uicore_loadMenuStrings();
       
       // paint the menu
       uipaint_menu(full);
+       
     }
   
   }
+ 
   
   menu_editing_old          = menu_editing;
   uicore_col_scheme_old     = uicore_col_scheme;
@@ -1598,7 +1603,7 @@ void uicore_repaint(boolean fullRepaint) {
   program_is_running_old    = core_isProgramRunningFlag();
   core_is_jog_mode_old      = core_isJogModeFlag(); 
   uicore_status_old         = uicore_status; 
-  
+
   
 }
 
@@ -2335,17 +2340,20 @@ void uicore_generateDataString(uint16_t line_code) {
     // motor total distance
     case 200 :   {
                    if (menu_editing) {
+                     
                      uicore_changeValueFloat(&motor_total_distance[motor_selected], 
-                                             (float)rotary.getLowVelocity() / (float) edit_granularity,
-                                             0.0, 65000); 
+                                             ((float)rotary.getLowVelocity() / (float) edit_granularity),
+                                             0.0, 
+                                             65000.0); 
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
                      
-                     if      (edit_granularity == 1)   sprintf(data_line,"%.0f", motor_total_distance[motor_selected]);  
-                     else if (edit_granularity == 10)  sprintf(data_line,"%.1f", motor_total_distance[motor_selected]);  
-                     else if (edit_granularity == 100) sprintf(data_line,"%.2f", motor_total_distance[motor_selected]);  
                                           
+                     if      (edit_granularity ==   1) sprintf(data_line, "%.0f", motor_total_distance[motor_selected]);  
+                     else if (edit_granularity ==  10) sprintf(data_line, "%.1f", motor_total_distance[motor_selected]);  
+                     else if (edit_granularity == 100) sprintf(data_line, "%.2f", motor_total_distance[motor_selected]);  
+                   
                    } else {
                      sprintf(data_line,"%.1f", motor_total_distance[motor_selected]);
                    }         
@@ -2544,10 +2552,9 @@ void uicore_generateDataString(uint16_t line_code) {
     // global run-ramp in
     case 206 :   {
                    
-                   
-      
                    if (menu_editing) {
-                     uicore_changeValueUByte(&setup_run_ramp_in[motor_selected], 1, 0, 100 - setup_run_ramp_out[motor_selected], false);
+                     uint8_t upperLimit = 100 - setup_run_ramp_out[motor_selected];
+                     uicore_changeValueUByte(&setup_run_ramp_in[motor_selected], 1, 0, upperLimit, false);
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
@@ -2563,7 +2570,8 @@ void uicore_generateDataString(uint16_t line_code) {
     // global run-ramp out
     case 207 :   {
                    if (menu_editing) {
-                     uicore_changeValueUByte(&setup_run_ramp_out[motor_selected], 1, 0, 100 - setup_run_ramp_in[motor_selected], false);
+                     uint8_t upperLimit = 100 - setup_run_ramp_in[motor_selected];
+                     uicore_changeValueUByte(&setup_run_ramp_out[motor_selected], 1, 0, upperLimit, false);
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();

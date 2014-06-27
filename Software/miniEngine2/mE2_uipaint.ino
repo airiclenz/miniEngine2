@@ -543,6 +543,10 @@ void uipaint_message() {
 // result = true when the first line is on screen
 void uipaint_menu(boolean full_repaint) {
   
+  Serial.print("pre paint menu: ");
+  Serial.println(setup_run_ramp_in[motor_selected]);
+  
+  
   // calculate scrolling pos   
   uint8_t menu_offset = menu_pos - menu_screen_pos;
   
@@ -558,6 +562,13 @@ void uipaint_menu(boolean full_repaint) {
 
   // loop all menu lines  
   for (int i=0; i<menu_max_screen_lines; i++) {
+    
+    /*
+    Serial.print("paint menu (pre ");
+    Serial.print(line_codes[i + menu_offset]);
+    Serial.print("): ");
+    Serial.println(setup_run_ramp_in[motor_selected]);
+    */
     
     // does this line need to be painted? 
     // (only paint what is really needed to be painted)
@@ -665,7 +676,6 @@ void uipaint_menu(boolean full_repaint) {
   
   // paint the scroll bar if more than 5 menu lines
   if (full_repaint) uipaint_scrollbar(menu_length > menu_max_screen_lines, false);
-
     
 }
 
@@ -789,19 +799,18 @@ void uipaint_editScreen(boolean full_repaint) {
     tft.setFont(SMALL_FONT);
     tft.setColor(color_schemes[uicore_col_scheme].font_soft);
     
-    
     // receive the long help text
     uicore_getLongString(line_codes[menu_pos]);
-    
+        
     // variables for realizing word-wrapping
     byte lineCount = 0;
     byte fullLen = strlen(data_line);
     byte subLen = 0;
     byte startPos = 0;
-  
+
     // if we have a help-string
     if (fullLen > 0) {
-    
+      
       // loop all charakters of the string
       for (byte i=0; i<fullLen; i++) {
         
@@ -812,26 +821,36 @@ void uipaint_editScreen(boolean full_repaint) {
           if (startPos != 0) startPos++;
           
           // copy the sub string to a temp buffer
-          memcpy(temp, data_line + startPos, i);
-          temp[i - startPos] = 0;  
+          //memcpy(temp, data_line + startPos, i);
+          strncpy(temp, &data_line[startPos], i - startPos);
+                    
+          // add the string-termination charakter          
+          temp[i - startPos] = '\0';  
+          
+          // remember the new start pos for the next string
           startPos = i;
           
           // print the substring
           tft.print(temp, 7, header_height + 10 + (lineCount * 20)); 
+          
           // increase the linecount
           lineCount++; 
           
         } 
-      
+        
       }
-    
-      // paint the last line because this was not covered by the loop:
-      // if we had lineFeeds, jump over the delimiter charakter
+      
+      // now paint the last line as this was not covered by the loop above.
+      // if we had linefeeds jump over the delimiter charakter
       if (startPos != 0) startPos++;
       
       // copy the sub string to a temp buffer
-      memcpy(temp, data_line + startPos, fullLen);
-      temp[fullLen - startPos] = 0;  
+      //memcpy(temp, data_line + startPos, fullLen);
+      strncpy(temp, &data_line[startPos], fullLen - startPos);
+      
+      // add the string-termination charakter
+      temp[fullLen - startPos] = '\0';
+
       
       // print the substring
       tft.print(temp, 7, header_height + 10 + (lineCount * 20)); 
@@ -839,11 +858,9 @@ void uipaint_editScreen(boolean full_repaint) {
     } // end: we have a help string
           
   } // end: full repaint
-        
-    
+  
   // generate the data string
   uicore_generateDataString(line_codes[menu_pos]);
-  
   
   // only paint now, if not 2nd repaint is defined - 
   // in this case we paint later anyway in the 2nd loop

@@ -52,7 +52,7 @@ uint8_t core_status;
 // B5 = 
 // B6 = 
 // B7 = 
-uint8_t core_settings = B00000010;
+uint8_t core_settings = B00000011;
 
 
 

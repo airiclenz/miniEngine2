@@ -13,17 +13,19 @@ Software:
 
 -	fixed a bug that causes the inital move in SMS move to be
 	wrong
+-	fixed a bug in the paiting routines that sometimes caused
+	memory overflows
 -	added core functions for analyzing a curves max speed
 -	added warning and abort if the motor-max-speed for a started
 	action exceeds the defined limits
 -	added new pop-up menu functionalities:
 	*	Set start > Defines the new start position for a move
-		(equals "set home for all motors" and updates move-distance
+		(equals "set home for all motors". This updates move-distance
 		as well as move direction)
 	*	Set End: Defines the new end positoon for a move
 		(updates move-distance as well as move direction)
 	*	Preview: Runs the timelapse setup with real-speed (total 
-		preview duration = playbacl time) to get a feeling of the 
+		preview duration = playback time) to get a feeling for the 
 		planned moves. 
 -	changed edit-granularity for the option "record time" 
 	to 1 second for all values below 1 minute
