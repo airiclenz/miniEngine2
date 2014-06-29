@@ -390,6 +390,8 @@ boolean sd_saveConfig() {
       sd_writeData((byte)     motor_sleep[i]);                  // motor sleep after moves
       sd_writeData((byte)     motors[i].isDirectionFlipped());  // motor direction flipped
       sd_writeData((byte)     motors[i].isKeepPowered());       // keep the motor powered
+      sd_writeData((byte)     motor_check_speed[i]);            // check the motor speed or not
+        
         
       // a lille bit of motor specific run-setup-data
       sd_writeData((uint8_t)  setup_run_ramp_in[i]);            // the ramp-in-amount in percent for run setup
@@ -545,6 +547,8 @@ boolean sd_loadConfig() {
       motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
       motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
       motors[i].setKeepPowered(     (boolean) sd_readByte(buffer, address));    address += 1;       
+      motor_check_speed[i] =        (boolean) sd_readByte(buffer, address);     address += 1;
+      
             
       // a lille bit of motor specific run-setup-data
       setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 

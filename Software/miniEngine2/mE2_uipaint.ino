@@ -543,9 +543,6 @@ void uipaint_message() {
 // result = true when the first line is on screen
 void uipaint_menu(boolean full_repaint) {
   
-  Serial.print("pre paint menu: ");
-  Serial.println(setup_run_ramp_in[motor_selected]);
-  
   
   // calculate scrolling pos   
   uint8_t menu_offset = menu_pos - menu_screen_pos;
@@ -562,13 +559,6 @@ void uipaint_menu(boolean full_repaint) {
 
   // loop all menu lines  
   for (int i=0; i<menu_max_screen_lines; i++) {
-    
-    /*
-    Serial.print("paint menu (pre ");
-    Serial.print(line_codes[i + menu_offset]);
-    Serial.print("): ");
-    Serial.println(setup_run_ramp_in[motor_selected]);
-    */
     
     // does this line need to be painted? 
     // (only paint what is really needed to be painted)

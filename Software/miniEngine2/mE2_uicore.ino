@@ -319,7 +319,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 67;
+const uint8_t uicore_content_relation_count = 68;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -334,7 +334,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
     
   { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
   { 101, 120 }, { 101, 121 }, { 101, 122 }, 
-  { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
+  { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 161 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
   { 103,  23 }, /*{ 103, 160 }, { 103, 161 }, */
   { 104, 180 }, { 104, 181 }, { 104, 182 }, { 104, 183 }, { 104, 187 },
@@ -527,6 +527,7 @@ const char* string_157_short = "Set End";
 const char* string_158_short = "GO!";
 const char* string_159_short = "SET!";
 const char* string_160_short = "Preview";
+const char* string_161_short = "Check Speed";
 
 const char* string_140_long  = "Select the motor you want to edit.";
 const char* string_143_long  = "Delay after a motor move. Use this\ndelay for letting the motor\nsettle after a move.";
@@ -537,7 +538,7 @@ const char* string_150_long  = "Keep the motor powerd all the time.\nWhen enable
 const char* string_151_long  = "Motor and hardware calibration value\nin steps per cm or steps per `.\nPress [Menu] to change the granularity.";
 const char* string_154_long  = "Turn the motor off when not used\n(Even during recording!).";
 const char* string_155_long  = "Invert the motor direction.";
-
+const char* string_161_long  = "Check the max speed for this\nmotor or ignore it. WARNING: Turning\nthis option off can damage\nyour system.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CHAIN
@@ -949,6 +950,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 158: strcpy(lines[target_line], string_158_short);     return; 
     case 159: strcpy(lines[target_line], string_159_short);     return; 
     case 160: strcpy(lines[target_line], string_160_short);     return; 
+    case 161: strcpy(lines[target_line], string_161_short);     return; 
     
     
     ///////////////////////////////////////////////////////////////////
@@ -1057,6 +1059,8 @@ void uicore_getLongString(uint16_t buf_number) {
     case 151: strcpy(data_line, string_151_long);     return;
     case 154: strcpy(data_line, string_154_long);     return;
     case 155: strcpy(data_line, string_155_long);     return;
+    case 161: strcpy(data_line, string_161_long);     return;
+    
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
@@ -1328,10 +1332,16 @@ boolean uicore_handleKeyEvent(uint8_t key) {
   
   // =============
   // KEY 2 LONG PRESS
-  // >> ...
+  // >> POPUP-MENU
   if (isBit(key, KEY_2_LONG)) {
     
-    // EMPTY
+    if (!menu_editing && 
+        !core_isProgramRunningFlag() &&
+        !uicore_isSettingsScreen()) {
+    
+      setBit(uicore_status, BIT_7);  
+           
+    }
     
   }
     
@@ -2222,6 +2232,27 @@ void uicore_generateDataString(uint16_t line_code) {
                    }
                    
                    if (motors[motor_selected].isDirectionFlipped()) {
+                     strcpy(data_line, string_3_short);   // enabled 
+                   } else {
+                     strcpy(data_line, string_4_short);   // disabled 
+                   } 
+                   
+                   break;
+    }
+    
+    // motor check max speed
+    case  161 :  {
+      
+                   if ((menu_editing) &&
+                       (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     motor_check_speed[motor_selected] = !motor_check_speed[motor_selected];
+                                          
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                   
+                   if (motor_check_speed[motor_selected]) {
                      strcpy(data_line, string_3_short);   // enabled 
                    } else {
                      strcpy(data_line, string_4_short);   // disabled 

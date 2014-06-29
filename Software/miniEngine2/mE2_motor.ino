@@ -134,6 +134,9 @@ volatile uint32_t motor_post_start_time[DEF_MOTOR_COUNT];
 // where was the motor when the program was started?
 volatile float  motor_reference_pos[DEF_MOTOR_COUNT] = { 0.0, 0.0 };
 
+// when whas a motor move started? (in seconds)
+boolean motor_check_speed[DEF_MOTOR_COUNT];
+
 
 // used timers for checking if the motors need to move.
 // When running a timer is called 20000 times per second.
@@ -147,7 +150,6 @@ DueTimer timer_jog(1);   // --> Jogging
 
 // ============================================================================
 float motor_getTimeFactor() { return motor_time_factor; }
-
 
 
 // ============================================================================
@@ -221,6 +223,10 @@ void motor_init() {
           
     // reset the motor move-start times
     motor_start_time[i] = 0;
+    
+    // enable checking the max speed
+    motor_check_speed[i] = true;
+    
     
     // direction variables  
     //motor_dir[i] = motors[i].getDirection();  
@@ -919,32 +925,29 @@ void motor_makeKeyframes() {
     // curve array
     curveIndex = motor_used_curves[i][0];
   
-    /*
-    if (i==0) {
+    
+    /*  
+    Serial.println();
+    Serial.print("Point 1: x");
+    Serial.print(curve.p0.x);
+    Serial.print(" y");
+    Serial.println(curve.p0.y);
       
-      Serial.println();
-      Serial.print("Point 1: x");
-      Serial.print(curve.p0.x);
-      Serial.print(" y");
-      Serial.println(curve.p0.y);
-      
-      Serial.print("Point 2: x");
-      Serial.print(curve.p1.x);
-      Serial.print(" y");
-      Serial.println(curve.p1.y);
-      
-      Serial.print("Point 3: x");
-      Serial.print(curve.p2.x);
-      Serial.print(" y");
-      Serial.println(curve.p2.y);
-      
-      Serial.print("Point 4: x");
-      Serial.print(curve.p3.x);
-      Serial.print(" y");
-      Serial.println(curve.p3.y);
-      Serial.println();
-
-    }
+    Serial.print("Point 2: x");
+    Serial.print(curve.p1.x);
+    Serial.print(" y");
+    Serial.println(curve.p1.y);
+    
+    Serial.print("Point 3: x");
+    Serial.print(curve.p2.x);
+    Serial.print(" y");
+    Serial.println(curve.p2.y);
+    
+    Serial.print("Point 4: x");
+    Serial.print(curve.p3.x);
+    Serial.print(" y");
+    Serial.println(curve.p3.y);
+    Serial.println();
     */
     
     
@@ -954,12 +957,15 @@ void motor_makeKeyframes() {
     mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
         
     
-    /*
+    /*    
+    Serial.println();
     Serial.print("curves max slope (kf) for curveindex ");
     Serial.print(curveIndex);
     Serial.print(": ");   
     Serial.println(mCurves[curveIndex].curve.getMaxSlope());
+    Serial.println();
     */
+    
     
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
@@ -975,6 +981,7 @@ void motor_makeKeyframes() {
 // not break the max-speed-rule.
 // ============================================================================
 boolean motor_checkCurvesMaxSpeedOk() {
+    
   
   /*  
   // an array that stores which of the available curves are used
@@ -993,26 +1000,31 @@ boolean motor_checkCurvesMaxSpeedOk() {
   // loop all motors
   for (byte m=0; m<DEF_MOTOR_COUNT; m++) {
    
-    // loop all the used curves of this motor
-    for (byte i=0; i<motor_used_curves_count[m]; i++) {
-      
-      // what is the index of the next used curve for this motor?
-      byte cindex = motor_used_curves[m][i];
-      
-      // the max slope of the current curve (equals cm or degrees per second).
-      // this is multiplied with the current time-factor as it changes the final
-      // speed of the motor
-      float max_speed = mCurves[cindex].curve.getMaxSlope() * motor_time_factor;
-      
-      // does this curve exceed the max speed limit?
-      if (max_speed > motors[m].getMaxSpeed()) {
+    // are we supposed to check this motor?
+    if (motor_check_speed[m]) {
+          
+      // loop all the used curves of this motor
+      for (byte i=0; i<motor_used_curves_count[m]; i++) {
         
-        // return false on any fault... 
-        return false; 
-      } 
-      
-    } // end: loop the curves of the motor
+        // what is the index of the next used curve for this motor?
+        byte cindex = motor_used_curves[m][i];
         
+        // the max slope of the current curve (equals cm or degrees per second).
+        // this is multiplied with the current time-factor as it changes the final
+        // speed of the motor
+        float max_speed = mCurves[cindex].curve.getMaxSlope() * motor_time_factor;
+        
+        // does this curve exceed the max speed limit?
+        if (max_speed > motors[m].getMaxSpeed()) {
+          
+          // return false on any fault... 
+          return false; 
+        } 
+        
+      } // end: loop the curves of the motor
+      
+    } // end: check speed for this motor
+            
   } // end: loop all motors
   
   // is we reached this point, everything went well

@@ -114,104 +114,16 @@ float MotorBezier::getEndX() {
 }
 
 
-
-
 //================================================================================
-// This function takes a bezier curve object as parameter and then converts
-// it to linear segments. It segmentates the way that the curved ends of the
-// bezier curve get 90% off the total amount of segemts and the more linear
-// part gets the other 10%. This is to ensure that the speed changes between the
-// different segments are as minimal as possible.
+// Returns the max slope which is known after the curve was segmentated.
+// This value is always returned positively as an ABS(maxSlpe)
 //================================================================================
-void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
-	
-	this->_maxSlope = 0.0;
-	float abs_slope = 0.0;
-	
-	// the portion of sub segments for the curved parts (90%)	
-	int rampSubs = (int) round((float) (_segmentCount * 0.95));
-		
-	float distTotal = curve.p3.x - curve.p0.x;
-	float rampInDist  = curve.p1.x - curve.p0.x;
-	float rampOutDist = curve.p3.x - curve.p2.x;
-	float rampDistTotal = rampInDist + rampOutDist;
-		
-	// if the total ramp distance equals the total distance then we have a 
-	// curve with 100% curvature. In this case it is better to use the
-	// usual segmentation function which is much faster.	
-	if ((long)(rampDistTotal * 10000.0) == (long)(distTotal * 10000.0)) {
-		
-		//default segmentation
-		segmentateCurve(curve);
-		return;
-						
-	} else {
-		
-		// calculate the amount of segments for the different sections / parts of the curve
-		int rampInSubs  = (int)((rampInDist / rampDistTotal) * rampSubs);
-		int rampOutSubs = rampSubs - rampInSubs;
-		int restSubs    = _segmentCount - rampSubs;
-			
-		// get the t-coordinates for the different section borders
-		// ("ramp in" <- tSeg1 -> "linear part" <- tSeg2 -> "ramp out")
-		float tSeg1 = curve.getTFromX(curve.p1.x, rampDistTotal * 0.01f);
-		float tSeg2;
-		if (rampOutDist != rampInDist) {
-			tSeg2 = curve.getTFromX(curve.p2.x, rampDistTotal * 0.01f);
-		} else {
-			tSeg2 = 1.0f - tSeg1;
-		}
-		
-		// is there something strange? (position of the second t before the fist one?)
-		// then do the default segmentation (fallback)				
-		if (tSeg2 < tSeg1) {
-			segmentateCurve(curve);
-			return;
-		}
+float MotorBezier::getMaxSlope() {
+	return _maxSlope; 
+}
 
-		int segNo = 0;
-		float step = tSeg1 / (float) rampInSubs;
-		float t = 0;
-			
-		Point p0;
-		Point p1 = curve.getPoint(0);
-		
-		// loop all segments
-		for (int i=1; i<=_segmentCount; i++) {
-				
-			t += step;
-			p0 = p1;//.clone();
-			p1 = curve.getPoint(t);
-			
-			// store the segment and the point in the result array
-			this->_functionArray[i-1] = LinearFunction(p0, p1);	
-			
-			// check the max - slope value
-			abs_slope = abs(this->_functionArray[i-1].slope);
-				
-			if (abs_slope > this->_maxSlope) {
-				this->_maxSlope = abs_slope;
-			}
-			
-			// do we need to change the s-step size because we reched the next phase?
-			if ((t >= tSeg1) && (segNo == 0)) {
-				segNo++;
-				step = (tSeg2 - tSeg1) / (float) restSubs;
-			}
-			
-			// change the step size bevause we reached the last phase
-			if ((t >= tSeg2) && (segNo == 1)) {
-				segNo++;
-				step = (1 - tSeg2) / (float) rampOutSubs;
-			}
 
-		} // end: for
-		
-		this->_endX = curve.p3.x;
-						
-	} // end: do intelligent segmentation 
-		
-};
+
 
 
 //================================================================================
@@ -248,40 +160,35 @@ void MotorBezier::segmentateCurve(QuadBezierCurve curve) {
 	  	fdd = fdd + fddd;
 	  	fdd_per_2 = fdd_per_2 + fddd_per_2;
 		
+		// check the max - slope value
+		this->_functionArray[i] = LinearFunction(pTemp, f);	
+				
 		/*
 		// print all the points
 		Serial.print("seg:");
 		Serial.print(i);
-		Serial.print(" - p1=");
+		Serial.print("; p0(");
 		Serial.print(pTemp.x);
 		Serial.print(",");
 		Serial.print(pTemp.y);
-		Serial.print(";  p2=");
+		Serial.print("); p1(");
 		Serial.print(f.x);
 		Serial.print(",");
-		Serial.println(f.y);
+		Serial.print(f.y);
+		Serial.print("); xs:");
+		Serial.print(this->_functionArray[i].xstart);
+		Serial.print(" sl:");
+		Serial.print(this->_functionArray[i].slope);
+		Serial.print(" yo:");
+		Serial.println(this->_functionArray[i].yoffset);
 		*/
 		
-		// check the max - slope value
-		this->_functionArray[i] = LinearFunction(pTemp, f);	
 				
 		abs_slope = abs(this->_functionArray[i].slope);
 		
 		if (abs_slope > this->_maxSlope) {
 			this->_maxSlope = abs_slope;
 		}
-				
-		/*
-		// print all the segments:
-		Serial.print("seg:");
-		Serial.print(i);
-		Serial.print(" xs:");
-		Serial.print(_functionArray[i].xstart, DEC);
-		Serial.print(" sl:");
-		Serial.print(_functionArray[i].slope, DEC);
-		Serial.print(" yo:");
-		Serial.println(_functionArray[i].yoffset, DEC);
-		*/
 		
 		
 		pTemp = f;
@@ -292,42 +199,184 @@ void MotorBezier::segmentateCurve(QuadBezierCurve curve) {
 }
 
 
+
+
+
 //================================================================================
-// Returns the max slope which is known after the curve was segmentated.
-// This value is always returned positively as an ABS(maxSlpe)
+// This function takes a bezier curve object as parameter and then converts
+// it to linear segments. It segmentates the way that the curved ends of the
+// bezier curve get 90% off the total amount of segemts and the more linear
+// part gets the other 10%. This is to ensure that the speed changes between the
+// different segments are as minimal as possible.
 //================================================================================
-float MotorBezier::getMaxSlope() {
-	return _maxSlope; 
-}
+void MotorBezier::segmentateCurveOptimized(QuadBezierCurve curve) {
+	
+	this->_maxSlope = 0.0;
+	float abs_slope = 0.0;
+	
+	
+	// the portion of sub segments only for the curved parts (90%).
+	// this means 10% are used for the linear parts
+	float curvatureSegmentFactor = 0.9;
+	int rampSubs = (int) round(( (float)_segmentCount) * curvatureSegmentFactor );
+	
+	// use ABS for close to zero values which might get negative due to
+	// the floating point inaccuracy
+	float timeTotal     = abs(curve.p3.x - curve.p0.x);
+	float rampInTime    = abs(curve.p1.x - curve.p0.x);
+	float rampOutTime   = abs(curve.p3.x - curve.p2.x);
+	float rampTimeTotal = rampInTime + rampOutTime;
+	
+	
+	/*
+	Serial.print("timeTotal: ");
+	Serial.println(timeTotal);
+	Serial.print("rampInTime: ");
+	Serial.println(rampInTime);
+	Serial.print("rampOutTime: ");
+	Serial.println(rampOutTime);
+	Serial.print("rampTimeTotal: ");
+	Serial.println(rampTimeTotal);
+	Serial.println();
+	*/
+	
+		
+	// if the total ramp distance is bigger than the segmentation-factor-percentage OR
+	// there is effectively no ramp-time	
+	// ---> it is more reasonable to use the default sementation method
+	if (
+		((rampTimeTotal / timeTotal) >= curvatureSegmentFactor) ||
+		((rampTimeTotal / timeTotal) <= 0.01f )	 
+	   ) {
+		   
+		//default segmentation
+		segmentateCurve(curve);
+		return;
+						
+	} else {
+		
+		// calculate the amount of segments for the different sections / parts of the curve
+		int rampInSubs  = (int)((rampInTime / rampTimeTotal) * rampSubs);
+		int rampOutSubs = rampSubs - rampInSubs;
+		int restSubs    = _segmentCount - rampSubs;
+		
+		
+		/*
+		Serial.print("rampInSubs: ");
+		Serial.println(rampInSubs);
+		Serial.print("rampOutSubs: ");
+		Serial.println(rampOutSubs);
+		Serial.print("restSubs: ");
+		Serial.println(restSubs);
+		Serial.println();	
+		*/
+
+
+		// get the t-coordinates for the different section borders
+		// ("ramp in" <- tSeg1 -> "linear part" <- tSeg2 -> "ramp out")
+		float tSeg1 = curve.getTFromX(curve.p1.x, rampTimeTotal * 0.001f);
+		float tSeg2;
+		
+		if (rampOutTime != rampInTime) {
+			tSeg2 = curve.getTFromX(curve.p2.x, rampTimeTotal * 0.001f);
+		} else {
+			tSeg2 = 1.0f - tSeg1;
+		}
+		
+		// is there something strange? (position of the second t before the fist one?)
+		// then do the default segmentation (fallback)				
+		if (tSeg2 < tSeg1) {
+			segmentateCurve(curve);
+			return;
+		}
+
+
+		int segNo;
+		float step;
+		float t = 0.0f;
+
+		if (rampInSubs > 0) {
+			segNo = 0;
+			step = tSeg1 / (float) rampInSubs;
+		} 
+		else if (restSubs > 0) {
+			segNo = 1;
+			step = (tSeg2 - tSeg1) / (float) restSubs;
+		} 
+		else {
+			segNo = 2;
+			step = (1.0f - tSeg2) / (float) rampOutSubs;
+		}
+		
+		
+		
+		Point p0;
+		Point p1 = curve.getPoint(0);
+		
+		// loop all segments
+		for (int i=1; i<=_segmentCount; i++) {
+				
+			t += step;
+			p0 = p1;
+			p1 = curve.getPoint(t);
+			
+			// store the segment and the point in the result array
+			this->_functionArray[i-1] = LinearFunction(p0, p1);	
+			
+			/*
+			Serial.print("seg");
+			Serial.print(i);
+			Serial.print("; p0(");
+			Serial.print(p0.x);
+			Serial.print(", ");
+			Serial.print(p0.y);
+			Serial.print("); p1(");
+			Serial.print(p1.x);
+			Serial.print(", ");
+			Serial.print(p1.y);
+			Serial.print("); xs:");
+			Serial.print(this->_functionArray[i-1].xstart);
+			Serial.print("; sl:");
+			Serial.print(this->_functionArray[i-1].slope);
+			Serial.print("; yo:");
+			Serial.println(this->_functionArray[i-1].yoffset);	
+			*/
+			
+			// check the max - slope value
+			abs_slope = abs(this->_functionArray[i-1].slope);
+				
+			if (abs_slope > this->_maxSlope) {
+				this->_maxSlope = abs_slope;
+				
+				//Serial.print("new max slope: ");
+				//Serial.println(this->_maxSlope);	
+			}
+			
+			// do we need to change the s-step size because we reched the next phase?
+			if ((t >= tSeg1) && (segNo == 0)) {
+				segNo++;
+				step = (tSeg2 - tSeg1) / (float) restSubs;
+			}
+			
+			// change the step size bevause we reached the last phase
+			else if ((t >= tSeg2) && (segNo == 1)) {
+				segNo++;
+				step = (1.0f - tSeg2) / (float) rampOutSubs;
+			}
+
+		} // end: for
+		
+		this->_endX = curve.p3.x;
+						
+	} // end: do intelligent segmentation 
+		
+};
+
+
 
 
 
 /*
-//================================================================================
-void MotorBezier::segmentateCurve(QuadBezierCurve curve) {
-			
-	float t;
-	
-	Point p0;
-	Point p1 = curve.getPoint(0);
-
-	for (int i=1; i<=_segmentCount; i++) {
-						
-		t = (float) i / (float) _segmentCount;
-				
-		p0 = p1;//.clone();
-		p1 = curve.getPoint(t);
-				
-		// store the segment and the point in the result array
-		_functionArray[i-1] = LinearFunction(p0, p1);		
-		
-	}
-	
-	_endX = curve.p3.x;
-	
-}
-
-
 
 // ============================================================================
 int MotorBezier::segmentateCurveDynamic(QuadBezierCurve curve, float angleLimit) {

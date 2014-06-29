@@ -5,24 +5,24 @@
 version:	2.0 alpha 6
 date:		2014-XX-XX
 
-Documentation:
-
--	
 
 Software:
 
--	fixed a bug that causes the inital move in SMS move to be
+-	fixed a bug that causes the initial move in SMS move to be
 	wrong
--	fixed a bug in the paiting routines that sometimes caused
+-	fixed a bug in the painting routines that sometimes caused
 	memory overflows
+-	fixed some bugs in the core motor routines that under some conditions
+	caused instable behaviour
 -	added core functions for analyzing a curves max speed
 -	added warning and abort if the motor-max-speed for a started
 	action exceeds the defined limits
+-	activating the pop-up menu now also on a menu-button long-press
 -	added new pop-up menu functionalities:
 	*	Set start > Defines the new start position for a move
 		(equals "set home for all motors". This updates move-distance
 		as well as move direction)
-	*	Set End: Defines the new end positoon for a move
+	*	Set End: Defines the new end position for a move
 		(updates move-distance as well as move direction)
 	*	Preview: Runs the timelapse setup with real-speed (total 
 		preview duration = playback time) to get a feeling for the 
@@ -34,6 +34,12 @@ Software:
 -	optimized code for ad-hoc curve generation (e.g. one move in
 	SMS; move to home) for smoother moves and more consistent 
 	behaviour
+-	Increased Uplink functionality (for new minEngine Studio features)
+
+Enclosures:
+
+	- added enclosures to the resporitory
+	
 	
 
 /////////////////////////////////////////////////////

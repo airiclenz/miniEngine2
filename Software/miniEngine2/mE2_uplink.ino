@@ -41,6 +41,8 @@
 #define CMD_ClearMotorCurves          15
 #define CMD_AddMotorCurve             16 
 #define CMD_CheckCurves               17
+#define CMD_GetMotorCalibration       18 
+#define CMD_SetMotorCalibration       19
 
 
 #define DEF_UPLINK_BUFFER_SIZE        64 
@@ -233,6 +235,15 @@ void uplink_decode() {
       }
       
       
+      // Get Motor Calibration
+      if (uplink_Buffer[0] == CMD_GetMotorCalibration) {
+        uplink_sendFloat(motors[motor_selected].getCalibration());
+        Serial.println();
+        uplink_received_count = 0;
+        return;
+      }
+      
+      
     } // end: linebreak
     
   } // end: packet size = 3
@@ -292,6 +303,27 @@ void uplink_decode() {
                 
         // start the move
         motor_startMovesToPosition();
+        
+        uplink_received_count = 0;
+        return;
+      }
+      
+            
+      
+      // Move the Motor to a specific position
+      if (uplink_Buffer[0] == CMD_SetMotorCalibration) {  
+        
+        // receive the float value from the buffer,
+        // starting at position 1
+        float cal = uplink_getFloatFromBuffer(1);
+        // send the acknowledge signal
+        Serial.println(uplink_ack);
+                
+        // set the new calibration value
+        motors[motor_selected].setCalibration(cal);
+        // set the flag that settings were changed
+        sd_setSettingsChangedFlag();
+        
         
         uplink_received_count = 0;
         return;
