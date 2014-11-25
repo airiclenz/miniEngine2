@@ -1,11 +1,15 @@
-TODO New Functionality
-======================
+TODO New Functionalities / IDEAS
+================================
 
 - 	check limit switch sensitivity
 - 	add "Bouncing" functionality
 - 	make keyframes from the minEngine Studio savable on the miniEngine
 - 	add "About" screen
-
+-   bulb ramping
+-   park position for transport
+-   names for axes (instead of motor 1, motor 2, ...)
+-   changable limit switch retract amount
+-   all axes joystick
 
 TODO Bugs
 =========
