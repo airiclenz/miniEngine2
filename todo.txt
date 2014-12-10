@@ -10,6 +10,7 @@ TODO New Functionalities / IDEAS
 -   names for axes (instead of motor 1, motor 2, ...)
 -   changable limit switch retract amount
 -   all axes joystick
+-   panorama mode
 
 TODO Bugs
 =========
