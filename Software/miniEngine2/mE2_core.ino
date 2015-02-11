@@ -35,7 +35,7 @@
 // B0 = program is running
 // B1 = start immediately
 // B2 = jog mode
-// B3 = 
+// B3 =  
 // B4 = 
 // B5 = 
 // B6 = 
@@ -46,7 +46,7 @@ uint8_t core_status;
 
 // B0 = move motor to home pos before program start
 // B1 = autosave settings
-// B2 = 
+// B2 = bouncing
 // B3 = 
 // B4 = 
 // B5 = 
@@ -56,7 +56,7 @@ uint8_t core_settings = B00000011;
 
 
 
-uint32_t  core_program_start_time;
+
 
 
 // ============================================================================
@@ -76,6 +76,12 @@ boolean core_isMoveToHomeBeforeStartFlag()      { return isBit(core_settings, BI
 void    core_setMoveToHomeBeforeStartFlag()     { setBit(core_settings, BIT_0); }
 void    core_deleteMoveToHomeBeforeStartFlag()  { deleteBit(core_settings, BIT_0); }
 void    core_toggleMoveToHomeBeforeStartFlag()  { toggleBit(core_settings, BIT_0); }
+
+boolean core_isBouncingFlag()                   { return isBit(core_settings, BIT_2); }
+void    core_setBouncingFlag()                  { setBit(core_settings, BIT_2); }
+void    core_deleteBouncingFlag()               { deleteBit(core_settings, BIT_2); }
+void    core_toggleBouncingFlag()               { toggleBit(core_settings, BIT_2); } 
+
 
 
 // ============================================================================

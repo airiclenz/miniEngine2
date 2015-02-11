@@ -769,6 +769,20 @@ void motor_startContinuousMove() {
 }
 
 
+
+// ============================================================================
+// Inverts the move for bouncing
+// ============================================================================
+void motor_invertCurves() {
+  
+  
+  
+  
+}
+
+
+
+
 // ============================================================================
 // check if any of the motors is doing a move to a position
 // ============================================================================
@@ -801,7 +815,7 @@ boolean motor_isPostDelay() {
 
 // ============================================================================
 // Check if we need to create keyframes (when not in Keyframes Mode) or
-// if we need to check the runtine (when in Keyfrmes mode)
+// if we need to check the runtine (when in Keyframes mode)
 // ============================================================================
 void motor_checkKeyframes() {
 

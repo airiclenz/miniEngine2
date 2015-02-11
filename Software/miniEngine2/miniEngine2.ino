@@ -39,23 +39,28 @@
 #include <DueTimer.h>
 
 
-// uncomment this for debugging outputs via the serial terminal
-//#define DEBUG
-//#define SHOW_CURVES
 
 
-#ifdef DEBUG
-  // free mem stuff
-  #include <malloc.h>
-  #include <stdlib.h>
-  #include <stdio.h>
-  
-  extern char _end;
-  extern "C" char *sbrk(int i);
-  char *ramstart=(char *)0x20070000;
-  char *ramend=(char *)0x20088000;
-#endif
+// free mem stuff
+#include <malloc.h>
+#include <stdlib.h>
+#include <stdio.h>
 
+extern char _end;
+extern "C" char *sbrk(int i);
+char *ramstart=(char *)0x20070000;
+char *ramend=(char *)0x20088000;
+
+
+
+////////////////////////////////////////////////////////
+//                                                    //
+//  L A N G U A G E                                   //
+//                                                    //
+////////////////////////////////////////////////////////
+
+//#define LANGUANGE_ENGLISH
+#define LANGUANGE_GERMAN
 
 
 ////////////////////////////////////////////////////////
@@ -67,7 +72,7 @@
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define SUBSUBVERSION                6
+#define SUBSUBVERSION                7
 
 const char* STR_VER                  = "BETA";
 
@@ -294,7 +299,7 @@ uint32_t  setup_interval_length = setup_record_time / (setup_frame_count - 1);
 
 float     motor_total_distance[DEF_MOTOR_COUNT]= { 0.0, 0.0 };
 
-
+uint32_t  core_program_start_time;
 
 
 ////////////////////////////////////////////////////////
@@ -316,12 +321,21 @@ StepperMotor motors[DEF_MOTOR_COUNT] = { StepperMotor(PIN_MOTOR1_STEP, PIN_MOTOR
 MoCoM com(PIN_COM_DIR, Serial1);
 
 
-// Display:                
-UTFT tft(ITDB24E_16, PIN_TFT_RS, 
-                     PIN_TFT_WR, 
-                     PIN_TFT_CS, 
-                     PIN_TFT_RST); 
+// Display:   
+UTFT tft(TFT01_24_16, PIN_TFT_RS, 
+                      PIN_TFT_WR, 
+                      PIN_TFT_CS, 
+                      PIN_TFT_RST); 
+/*
 
+// If you are experiencing a white screen, then remove the above
+// UTFT definition and uncomment this one:
+
+UTFT tft(ITDB24E_16,  PIN_TFT_RS, 
+                      PIN_TFT_WR, 
+                      PIN_TFT_CS, 
+                      PIN_TFT_RST); 
+*/
 
 
 // ============================================================================
@@ -346,7 +360,8 @@ void setup() {
   //touch_init();
   
     
-  printFreeRam();
+  //printFreeRam();
+  
   
   // paint the splashscreen  
   uipaint_splashScreen();  
@@ -369,8 +384,9 @@ void setup() {
   input_clearKeyEvent();
   
   
-  
 }
+
+
 
 
 // ============================================================================
@@ -518,13 +534,30 @@ void loop() {
       
         // if the program time is over
         if (core_isProgramOver()) {
-        
-          // stop the program
-          core_stopProgram();
           
-        }  
+          // are we in bouncing mode?
+          if (core_isBouncingFlag()) {
+            
+            // invert all the curves
+            motor_invertCurves();
+            
+            // register the new start time
+            core_program_start_time = millis();
+            
+            // start the new move
+            motor_startContinuousMove();
+            
+            
+          } else {
+            
+            // stop the program
+            core_stopProgram();
+            
+          }
+          
+        } // end: is program over? 
         
-      } 
+      } // end: is video mode? 
                      
     } // end: program is running
         
