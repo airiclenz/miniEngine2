@@ -1,3 +1,12 @@
+TODO For v2 alpha 7
+===================
+
+-	daisy chaining
+-	bouncing
+-	language
+-	focus time
+
+
 TODO New Functionalities / IDEAS
 ================================
 
