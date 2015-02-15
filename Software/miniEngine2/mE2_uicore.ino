@@ -319,7 +319,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 69;
+const uint8_t uicore_content_relation_count = 70;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -333,7 +333,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   
     
   { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 113 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
-  { 101, 120 }, { 101, 121 }, { 101, 122 }, 
+  { 101, 120 }, { 101, 121 }, { 101, 124 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 161 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
   { 103,  23 }, /*{ 103, 160 }, { 103, 161 }, */
@@ -694,6 +694,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 121: strcpy(lines[target_line], string_121_short);     return;  
     case 122: strcpy(lines[target_line], string_122_short);     return;  
     case 123: strcpy(lines[target_line], string_123_short);     return;  
+    case 124: strcpy(lines[target_line], string_124_short);     return;  
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS MOTOR
@@ -814,6 +815,7 @@ void uicore_getLongString(uint16_t buf_number) {
 
     case 120: strcpy(data_line, string_120_long);     return;
     case 122: strcpy(data_line, string_122_long);     return;
+    case 124: strcpy(data_line, string_124_long);     return;
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS MOTOR
@@ -1733,7 +1735,7 @@ void uicore_generateDataString(uint16_t line_code) {
     }  
     
     
-    // camera post delay
+    // camera test shot
     case  121 :  {  
       
                    strcpy(data_line,  string_123_short);  // SHOOT!
@@ -1766,6 +1768,38 @@ void uicore_generateDataString(uint16_t line_code) {
                      strcat(data_line, string_11_short); // ms  
                    } else {
                      sprintf(data_line,"%.1f", ((float)cam_post_delay) / 1000.0);
+                     strcat(data_line, string_6_short); // "  
+                   }
+                   
+                   break;
+                                            
+    }
+    
+    
+    // camera focus time
+    case  124 :  {  
+                   if (menu_editing) {
+                      
+                     if (cam_focus < 1000) {
+                       uicore_changeValueULong(&cam_focus, rotary.getLowVelocity() * 10, 0, 1000);   
+                     } 
+                     else if (cam_focus < 10000) {
+                       uicore_changeValueULong(&cam_focus, rotary.getLowVelocity() * 100, 990, 10000);   
+                     } 
+                     else {
+                       uicore_changeValueULong(&cam_focus, rotary.getLowVelocity() * 500, 9900, ULONG_MAX);   
+                     }
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }    
+                   
+                   
+                   if (cam_focus < 1000) {
+                     itoa(cam_focus, data_line, 10);
+                     strcat(data_line, string_11_short); // ms  
+                   } else {
+                     sprintf(data_line,"%.1f", ((float)cam_focus) / 1000.0);
                      strcat(data_line, string_6_short); // "  
                    }
                    

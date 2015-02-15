@@ -151,9 +151,11 @@ const char* string_120_short = "Cam Type";
 const char* string_121_short = "Test Shot";
 const char* string_122_short = "Post Delay";
 const char* string_123_short = "SHOOT!";
+const char* string_124_short = "Focus Time";
 
 const char* string_120_long  = "Camera trigger behaviour.";
 const char* string_122_long  = "Delay after a camera shot before the\nmotor moves. Use this if you have\ndefined a long exposure-time in your\ncamera.";
+const char* string_124_long  = "Time the camera focuses before\nitriggers. This can be used to\nwake up the camera.";
 
 
 ////////////////////////////////////////////////////////
@@ -399,10 +401,11 @@ const char* string_120_short = "Kamera Typ";
 const char* string_121_short = "Kamera Test";
 const char* string_122_short = "Pause danach";
 const char* string_123_short = "TEST!";
+const char* string_124_short = "Fokuszeit"
 
 const char* string_120_long  = "Ausloeserverhalten der Kamera.";
 const char* string_122_long  = "Zeit nach dem Ausloesen\nbevor der Motor sich bewegt.\nBenutze dies wenn du\nfur deine Kamera eine lange\nAusloesezeit definiert hast.";
-
+const char* string_124_long  = "Die Zeit, die die Kamera\nvor dem ausloesen zum\nScharfstellen hat. Dies kann\nbenutzt werden um die Kamera aufzu-\nwecken."
 
 ////////////////////////////////////////////////////////
 // SETTINGS MOTOR

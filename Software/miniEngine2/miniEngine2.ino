@@ -59,8 +59,8 @@ char *ramend=(char *)0x20088000;
 //                                                    //
 ////////////////////////////////////////////////////////
 
-//#define LANGUANGE_ENGLISH
-#define LANGUANGE_GERMAN
+#define LANGUANGE_ENGLISH
+//#define LANGUANGE_GERMAN
 
 
 ////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ char *ramend=(char *)0x20088000;
 #define SUBVERSION                   0  
 #define SUBSUBVERSION                7
 
-const char* STR_VER                  = "BETA";
+const char* STR_VER                  = "GAMMA";
 
 
 ////////////////////////////////////////////////////////
@@ -322,19 +322,20 @@ MoCoM com(PIN_COM_DIR, Serial1);
 
 
 // Display:   
-UTFT tft(TFT01_24_16, PIN_TFT_RS, 
+UTFT tft(ITDB24E_16,  PIN_TFT_RS, 
                       PIN_TFT_WR, 
                       PIN_TFT_CS, 
-                      PIN_TFT_RST); 
+                      PIN_TFT_RST);
+
 /*
 
 // If you are experiencing a white screen, then remove the above
 // UTFT definition and uncomment this one:
-
-UTFT tft(ITDB24E_16,  PIN_TFT_RS, 
+UTFT tft(TFT01_24_16, PIN_TFT_RS, 
                       PIN_TFT_WR, 
                       PIN_TFT_CS, 
                       PIN_TFT_RST); 
+ 
 */
 
 

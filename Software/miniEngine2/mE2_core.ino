@@ -280,7 +280,10 @@ void core_stopProgram() {
  
   // clear all remaining trigger events
   trigger_clearEvents();  
- 
+  
+  // stop the camera as well
+  cam_stop(); 
+
   // reset the cycle warning
   system_cycle_too_long = false;
  
@@ -289,7 +292,6 @@ void core_stopProgram() {
  
   // do a full repaint to have everything updated
   uicore_setRepaintFlag();
-  //uicore_repaint(true);
     
 }
 

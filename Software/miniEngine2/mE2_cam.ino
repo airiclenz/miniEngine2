@@ -28,9 +28,9 @@
 ////////////////////////////////////////////////////////
 
 
-// B0 = camera is active
+// B0 = camera is exposing
 // B1 = camera post delay active
-// B2 = 
+// B2 = camera is focusing
 // B3 = 
 // B4 = 
 // B5 = 
@@ -41,7 +41,6 @@ uint8_t cam_status = B0;
 
 // variables for tracking the actual exposure
 uint32_t cam_start_time;
-uint32_t cam_exp_duration;
 
 // variables for tracking the shoot count
 uint16_t cam_shoot_count;
@@ -89,14 +88,17 @@ unsigned int cam_exposure_index = 3; // 1/10 sec
 
 
 // ============================================================================
-boolean cam_isCameraActiveFlag()         { return isBit(cam_status, BIT_0); }
-void    cam_setCameraActiveFlag()        { setBit(cam_status, BIT_0); }
-void    cam_deleteCameraActiveFlag()     { deleteBit(cam_status, BIT_0); }
-
+boolean cam_isCameraExposingFlag()       { return isBit(cam_status, BIT_0); }
+void    cam_setCameraExposingFlag()      { setBit(cam_status, BIT_0); }
+void    cam_deleteCameraExposingFlag()   { deleteBit(cam_status, BIT_0); }
 
 boolean cam_isPostDelayActiveFlag()      { return isBit(cam_status, BIT_1); }
 void    cam_setPostDelayActiveFlag()     { setBit(cam_status, BIT_1); }
 void    cam_deletePostDelayActiveFlag()  { deleteBit(cam_status, BIT_1); }
+
+boolean cam_isCameraFocusingFlag()       { return isBit(cam_status, BIT_2); }
+void    cam_setCameraFocusingFlag()      { setBit(cam_status, BIT_2); }
+void    cam_deleteCameraFocusingFlag()   { deleteBit(cam_status, BIT_2); }
 
 void    cam_toggleCameraType()           { toggleBit(cam_status, BIT_7); }  
 boolean cam_isCameraType()               { return isBit(cam_status, BIT_7); } 
@@ -105,7 +107,7 @@ boolean cam_isCameraType()               { return isBit(cam_status, BIT_7); }
 // ============================================================================
 boolean cam_isCameraWorking() {
     
-  return isBit(cam_status, B00000011);
+  return isBit(cam_status, B00000111);
   
 }
 
@@ -132,20 +134,48 @@ void cam_init() {
 
 // ============================================================================
 void cam_process() {
-
+  
+  // are we focusing?
+  if (cam_isCameraFocusingFlag()) {
+    
+    // is the time over?
+    if ((cam_start_time + cam_focus) <= millis()) {
+      
+      Serial.println("Stopped focus");
+      
+      // stop focusing
+      digitalWrite(PIN_CAM_FOCUS, LOW);
+      
+      // remove the focusing flag
+      cam_deleteCameraFocusingFlag();
+      
+      // remember the time we started
+      cam_start_time = millis();
+      
+      // start exposing
+      cam_trigger(); 
+        
+      // set the exposure flag
+      cam_setCameraExposingFlag();
+      
+      // leave
+      return;
+    }
+    
+  }
+  
   // are we exposing?
-  if (cam_isCameraActiveFlag()) {
+  else if (cam_isCameraExposingFlag()) {
      
     // is the time over?
-    if ((cam_start_time + cam_exp_duration) <= millis()) {
-      
+    if ((cam_start_time + cam_exposure) <= millis()) {
+        
       // de-trigger the camera
       cam_stop();
             
       // count the shoot count up
       cam_shoot_count++;        
-      // delet ehte camere-is-active flag
-      cam_deleteCameraActiveFlag();
+      
       // request a shoot-count repaint
       uicore_setRepaintShootCount();
              
@@ -154,6 +184,8 @@ void cam_process() {
         
         cam_setPostDelayActiveFlag(); 
         cam_start_time = millis();
+        
+        // leave
         return;
       }
              
@@ -161,7 +193,7 @@ void cam_process() {
      
   } 
    
-  // are we in post delay
+  // are we in post delay?
   else if (cam_isPostDelayActiveFlag()) {
     
     // is the time over?
@@ -180,21 +212,39 @@ void cam_process() {
 void cam_start() {
   
   // if the camera is not exposing and not in post delay
-  if (!isBit(cam_status, B00000011)) {
+  if (!isBit(cam_status, B00000111)) {
     
-    // set the values for the exposure
-    cam_exp_duration = cam_exposure;
+    // set the values for the focus / exposure 
     cam_start_time = millis();
+    
+    // are we supposed to focus before shooting?
+    if (cam_focus > 0) {
+      
+      Serial.println("Started focus");
+      
+      // activate focusing
+      digitalWrite(PIN_CAM_FOCUS, HIGH);
         
-    // press the button
-    cam_trigger(); 
+      // set the focus flag
+      cam_setCameraFocusingFlag();
+      
+    } 
+    // else trigger immediatelly
+    else {
+      // press the button
+      cam_trigger(); 
         
-    // set the exposure flag
-    cam_setCameraActiveFlag();
+      // set the exposure flag
+      cam_setCameraExposingFlag();
+    }
+    
+        
+    
       
   }
   
 }
+
 
 // ============================================================================
 void cam_trigger() {
@@ -221,6 +271,9 @@ void cam_stop() {
   digitalWrite(PIN_CAM_SHUTTER, LOW);
   digitalWrite(PIN_CAM_FOCUS, LOW);  
   
+  // delete the camere-is-active flag
+  cam_deleteCameraExposingFlag();
+  cam_deleteCameraFocusingFlag();
 }
 
 
