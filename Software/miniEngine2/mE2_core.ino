@@ -47,7 +47,7 @@ uint8_t core_status;
 // B0 = move motor to home pos before program start
 // B1 = autosave settings
 // B2 = bouncing
-// B3 = 
+// B3 = bouncing move flag (is set if the move is backwards)
 // B4 = 
 // B5 = 
 // B6 = 
@@ -82,6 +82,10 @@ void    core_setBouncingFlag()                  { setBit(core_settings, BIT_2); 
 void    core_deleteBouncingFlag()               { deleteBit(core_settings, BIT_2); }
 void    core_toggleBouncingFlag()               { toggleBit(core_settings, BIT_2); } 
 
+boolean core_isBouncingMoveFlag()               { return isBit(core_settings, BIT_3); } 
+void    core_setBouncingMoveFlag()              { setBit(core_settings, BIT_3); }
+void    core_deleteBouncingMoveFlag()           { deleteBit(core_settings, BIT_3); }
+void    core_toggleBouncingMoveFlag()           { toggleBit(core_settings, BIT_3); } 
 
 
 // ============================================================================
@@ -135,7 +139,9 @@ bool core_startProgram() {
     uicore_repaint(true);
     // turn all trigger interrupts on
     trigger_enableAllInterrupts();
-    
+    // remove the flag that indicated a 
+    // return move in bouncing mode 
+    core_deleteBouncingMoveFlag();
     
     //////////////////////////////////////////////
     // M O T O R   P R E P A R A T I O N
@@ -271,6 +277,10 @@ void core_stopProgram() {
   
   // set the program-is-running-flag
   core_deleteProgramRunningFlag();   
+ 
+  // remove the flag that indicated a 
+  // return move in bouncing mode 
+  core_deleteBouncingMoveFlag();
  
   // disable all motors on program Stop 
   motor_disableAll(); 

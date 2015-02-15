@@ -74,7 +74,7 @@ char *ramend=(char *)0x20088000;
 #define SUBVERSION                   0  
 #define SUBSUBVERSION                7
 
-const char* STR_VER                  = "GAMMA";
+const char* STR_VER                  = "PRE";
 
 
 ////////////////////////////////////////////////////////
@@ -208,8 +208,10 @@ uint8_t core_move_style   = MOVE_STYLE_SMS;
 
 // the structure used for storing the curve data
 typedef struct motorCurve {
-  MotorBezier  curve;
-  uint8_t      used;
+  MotorBezier      curve;
+  QuadBezierCurve  curveDefinition;
+  uint8_t          used;
+  
 };
 
 
@@ -361,7 +363,7 @@ void setup() {
   //touch_init();
   
     
-  //printFreeRam();
+  printFreeRam();
   
   
   // paint the splashscreen  
@@ -539,6 +541,10 @@ void loop() {
           // are we in bouncing mode?
           if (core_isBouncingFlag()) {
             
+            // this markes if the following move is backwards or not
+            // if this flag is set, the move will be inverted
+            core_toggleBouncingMoveFlag();
+            
             // invert all the curves
             motor_invertCurves();
             
@@ -575,7 +581,7 @@ void loop() {
 
 
 // ============================================================================
-void printFreeRam () {
+void printFreeRam() {
 
   char *heapend=sbrk(0);
   register char * stack_ptr asm ("sp");

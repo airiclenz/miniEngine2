@@ -1699,13 +1699,12 @@ void uicore_generateDataString(uint16_t line_code) {
                          
                      sd_setSettingsChangedFlag();    
                   }  
-      
-                         
+                               
                   
                   if (core_isBouncingFlag()) {
                     strcpy(data_line, string_3_short); // enabled
                   } else {
-                    strcpy(data_line, string_3_short); // disabled
+                    strcpy(data_line, string_4_short); // disabled
                   }
                       
                   break;
@@ -2680,8 +2679,7 @@ void uicore_loadMenuStrings() {
   
   // flag for hiding a menu line
   boolean disable_line;
-  
-  
+    
   
   // loop all menu-content relations we have
   for (int i=0; i<uicore_content_relation_count; i++) {
@@ -2708,6 +2706,13 @@ void uicore_loadMenuStrings() {
       // in VIDEO MODE and on move style item?
       if (core_mode == MODE_VIDEO &&
           ui_content_relations[i].menu_item == 111) {
+        
+        disable_line = true;   
+      }   
+            
+      // is not video mode and on setting bouncing?
+      if (core_mode != MODE_VIDEO &&
+          ui_content_relations[i].menu_item == 113) {
         
         disable_line = true;   
       }   

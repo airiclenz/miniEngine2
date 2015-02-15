@@ -774,9 +774,108 @@ void motor_startContinuousMove() {
 // Inverts the move for bouncing
 // ============================================================================
 void motor_invertCurves() {
+ 
   
-  
-  
+  // loop all motors
+  for (int m=0; m<DEF_MOTOR_COUNT; m++) {
+    
+    int curveIndex;   
+    
+    // the duration of the curve to be defined.
+    float curveDuration = ((float)setup_record_time) / 1000.0;
+    
+    // are we moving backwards?
+    if (core_isBouncingMoveFlag()) {
+      
+      // loop the curves of this motor in the oposite direction
+      for (int mc=motor_used_curves_count[m] - 1; mc>=0; mc--) {
+        
+        // get the index of the curve we are handling
+        curveIndex = motor_used_curves[m][mc];
+        
+        /*
+        Serial.println();
+        Serial.print("m:");
+        Serial.print(m, DEC);
+        Serial.print(", mc:");
+        Serial.print(mc, DEC);
+        Serial.print(", ci:");
+        Serial.println(curveIndex);
+        */
+        
+        QuadBezierCurve curve;
+                
+        // get the new curve        
+        curve.p0 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p3.x, mCurves[curveIndex].curveDefinition.p3.y);
+        curve.p1 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p2.x, mCurves[curveIndex].curveDefinition.p2.y);
+        curve.p2 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p1.x, mCurves[curveIndex].curveDefinition.p1.y);
+        curve.p3 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p0.x, mCurves[curveIndex].curveDefinition.p0.y);
+        
+        /*
+        Serial.print("Point 1: x");
+        Serial.print(curve.p0.x);
+        Serial.print(" y");
+        Serial.println(curve.p0.y);
+        
+        Serial.print("Point 2: x");
+        Serial.print(curve.p1.x);
+        Serial.print(" y");
+        Serial.println(curve.p1.y);
+        
+        Serial.print("Point 3: x");
+        Serial.print(curve.p2.x);
+        Serial.print(" y");
+        Serial.println(curve.p2.y);
+        
+        Serial.print("Point 4: x");
+        Serial.print(curve.p3.x);
+        Serial.print(" y");
+        Serial.println(curve.p3.y);
+        */       
+                
+        // get the min and max values of the curves
+        curve.updateDimension();
+        
+        // get the index of the real curve (the actual 
+        // curves accessed when moving the motors will still have the 
+        // original direction so we need to write the segments to
+        // this original curve)
+        
+        curveIndex = motor_used_curves[m][motor_used_curves_count[m] - 1 - mc];
+        
+        /*
+        Serial.print("saved in curve index=");
+        Serial.println(curveIndex);
+        */
+        
+        mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
+        
+        // init the motor move 
+        mCurves[curveIndex].curve.initMove(); 
+      
+      
+      } // end: loop the curves inverted
+      
+    } // end: is bouncing move
+    
+    // we are moving the regular way  
+    else {
+    
+      // loop the curves of this motor in the regular direction
+      for (int mc=0; mc<motor_used_curves_count[m]; mc++) {
+      
+        // get the index of the curve we are handling
+        curveIndex = motor_used_curves[m][mc];
+        mCurves[curveIndex].curve.segmentateCurveOptimized(mCurves[curveIndex].curveDefinition);
+        
+        // init the motor move 
+        mCurves[curveIndex].curve.initMove(); 
+        
+      } // end: loop the curves
+            
+    } // end: no bouncing move
+        
+  }
   
 }
 
@@ -938,10 +1037,15 @@ void motor_makeKeyframes() {
     // get the index of the first used curve in the global
     // curve array
     curveIndex = motor_used_curves[i][0];
-  
     
-    /*  
+    /*
     Serial.println();
+    Serial.print("making keyframe (m:");
+    Serial.print(i, DEC);
+    Serial.print(", ci:");
+    Serial.print(curveIndex);
+    Serial.println(")");
+      
     Serial.print("Point 1: x");
     Serial.print(curve.p0.x);
     Serial.print(" y");
@@ -962,25 +1066,17 @@ void motor_makeKeyframes() {
     Serial.print(" y");
     Serial.println(curve.p3.y);
     Serial.println();
-    */
     
+    
+    Serial.print("saved in curve index:");
+    Serial.println(curveIndex);
+    */
     
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array
-    //mCurves[curveIndex].curve.segmentateCurve(curve); 
+    mCurves[curveIndex].curveDefinition = curve;
     mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
-        
-    
-    /*    
-    Serial.println();
-    Serial.print("curves max slope (kf) for curveindex ");
-    Serial.print(curveIndex);
-    Serial.print(": ");   
-    Serial.println(mCurves[curveIndex].curve.getMaxSlope());
-    Serial.println();
-    */
-    
-    
+
     // init the motor move 
     mCurves[curveIndex].curve.initMove(); 
         
@@ -995,22 +1091,7 @@ void motor_makeKeyframes() {
 // not break the max-speed-rule.
 // ============================================================================
 boolean motor_checkCurvesMaxSpeedOk() {
-    
-  
-  /*  
-  // an array that stores which of the available curves are used
-  // by the different motors 
-  // dimension 1: the motor #
-  // dimension 2: # of the curve in the main curves array (index pointer)
-  volatile uint8_t motor_used_curves[DEF_MOTOR_COUNT][CURVE_COUNT];
-  
-  // how many of the used-curves-array did we actually use?
-  // stis array is used together with motor_used_curves and defines up to 
-  // where the stack (motor_used_curves) is filled
-  volatile uint8_t motor_used_curves_count[DEF_MOTOR_COUNT];
-
-  */
-    
+     
   // loop all motors
   for (byte m=0; m<DEF_MOTOR_COUNT; m++) {
    

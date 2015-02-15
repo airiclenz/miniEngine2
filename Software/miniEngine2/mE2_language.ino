@@ -140,7 +140,7 @@ const char* string_109_long  = "The way the moves are defined.\n'Keyframes' requ
 const char* string_110_long  = "The used font on the display.";
 const char* string_111_long  = "How should the motors move?";
 const char* string_112_long  = "This will reset all settings\nto the default values.\nPress the Rotary button to Reset.\nPress [Start] to abort.";
-const char* string_113_long  = "This feature will restart the move\nin the reverse direction after it is done.\nThis is only used in Video mode and\nwill continue until you stop the move.";
+const char* string_113_long  = "This feature will restart the move\nin the reverse direction after it is\ndone. This is only used in Video mode\nand will continue until you stop\nthe move.";
 const char* string_114_long  = "The configuration was deleted.";
 const char* string_115_long  = "Please turn the miniEngine OFF";
 const char* string_116_long  = "and then ON again.";
@@ -155,7 +155,7 @@ const char* string_124_short = "Focus Time";
 
 const char* string_120_long  = "Camera trigger behaviour.";
 const char* string_122_long  = "Delay after a camera shot before the\nmotor moves. Use this if you have\ndefined a long exposure-time in your\ncamera.";
-const char* string_124_long  = "Time the camera focuses before\nitriggers. This can be used to\nwake up the camera.";
+const char* string_124_long  = "Time the camera focuses before it\nriggers. This can be used to wake\nup the camera.";
 
 
 ////////////////////////////////////////////////////////
