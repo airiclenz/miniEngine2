@@ -4,7 +4,7 @@ miniEngine 2
 
 An Arduino based multi-axis-motion-control system for time-lapse and video photogtaphy.
 
-This repository contains all tahat is needed to build a full miniEngine 2 system. It contains:
+This repository contains all that is needed to build a full miniEngine 2 system. It contains:
 
 	- Software
 	- Hardware (PCB Gerber files)

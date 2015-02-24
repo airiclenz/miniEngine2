@@ -1,27 +1,64 @@
-////////////////////////////////////////////////////////
-// Language File 
-////////////////////////////////////////////////////////
-// Please feel free to add your language. 
-// Please note that you only edit the text 
-// between the quotation marks
-////////////////////////////////////////////////////////
-// Enable or disable a language by add or remove 
-// the "/*" before and the "*/" after your language
-////////////////////////////////////////////////////////
+/*
+
+    Author: Airic Lenz, Sascha Henke
+    
+    See www.airiclenz.com for more information
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+    ////////////////////////////////////////////////////////////////////
+
+    H O W   T O   U S E   T H I S   F I L E :
+    
+    ////////////////////////////////////////////////////////////////////
+
+    Please feel free to add your language. To do so please copy the 
+    English part from begining and translate all the strings as you like.
+    Please note that you only edit the text between the quotation marks.
+    
+    to make your language usable by the system, change the name of your 
+    language from 
+    
+    #ifdef LANGUANGE_ENGLISH
+    
+    to the name of your language - for example:
+    
+    #ifdef LANGUANGE_GERMAN
+    
+    To enable your language, change the code of the file 
+    'miniEngine2.ino' at the lines 62 and following.
+    
+    ////////////////////////////////////////////////////////////////////
+*/
 
 
 
 
 #ifdef LANGUANGE_ENGLISH
 
-////////////////////////////////////////////////////////
-//                                                    //
-//  E N G L I S H                          	      //
-//                                                    //
-////////////////////////////////////////////////////////            
+
+////////////////////////////////////////////////////////////// 
+//
+//  ▓▓▓▓▓▓▓  ▓▓   ▓▓   ▓▓▓▓▓   ▓▓       ▓▓▓▓   ▓▓▓▓▓   ▓▓   ▓▓
+//  ▓▓       ▓▓▓  ▓▓  ▓▓       ▓▓        ▓▓   ▓▓       ▓▓   ▓▓
+//  ▓▓▓▓▓▓   ▓▓ ▓ ▓▓  ▓▓ ▓▓▓▓  ▓▓        ▓▓    ▓▓▓▓▓   ▓▓▓▓▓▓▓
+//  ▓▓       ▓▓  ▓▓▓  ▓▓   ▓▓  ▓▓        ▓▓        ▓▓  ▓▓   ▓▓
+//  ▓▓▓▓▓▓▓  ▓▓   ▓▓   ▓▓▓▓▓   ▓▓▓▓▓▓▓  ▓▓▓▓   ▓▓▓▓▓   ▓▓   ▓▓
+//
+//////////////////////////////////////////////////////////////     
 
 
 
@@ -69,6 +106,7 @@ const char* string_31_short = "Cont.";
 const char* string_30_long = "Shoot-Move-Shoot";
 const char* string_31_long = "Continuous";
 
+//40 for pano
 
 const char* string_50_short = "Run";
 const char* string_51_short = "Keyfrm.";
@@ -197,6 +235,9 @@ const char* string_161_long  = "Check the max speed for this\nmotor or ignore it
 ////////////////////////////////////////////////////////
 // SETTINGS CHAIN
 
+const char* string_165_short = "Device Typ";
+
+
 
 ////////////////////////////////////////////////////////
 // SETTINGS TRIGGER
@@ -265,13 +306,15 @@ const char* string_232_long = "done in real-speed...";
 
 
 
-
-
 ////////////////////////////////////////////////////////
-//                                                    //
-//  G E R M A N                          	      //
-//                                                    //
-////////////////////////////////////////////////////////  
+//
+//   ▓▓▓▓▓   ▓▓▓▓▓▓▓  ▓▓▓▓▓▓   ▓▓   ▓▓   ▓▓▓▓▓   ▓▓   ▓▓
+//  ▓▓       ▓▓       ▓▓   ▓▓  ▓▓▓ ▓▓▓  ▓▓   ▓▓  ▓▓▓  ▓▓
+//  ▓▓ ▓▓▓▓  ▓▓▓▓▓    ▓▓▓▓▓▓   ▓▓ ▓ ▓▓  ▓▓▓▓▓▓▓  ▓▓ ▓ ▓▓
+//  ▓▓   ▓▓  ▓▓       ▓▓▓▓     ▓▓   ▓▓  ▓▓   ▓▓  ▓▓  ▓▓▓
+//   ▓▓▓▓▓   ▓▓▓▓▓▓▓  ▓▓  ▓▓▓  ▓▓   ▓▓  ▓▓   ▓▓  ▓▓   ▓▓
+// 
+////////////////////////////////////////////////////////
 
 #ifdef LANGUANGE_GERMAN
 
@@ -432,16 +475,17 @@ const char* string_159_short = "SETZE!";
 const char* string_160_short = "Vorschau";
 const char* string_161_short = "Geschw-Kontr.";
 
-const char* string_140_long  = "Waehle den Motor aus.";
+const char* string_140_long  = "Waehle den zu bearbeitenden\nMotor aus.";
+
 const char* string_143_long  = "Zeitverzoegerung nach der Motor-\nbewegung. Benutze diese Einstellung\num Vibrationen zu minimieren.";
-const char* string_144_long  = "The type of movements this motor\ndoes (linear or radial).";
-const char* string_145_long  = "Max speed of the motor.\nPress [Menu] to change the granularity.";
-const char* string_146_long  = "Ramping-duration for moves.\nShort times become faster but less\nsmooth moves.";
-const char* string_150_long  = "Keep the motor powerd all the time.\nWhen enabled the motor will be\npowered immediately.";
-const char* string_151_long  = "Motor and hardware calibration value\nin steps per cm or steps per `.\nPress [Menu] to change the granularity.";
-const char* string_154_long  = "Turn the motor off when not used\n(Even during recording!).";
-const char* string_155_long  = "Invert the motor direction.";
-const char* string_161_long  = "Check the max speed for this\nmotor or ignore it. WARNING: Turning\nthis option off can damage\nyour system.";
+const char* string_144_long  = "Die Art wie der Motor sich bewegt\n(linear oder radial).";
+const char* string_145_long  = "Maximale Geschwindigkeit des Motors.\nDruecke [Menue]\num die Granularitaet zu aendern.";
+const char* string_146_long  = "Rampendauer fuer Bewegungen.\nKuerzere Zeiten bedeuten schnellere\nBewegung aber dafuer weniger sanft.";
+const char* string_150_long  = "Motor unter Strom halten.\nWenn aktiviert bekommt der Motor\nsofort Strom.";
+const char* string_151_long  = "Motor- und Hardwarekalibrierung in\nSchritten / cm oder Schritten / Grad.\nDruecke [Menue]\num die Granularitaet zu aendern.";
+const char* string_154_long  = "Schaltet den Motor aus\nwenn er nicht benutzt wird\n(Auch bei Aufnahme!).";
+const char* string_155_long  = "Dreht die Motordrehrichtung um.";
+const char* string_161_long  = "Prueft die max. Geschwindigkeit fuer\ndiesen Motor.\nAchtung: Das Abschalten\ndieser Funktion kann dein System\nbeschaedigen.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CHAIN
@@ -456,13 +500,13 @@ const char* string_183_short = "Typ";
 const char* string_184_short = "Trg. ";
 const char* string_185_short = "Steigend";
 const char* string_186_short = "Fallend";
-const char* string_187_short = "filtern";
+const char* string_187_short = "Filtern";
 
 const char* string_180_long  = "Waehle den Trigger, den du bearbeiten\nmoechtest.";
 const char* string_181_long  = "Status des Triggers - An / Aus.";
 const char* string_182_long  = "Dies definiert was passiert, wenn\nder Trigger ausgeloest wird.\nStart = Programmstart\nStop  = Stop des Programms\nShoot = Kamera ausloesen";
 const char* string_183_long  = "Welches Signal soll den Trigger\nausloesen.\nSteigend (0V --> 3.3V)\nFallend (3.3V --> 0V)";
-const char* string_187_long  = "Filtert das Eingangssignal so,\ndass Stoerungen herausgefiltert werden.";
+const char* string_187_long  = "Filtert das Eingangssignal so,\ndass Stoerungen in der Software\nherausgefiltert werden.";
 
 ////////////////////////////////////////////////////////
 // mode settings
@@ -476,14 +520,14 @@ const char* string_205_short = "Abspiel-FPS";
 const char* string_206_short = "Beschleunigung";
 const char* string_207_short = "Abbremsung";
 
-const char* string_200_long = "The total move-distance of this motor\nduring the recording.\nPress [Menu] to change the granularity.";
-const char* string_201_long = "The motor direction.";
-const char* string_202_long = "The camera exposure time. This can\nbe 1/10 for just triggering the\ncamera. The real exposure might be\ndefined in the camera (see also\nCamera post delay)";
-const char* string_203_long = "The total record-duration.";
-const char* string_204_long = "Length of the final clip you want.";
-const char* string_205_long = "Frames Per Second of your final clip.\nThis influences how many photos will\nbe made.";
-const char* string_206_long = "Percent of record-time to ramp into\nthe move.";
-const char* string_207_long = "Percent of record-time to ramp out\nof the move.";
+const char* string_200_long = "Die Gesamtstrecke des Motors\nwaehrend der Aufnahme.\nDruecke [Menue]\num die Granularitaet zu aendern.";
+const char* string_201_long = "Die Richtung der Motordrehung";
+const char* string_202_long = "Die Belichtungszeit. Diese kann\nz.B. 1/10 sek zum Ausloesen der\nKamera betragen. Die wirkliche Ausloese-\nzeit wird in der Kamera definiert (siehe\nebenso Kamera Verzoegerung\nnach Ausloesung)";
+const char* string_203_long = "Die Gesamtaufnahmezeit.";
+const char* string_204_long = "Die Laenge des Clips der\nerstellt werden soll.";
+const char* string_205_long = "Bilder pro Sekunde vom finalen Clip.\nDies beeinflusst wieviele Fotos\ninsgesamt gemacht werden.";
+const char* string_206_long = "Prozent der Aufnahmezeit\nfuer die Beschleunigungsphase.";
+const char* string_207_long = "Prozent der Aufnahmezeit\nfuer die Abbremsphase.";
 
 
 
@@ -491,19 +535,19 @@ const char* string_207_long = "Percent of record-time to ramp out\nof the move."
 // messages
 
 const char* string_220_long = "Trigger";
-const char* string_221_long = "Waiting for the start-signal.";
-const char* string_222_long = "Press [SELECT] to abort.";
+const char* string_221_long = "Warte auf das Start-Signal.";
+const char* string_222_long = "Druecke [SELECT] um abzubrechen.";
 
-const char* string_225_long = "Startposition";
-const char* string_226_long = "Moving motors to the home-position.";
+const char* string_225_long = "Start";
+const char* string_226_long = "Bewege Motoren zur Startposition.";
 
-const char* string_227_long = "Geschwindigkeitswarnung";
-const char* string_228_long = "Motor-speed limit for at least one";
-const char* string_229_long = "motor exceeded for this move!";
+const char* string_227_long = "Geschw. Warnung";
+const char* string_228_long = "Geschwindigkeitslimit fuer min. 1";
+const char* string_229_long = "Motor ueberschritten!";
 
 const char* string_230_long = "Vorschau";
-const char* string_231_long = "The timelpase preview is now";
-const char* string_232_long = "done in real-speed...";
+const char* string_231_long = "Die Timelpase Vorschau wird nun ";
+const char* string_232_long = "in Echtzeit gefahren...";
 
 
 #endif

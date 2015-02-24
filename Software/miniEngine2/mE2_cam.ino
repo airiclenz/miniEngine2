@@ -141,8 +141,6 @@ void cam_process() {
     // is the time over?
     if ((cam_start_time + cam_focus) <= millis()) {
       
-      Serial.println("Stopped focus");
-      
       // stop focusing
       digitalWrite(PIN_CAM_FOCUS, LOW);
       
@@ -219,8 +217,6 @@ void cam_start() {
     
     // are we supposed to focus before shooting?
     if (cam_focus > 0) {
-      
-      Serial.println("Started focus");
       
       // activate focusing
       digitalWrite(PIN_CAM_FOCUS, HIGH);
