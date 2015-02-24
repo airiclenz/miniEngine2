@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -1003,7 +1004,7 @@ void uipaint_jogWindow(boolean full_repaint) {
   strcat(lines[0], temp);
   
   // motor type for correct unit 
-  if (motors[motor_selected].getType() == TYPE_LINEAR) {
+  if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {
     strcat(lines[0], string_17_short);   // cm/s  
   } else {
     strcat(lines[0], string_16_short);   // °/s
@@ -1017,7 +1018,7 @@ void uipaint_jogWindow(boolean full_repaint) {
   strcat(lines[1], temp);
   
   // motor type for correct unit 
-  if (motors[motor_selected].getType() == TYPE_LINEAR) {  
+  if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {  
     strcat(lines[1], string_5_short);    // cm
   } else {
     strcat(lines[1], string_22_short);    // °

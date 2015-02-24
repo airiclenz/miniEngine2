@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
 
     See www.airiclenz.com for more information
         
@@ -285,7 +286,7 @@ void motor_process() {
 
     // stop the program if it was running...
     // (this also de-poweres all motors and sets the repaint flag)
-    core_stopProgram();
+    core_stopProgram(true);
 	
   }
 	

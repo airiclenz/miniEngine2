@@ -1,6 +1,6 @@
 /*
 
-    (c) 2013 Airic Lenz 
+    2015 Airic Lenz 
 	
 	See www.airiclenz.com for more information
     		    
@@ -53,7 +53,7 @@ StepperMotor::StepperMotor(uint8_t pin_step, uint8_t pin_dir) {
 	_motor_position = 0;
 	
 	// set the motor to a linear one
-	_type = TYPE_LINEAR;
+	_type = MOTOR_TYPE_LINEAR;
 	// set the calibration to 100 steps / cm
 	_calibration = 100;
 	

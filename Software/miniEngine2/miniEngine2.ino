@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz, C.A. Church
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -61,6 +62,24 @@ char *ramend=(char *)0x20088000;
 
 #define LANGUANGE_ENGLISH
 //#define LANGUANGE_GERMAN
+
+
+
+////////////////////////////////////////////////////////
+//                                                    //
+//  D I S P L A Y   T Y P E                           //
+//                                                    //
+////////////////////////////////////////////////////////
+
+
+// if you have an older version of the display, use
+//this line of code (if you get a white screen with
+//this one, change to the other display type):
+#define DISPLAY_TYPE        ITDB24E_16    
+
+//if you have a newer version of the display, use this
+//line of code:
+//#define DISPLAY_TYPE        TFT01_24_16
 
 
 ////////////////////////////////////////////////////////
@@ -321,24 +340,16 @@ StepperMotor motors[DEF_MOTOR_COUNT] = { StepperMotor(PIN_MOTOR1_STEP, PIN_MOTOR
 
 // COM (for daisy chaingin):
 MoCoM com(PIN_COM_DIR, Serial1);
+byte  com_id = MOCOM_MASTER_ID;
 
 
 // Display:   
-UTFT tft(ITDB24E_16,  PIN_TFT_RS, 
-                      PIN_TFT_WR, 
-                      PIN_TFT_CS, 
-                      PIN_TFT_RST);
+UTFT tft(DISPLAY_TYPE, PIN_TFT_RS, 
+                       PIN_TFT_WR, 
+                       PIN_TFT_CS, 
+                       PIN_TFT_RST);
 
-/*
 
-// If you are experiencing a white screen, then remove the above
-// UTFT definition and uncomment this one:
-UTFT tft(TFT01_24_16, PIN_TFT_RS, 
-                      PIN_TFT_WR, 
-                      PIN_TFT_CS, 
-                      PIN_TFT_RST); 
- 
-*/
 
 
 // ============================================================================
@@ -363,7 +374,7 @@ void setup() {
   //touch_init();
   
     
-  printFreeRam();
+  //printFreeRam();
   
   
   // paint the splashscreen  
@@ -374,6 +385,7 @@ void setup() {
   
   sd_init();  // also loads the settings
   power_init();
+  
   // check if all values are calculated correctly after loading
   // the settings from the SD card
   core_checkValues();
@@ -414,8 +426,7 @@ void loop() {
     sd_process();
     trigger_process();
     uplink_process();
-    
-    
+       
     
     //////////////////////////////////
     if (core_isProgramRunningFlag()) {
@@ -558,7 +569,7 @@ void loop() {
           } else {
             
             // stop the program
-            core_stopProgram();
+            core_stopProgram(true);
             
           }
           

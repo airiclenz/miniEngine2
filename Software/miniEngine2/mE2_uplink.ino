@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -155,7 +156,7 @@ void uplink_decode() {
       // Stop
       if (uplink_Buffer[0] == CMD_EngineStop) {
         Serial.println(uplink_ack);
-        core_stopProgram();
+        core_stopProgram(true);
         uplink_received_count = 0;
         return;
       }        

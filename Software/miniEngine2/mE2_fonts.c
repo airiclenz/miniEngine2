@@ -1,6 +1,7 @@
 /*
 
-    Author: Airic Lenz, Henning Karsten
+    Authors: Airic Lenz, Henning Karsten
+    Year of release: 2015
     
     See www.airiclenz.com and http://henningkarlsen.com/ for more information
         

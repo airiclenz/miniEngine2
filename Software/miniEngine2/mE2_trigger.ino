@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -144,7 +145,7 @@ void trigger_process() {
                             uicore_setRepaintFlag();
                           
                             // stop the program  
-                            core_stopProgram();
+                            core_stopProgram(true);
                             break;
                           } 
                         
@@ -171,7 +172,7 @@ void trigger_process() {
                             uicore_setRepaintFlag();
                           
                             // stop the program  
-                            core_stopProgram();
+                            core_stopProgram(true);
                             break;
                           } 
                         

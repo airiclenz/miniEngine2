@@ -1,6 +1,7 @@
   /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
     
@@ -107,7 +108,7 @@ void core_checkIfProgramDone() {
   if (cam_getShootCount() >= setup_frame_count) {
           
     // stop the program
-    core_stopProgram();
+    core_stopProgram(true);
           
     // reset the system phase flag and thus restart the cycle
     system_phase = 0;
@@ -130,6 +131,8 @@ bool core_startProgram() {
     //////////////////////////////////////////////
     // P R O G R A M   I N I T I A L I Z A T I O N 
     ////////////////////////////////////////////// 
+    
+    
     // reset the camera shoot count
     cam_resetShootCount();
     // set the program-is-running-flag
@@ -142,6 +145,28 @@ bool core_startProgram() {
     // remove the flag that indicated a 
     // return move in bouncing mode 
     core_deleteBouncingMoveFlag();
+    
+    // delete the start flag that might be set
+    com_deleteStartFlag();
+    // delete the com stop flag that might be set
+    com_deleteStopFlag();
+    // delete the com sync flag that might be set
+    com_deleteSyncFlag();
+    
+    
+    //////////////////////////////////////////////
+    // S L A V E   P R E P A R A T I O N
+    //////////////////////////////////////////////
+    
+    // if we are a master
+    if (com.isMaster() &&
+        com.getSlaveCount() > 0) {
+      
+      // remove the ready flag for all slave devices    
+      com_clearSlavesReady();    
+      // send the prepare command to all slaves
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_PREPARE);             
+    }
     
     //////////////////////////////////////////////
     // M O T O R   P R E P A R A T I O N
@@ -162,15 +187,30 @@ bool core_startProgram() {
     motor_checkKeyframes();    
     
     
+    // if we are a master
+    if (com.isMaster()) {
+      // check if the slaves are ready as well
+      core_checkSlavePrepareStatus();
+    } 
+    else {
+      // send a done command and wait for acknowledge of the master
+      com_sendDoneWithAck();
+    }
+    
+    
+    
     //////////////////////////////////////////////
     // S T A R T   T R I G G E R S
     //////////////////////////////////////////////
+        
     // clear the trigger cache for making sure we have not false
     // trigger events cause by enabling the interrupts
     trigger_clearEvents();  
     
-    // check triggers
-    if (trigger_isStartTriggerDefined()) {
+    // check and enable triggers if we are no registered
+    // slave device in the daisy chain
+    if (trigger_isStartTriggerDefined() &&
+        !com_isRegisteredSlaveFlag()) {
       
       // print a "waiting for trigger" message and show it for
       // at least on millisecond
@@ -189,7 +229,7 @@ bool core_startProgram() {
           input_clearKeyEvent();
           
           // stop the program
-          core_stopProgram();
+          core_stopProgram(true);
           
           // remove all possible meessages from the screen
           uicore_deleteMessageOnScreenFlag();
@@ -208,20 +248,21 @@ bool core_startProgram() {
       uicore_setBacklight(true);
             
     }
-        
+    
         
     //////////////////////////////////////////////
     // R E P A I N T
     //////////////////////////////////////////////
+        
     // remove all possible messages from the screen
     uicore_deleteMessageOnScreenFlag();
     // do a full repaint to have a fresh dashboard
     uicore_repaint(true);
     
+        
     //////////////////////////////////////////////
     // S T A R T
     //////////////////////////////////////////////
-        
     
     // if we are in one of the following modes,
     // start the curve based move for all motors
@@ -234,7 +275,7 @@ bool core_startProgram() {
         if (!motor_checkCurvesMaxSpeedOk()) {
 
           // stop everything
-          core_stopProgram();
+          core_stopProgram(true);
           // do a full repaint to have a fresh screen
           // and updated variabled for not painting
           // the screen unneededly
@@ -262,7 +303,7 @@ bool core_startProgram() {
     // start the timer...
     motor_startMoveTimer();
     
-  } // end: program running? 
+  } // end: program already running? 
   
   return true;
   
@@ -273,15 +314,20 @@ bool core_startProgram() {
 // ============================================================================
 // stops the program
 // ============================================================================
-void core_stopProgram() {
+void core_stopProgram(boolean all) {
   
+  // if we are asked to stop all programs of all slaves, do it
+  if (all && com.isMaster()) {
+    com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_STOP);
+  }
+    
   // set the program-is-running-flag
   core_deleteProgramRunningFlag();   
  
   // remove the flag that indicated a 
   // return move in bouncing mode 
   core_deleteBouncingMoveFlag();
- 
+   
   // disable all motors on program Stop 
   motor_disableAll(); 
  
@@ -350,6 +396,50 @@ void core_doPreview() {
 }
 
 
+
+// ===================================================================================
+// prepares all registered slaves for the program start
+// ===================================================================================
+void core_checkSlavePrepareStatus() {
+    
+  // if we have no slaves, leave immediately
+  if (com.getSlaveCount() == 0) return;
+    
+  // our main done flag
+  boolean done = false;
+  // temp variables for storing the received data
+  byte command, id;
+      
+  // loop until we are done
+  while (!done) {
+    
+    // check if we received something from the slaves
+    // --> gets processes in the com_handle_events()
+    com.executeCommunication();
+    
+    done = true;
+    
+    // loop the whole array and check if we are ready
+    // (reset the main flag to false if not)
+    for (int i=0; i<com.getSlaveCount(); i++) {
+      
+      byte res = isBit(com_slaveStati[i], BIT_0);
+           
+      // if the bit is not set
+      if (res == 0) {
+        done = false;
+      }
+      
+    } // end: loop all slave devices
+    
+  } // end: main loop
+    
+}
+
+
+
+
+
 // ============================================================================
 // next shot needed?
 // ============================================================================
@@ -416,6 +506,13 @@ boolean core_checkMoveHomeBeforeStart() {
                 
         // wait until all motors reached home
         while (motor_isMoveToPositionRunning()) {
+                    
+          // check if we received answer from the clients          
+          if (com.isMaster()) {
+            // do communication...
+            com.executeCommunication();
+          }
+          
           
           // abort if the select key is pressed
           if (input_isKeyEvent()) {
@@ -519,7 +616,7 @@ void core_deleteSettings() {
   // remove the old settings file
   sd_deleteSettings(); 
   // show the reset message
-  uicore_showMessage(113, 114, 116, 1000);  
+  uicore_showMessage(114, 115, 117, 1000);  
 
   // wait forever until the user removed the power
   while(1){};  

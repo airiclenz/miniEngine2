@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -37,7 +38,7 @@ File sd_file;
 File sd_battery_file;
 
 // general SD routines status flags
-// B0 = sd ok & config file existant
+// B0 = sd ok & config file existent
 // B1 = settings were changed
 // B2 = save power calibration data
 // B3 = sd ok & battery file existant
@@ -45,7 +46,7 @@ File sd_battery_file;
 // B5 = 
 // B6 = 
 // B7 = 
-boolean sd_status = 0;
+uint8_t sd_status = 0;
 
 // the address where the data starts...
 uint16_t sd_data_start;
@@ -54,6 +55,10 @@ uint16_t sd_data_start;
 byte sd_file_version;
 byte sd_file_subversion;
 byte sd_file_subsubversion;
+
+
+boolean sddebugbool = true;
+uint8_t sddebugbyte = 255;
 
 
 // ============================================================================
@@ -101,7 +106,10 @@ void sd_process() {
   // only save the settings if the program is not running...
   
   if (!core_isProgramRunningFlag()) {
-  
+    
+    
+    
+    
     if (!uicore_isEditing() &&
         sd_isSettingsChangedFlag() &&
         sd_isSD_OK()) {
@@ -410,6 +418,10 @@ boolean sd_saveConfig() {
     }
     
     
+    // daisy chaining data
+    sd_writeData((uint8_t)    com_id);                          // the device ID in the daisy chain
+    
+    
     sd_file.close();
     
     return true;
@@ -571,6 +583,9 @@ boolean sd_loadConfig() {
       trigger_setEnabled(i, enabled);
       
     }
+    
+    // daisy chaining data
+    com_id =                         sd_readByte(buffer, address);              address += 1;
     
     
     return true;

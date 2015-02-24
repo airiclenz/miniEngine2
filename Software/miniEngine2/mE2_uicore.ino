@@ -1,6 +1,7 @@
 /*
 
     Author: Airic Lenz
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -319,7 +320,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 70;
+const uint8_t uicore_content_relation_count = 72;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -336,7 +337,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   { 101, 120 }, { 101, 121 }, { 101, 124 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 161 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
-  { 103,  23 }, /*{ 103, 160 }, { 103, 161 }, */
+  { 103, 165 }, { 103, 168 }, 
   { 104, 180 }, { 104, 181 }, { 104, 182 }, { 104, 183 }, { 104, 187 },
   
   
@@ -724,9 +725,12 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
-    //case 170: strcpy(lines[target_line], string_170_short);     return;
-    //case 171: strcpy(lines[target_line], string_171_short);     return;  
-    
+    case 165: strcpy(lines[target_line], string_165_short);     return;
+    case 166: strcpy(lines[target_line], string_166_short);     return;  
+    case 167: strcpy(lines[target_line], string_167_short);     return;
+    case 168: strcpy(lines[target_line], string_168_short);     return;  
+    case 169: strcpy(lines[target_line], string_169_short);     return;
+        
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS TRIGGER
@@ -807,7 +811,7 @@ void uicore_getLongString(uint16_t buf_number) {
     case 114: strcpy(data_line, string_114_long);     return;
     case 115: strcpy(data_line, string_115_long);     return;
     case 116: strcpy(data_line, string_116_long);     return;
-    
+    case 117: strcpy(data_line, string_117_long);     return;
     
     
     ///////////////////////////////////////////////////////////////////
@@ -830,11 +834,12 @@ void uicore_getLongString(uint16_t buf_number) {
     case 154: strcpy(data_line, string_154_long);     return;
     case 155: strcpy(data_line, string_155_long);     return;
     case 161: strcpy(data_line, string_161_long);     return;
-    
-    
+        
     ///////////////////////////////////////////////////////////////////
     // SETTINGS CHAINING
- 
+    
+    case 165: strcpy(data_line, string_165_long);     return;
+    case 168: strcpy(data_line, string_168_long);     return; 
     
     ///////////////////////////////////////////////////////////////////
     // SETTINGS TRIGGER
@@ -875,14 +880,16 @@ void uicore_getLongString(uint16_t buf_number) {
     case 230: strcpy(data_line, string_230_long);     return;  
     case 231: strcpy(data_line, string_231_long);     return;  
     case 232: strcpy(data_line, string_232_long);     return;  
+    
+    case 233: strcpy(data_line, string_233_long);     return;  
+    case 234: strcpy(data_line, string_234_long);     return;  
+    case 235: strcpy(data_line, string_235_long);     return;  
         
   }
-
   
-  // no result - return an empty  string
+  // no result - return an empty string
   strcpy(data_line, STR_EMPTY);
   
-
 }
 
 
@@ -960,7 +967,7 @@ boolean uicore_handleKeyEvent(uint8_t key) {
         
         // start / stop the program
         if (core_isProgramRunningFlag()) {
-          core_stopProgram();
+          core_stopProgram(true);
         } else {
           if (!core_startProgram()) {
             // the start did no succeed, leave this function
@@ -1890,7 +1897,7 @@ void uicore_generateDataString(uint16_t line_code) {
                    } 
       
       
-                   if (motors[motor_selected].getType() == TYPE_LINEAR) {
+                   if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {
                      strcpy(data_line, string_14_short);  // LINEAR
                    } else {
                      strcpy(data_line, string_15_short);  // RADIAL                     
@@ -1922,7 +1929,7 @@ void uicore_generateDataString(uint16_t line_code) {
       
                    
                    // motor type for correct unit 
-                   if (motors[motor_selected].getType() == TYPE_LINEAR) {
+                   if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {
                      strcat(data_line, string_17_short); // cm/sec
                    } else {
                      strcat(data_line, string_16_short); // °/sec
@@ -2008,7 +2015,7 @@ void uicore_generateDataString(uint16_t line_code) {
                    }                   
                    
                    // motor type for correct unit 
-                   if (motors[motor_selected].getType() == TYPE_LINEAR) {
+                   if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {
                      strcat(data_line, string_10_short); // st/cm  
                    } else {
                      strcat(data_line, string_21_short); // st/°
@@ -2084,6 +2091,43 @@ void uicore_generateDataString(uint16_t line_code) {
                    break;
     }
     
+    
+    // daisy chain device ID
+    case  165 :  {
+      
+                   if ((menu_editing) &&
+                       (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     uicore_changeValueUByte(&com_id, 1, 0, MOCOM_MAX_SLAVES - 1, true);
+                     
+                     // set the new status
+                     com.setID(com_id);  
+                     // we are no longer a registered (known) slave device
+                     com_deleteRegisteredSlaveFlag();
+                                          
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                   
+                   // print the status to the screen
+                   if (com.isMaster()) {
+                     strcpy(data_line, string_166_short); // Master
+                   } else {
+                     strcpy(data_line, string_167_short); // Device
+                     itoa(com.getID(), temp, 10);        
+                     strcat(data_line, temp); 
+                   }
+                   
+                   break;
+    }
+    
+    // update the daisy chain
+    case 168 :   {
+                         
+                   strcpy(data_line, string_169_short);   // UPDATE!               
+                   break;  
+    }  
+        
     
     // trigger selection
     case 180 :   {
@@ -2213,7 +2257,7 @@ void uicore_generateDataString(uint16_t line_code) {
                    }         
                         
                    
-                   if (motors[motor_selected].getType() == TYPE_LINEAR) {
+                   if (motors[motor_selected].getType() == MOTOR_TYPE_LINEAR) {
                      strcat(data_line, string_5_short); // cm
                    } else {
                      strcat(data_line, string_22_short); // °
@@ -2655,7 +2699,33 @@ boolean uicode_doAction(uint16_t line_code) {
     }               
       
       
-                   
+    // Update daisy chain
+    case 168 :  {   
+                    if (com.isMaster()) {              
+      
+                      // paint the message that shows that the chain is updated...
+                      uicore_showMessage(233, 234, 235, 0);
+                        
+                      // deselecct the currently selected slave
+                      com.deselectSlave();
+                    
+                      // registering the slaves
+                      com.registerSlaves();  
+                      
+                      // send the new mode to all slaves (if we have any)
+                      com_sendSystemMode(true);
+                      // send the run-data
+                      com_sendRunData();
+                      
+                      // remove all possible meessages from the screen
+                      uicore_deleteMessageOnScreenFlag();
+                      // do a full repaint to have a fresh screen
+                      uicore_repaint(true);
+                      
+                    }
+                    
+                    return true;
+    }      
     
     
   } // end: switch  
@@ -2716,6 +2786,33 @@ void uicore_loadMenuStrings() {
         
         disable_line = true;   
       }   
+      
+      
+      // if we are a slave device
+      if (!com.isMaster() &&
+         (ui_content_relations[i].menu_item == 168)) { // Update chain
+        disable_line = true;            
+      }
+      
+      // if we are a registered slave device
+      if (com_isRegisteredSlaveFlag()) {
+            
+        if (
+            (ui_content_relations[i].menu_item == 203) ||    // Record time
+            (ui_content_relations[i].menu_item == 204) ||    // Playback time
+            (ui_content_relations[i].menu_item == 205) ||    // Playback FPS
+            
+            (ui_content_relations[i].menu_item == 108) ||    // Syste Mode
+            (ui_content_relations[i].menu_item == 109) ||    // Setup Style
+            (ui_content_relations[i].menu_item == 111)       // Move Style
+            
+           ) {        
+        
+          disable_line = true;  
+        }   
+        
+      } // end: we are registered slave device
+       
        
       // set the status to the helper array 
       lines_disabled[menu_length] = disable_line;   

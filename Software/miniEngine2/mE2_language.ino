@@ -1,6 +1,7 @@
 /*
 
-    Author: Airic Lenz, Sascha Henke
+    Authors: Airic Lenz, Sascha Henke
+    Year of release: 2015
     
     See www.airiclenz.com for more information
 
@@ -47,7 +48,7 @@
 
 
 
-#ifdef LANGUANGE_ENGLISH
+
 
 
 ////////////////////////////////////////////////////////////// 
@@ -60,7 +61,7 @@
 //
 //////////////////////////////////////////////////////////////     
 
-
+#ifdef LANGUANGE_ENGLISH
 
 ////////////////////////////////////////////////////////
 // MAIN STRINGS AND UNITS
@@ -179,9 +180,10 @@ const char* string_110_long  = "The used font on the display.";
 const char* string_111_long  = "How should the motors move?";
 const char* string_112_long  = "This will reset all settings\nto the default values.\nPress the Rotary button to Reset.\nPress [Start] to abort.";
 const char* string_113_long  = "This feature will restart the move\nin the reverse direction after it is\ndone. This is only used in Video mode\nand will continue until you stop\nthe move.";
-const char* string_114_long  = "The configuration was deleted.";
-const char* string_115_long  = "Please turn the miniEngine OFF";
-const char* string_116_long  = "and then ON again.";
+const char* string_114_long  = "Reset";
+const char* string_115_long  = "The configuration was deleted.";
+const char* string_116_long  = "Please turn the miniEngine OFF";
+const char* string_117_long  = "and then ON again.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
@@ -208,11 +210,11 @@ const char* string_146_short = "Ramp Time";
 const char* string_147_short = "Limit SW"; 
 const char* string_148_short = "Jog Motor 1"; 
 const char* string_149_short = "Jog Motor 2"; 
-const char* string_150_short = "Keep Powrd"; 
+const char* string_150_short = "Keep powered"; 
 const char* string_151_short = "Calibratn"; 
 const char* string_152_short = "Go Home (all)";  
 const char* string_153_short = "Motor ";  
-const char* string_154_short = "Motr Sleep";
+const char* string_154_short = "Motor Sleep";
 const char* string_155_short = "Dir Flippd";
 const char* string_156_short = "Set Start";
 const char* string_157_short = "Set End";
@@ -235,8 +237,14 @@ const char* string_161_long  = "Check the max speed for this\nmotor or ignore it
 ////////////////////////////////////////////////////////
 // SETTINGS CHAIN
 
-const char* string_165_short = "Device Typ";
+const char* string_165_short = "Chain ID";
+const char* string_166_short = "Master";
+const char* string_167_short = "Device ";
+const char* string_168_short = "Upd. Info";
+const char* string_169_short = "UPDATE!";
 
+const char* string_165_long  = "The id of the device in the\ndaisy-chain-network. Every\ndevice needs a unique ID!";
+const char* string_168_long  = "Retreives the available devices\nin the daisy-chain-network.";
 
 
 ////////////////////////////////////////////////////////
@@ -296,6 +304,11 @@ const char* string_229_long = "motor exceeded for this move!";
 const char* string_230_long = "Preview";
 const char* string_231_long = "The timelpase preview is now";
 const char* string_232_long = "done in real-speed...";
+
+const char* string_233_long = "Daisy Chain";
+const char* string_234_long = "Updateing the daisy chain info.";
+const char* string_235_long = "This might take some seconds...";
+const char* string_236_long = "Registered in the chain...";
 
 
 #endif 
@@ -444,11 +457,11 @@ const char* string_120_short = "Kamera Typ";
 const char* string_121_short = "Kamera Test";
 const char* string_122_short = "Pause danach";
 const char* string_123_short = "TEST!";
-const char* string_124_short = "Fokuszeit"
+const char* string_124_short = "Fokuszeit";
 
 const char* string_120_long  = "Ausloeserverhalten der Kamera.";
 const char* string_122_long  = "Zeit nach dem Ausloesen\nbevor der Motor sich bewegt.\nBenutze dies wenn du\nfur deine Kamera eine lange\nAusloesezeit definiert hast.";
-const char* string_124_long  = "Die Zeit, die die Kamera\nvor dem ausloesen zum\nScharfstellen hat. Dies kann\nbenutzt werden um die Kamera aufzu-\nwecken."
+const char* string_124_long  = "Die Zeit, die die Kamera\nvor dem ausloesen zum\nScharfstellen hat. Dies kann\nbenutzt werden um die Kamera aufzu-\nwecken.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS MOTOR
@@ -490,6 +503,14 @@ const char* string_161_long  = "Prueft die max. Geschwindigkeit fuer\ndiesen Mot
 ////////////////////////////////////////////////////////
 // SETTINGS CHAIN
 
+const char* string_165_short = "GeraeteID";
+const char* string_166_short = "Meister";
+const char* string_167_short = "Geraet ";
+const char* string_168_short = "Netz auslesen";
+const char* string_169_short = "LIES!";
+
+const char* string_165_long  = "Die ID dieses Geraetes im\nVerkettungsnetzwerk. Jedes\nGeraet benoetigt eine eineindeutige ID!";
+const char* string_168_long  = "Liest die verfuegbaren Geraete,rec\ndie sich im Netzwerk befinden.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS TRIGGER
@@ -546,9 +567,17 @@ const char* string_228_long = "Geschwindigkeitslimit fuer min. 1";
 const char* string_229_long = "Motor ueberschritten!";
 
 const char* string_230_long = "Vorschau";
-const char* string_231_long = "Die Timelpase Vorschau wird nun ";
+const char* string_231_long = "Die Timelpase-Vorschau wird nun";
 const char* string_232_long = "in Echtzeit gefahren...";
 
+const char* string_233_long = "Verkettung";
+const char* string_234_long = "Netzwerk wird analysiert.";
+const char* string_235_long = "Dies kann etwas dauern...";
+const char* string_236_long = "Im Netzwerk registriert...";
 
 #endif
+
+
+
+
 

@@ -69,6 +69,9 @@ MoCoM::MoCoM(byte pin_direction, HardwareSerial& serialPtr) :
 	// set the initial read delay (microSec)
 	_readDelay = 200;
 	
+	// clear the slave data
+	clearSlaveData();
+	
 	//__deleteStatusBlocked();
 	
 }
@@ -106,6 +109,9 @@ void MoCoM::init(long baudrate)
 	_lastSendTime = 0;
 
 	_selectedSlaveIndex = 255;
+
+	// clear the slave data
+	clearSlaveData();
 
 	// start the serial communication
 	_serial.begin(baudrate);
@@ -187,7 +193,7 @@ boolean MoCoM::setID(byte id) {
 			_status = B10000000;
 			
 			// reset all the slave data
-			__clearSlaveData();
+			clearSlaveData();
 		
 		} else {
 						
@@ -223,7 +229,7 @@ void MoCoM::registerSlaves() {
 		//__setStatusBlocked();
 		
 		// clear the salves array and all data of them
-		__clearSlaveData();	
+		clearSlaveData();	
 		
 		// when did we start?				
 		unsigned long starttime;	
@@ -540,9 +546,13 @@ boolean MoCoM::selectSlave(byte index) {
 // ============================================================================
 boolean MoCoM::selectNextSlave() {
 	
+	// if no slave is selected
 	if (_selectedSlaveIndex == 255) {
-	
+		
+		// if we have slaves
 		if (_slaveCount > 0) {
+			
+			// select the first slave
 			_selectedSlaveIndex = 0;
 			return true;
 		}
@@ -559,10 +569,14 @@ boolean MoCoM::selectNextSlave() {
 
 // ============================================================================
 boolean MoCoM::selectPreviousSlave() {
-
+	
+	// if no slave is selected
 	if (_selectedSlaveIndex == 255) {
 		
+		// if we have slaves
 		if (_slaveCount > 0) {
+			
+			// select the last slave
 			_selectedSlaveIndex = _slaveCount - 1;
 			return true;
 		}
@@ -582,6 +596,20 @@ void MoCoM::deselectSlave() {
 }
 
 
+
+// ============================================================================
+void MoCoM::clearSlaveData() {
+	
+	// reset all the slave data
+	_slaveCount = 0;
+	deselectSlave();
+	
+	for (int i=0; i<MOCOM_MAX_SLAVES; i++) {
+		_slaves[i].id = MOCOM_NO_ID;
+		_slaves[i].motorData = 0;
+	}	
+	
+}
 
 // ============================================================================
 boolean MoCoM::ping(byte count, boolean deleteOnError) {
@@ -1293,20 +1321,6 @@ float MoCoM::__getFloatFromBuffer(byte offset) {
     
 }
 
-
-
-// ============================================================================
-void MoCoM::__clearSlaveData() {
-	
-	// reset all the slave data
-	_slaveCount = 0;
-	
-	for (int i=0; i<MOCOM_MAX_SLAVES; i++) {
-		_slaves[i].id = MOCOM_NO_ID;
-		_slaves[i].motorData = 0;
-	}	
-	
-}
 
 
 // ============================================================================

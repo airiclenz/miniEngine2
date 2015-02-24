@@ -1,6 +1,6 @@
 /*
 
-    (c) 2013 Airic Lenz 
+    2015 Airic Lenz 
 	
 	See www.airiclenz.com for more information
     		    
@@ -27,8 +27,8 @@
 #include "MotorBezier.h"
 
 
-#define		TYPE_LINEAR		0
-#define		TYPE_RADIAL		1
+#define		MOTOR_TYPE_LINEAR		0
+#define		MOTOR_TYPE_RADIAL		1
 
 
 /*

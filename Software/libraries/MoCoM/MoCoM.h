@@ -36,6 +36,14 @@
 #define	DEBUG								false
 
 
+
+////////////////////////////////////////////////////////
+//                                                    //
+//  G E N E R A L   D E F I N I T I O N S             //
+//                                                    //
+////////////////////////////////////////////////////////
+
+
 #define MOCOM_BUFFER_LENGTH					48		// the serial buffer length
 #define MOCOM_MAX_SLAVES	 				16  	// the arraylength of the slave-ID-array
 #define	MOCOM_MAX_MOTORS					4 		// max allowed motor count per slave
@@ -47,11 +55,11 @@
 #define MOCOM_TIMEOUT						300UL 
 
 
-
-#define	MOCOM_MOTOR_TYPE_LINEAR				0
-#define	MOCOM_MOTOR_TYPE_RADIAL				1
-
-
+////////////////////////////////////////////////////////
+//                                                    //
+//  C O M M A N D   C O D E S                         //
+//                                                    //
+////////////////////////////////////////////////////////
 
 #define MOCOM_COMMAND_EMPTY					255
 
@@ -87,6 +95,20 @@
 #define MOCOM_COMMAND_TEXT					127
 
 
+////////////////////////////////////////////////////////
+//                                                    //
+//  C O M M A N D   D A T A   C O D E S               //
+//                                                    //
+////////////////////////////////////////////////////////
+
+#define MOCOM_DATA_SYSTEMMODE				10
+#define MOCOM_DATA_SETUPSTYLE				11
+#define MOCOM_DATA_MOVESTYLE				12
+
+
+#define MOCOM_DATA_RECORDTIME				20
+#define MOCOM_DATA_PLAYTIME					21
+#define MOCOM_DATA_PLAYFPS					22
 
 
 // callback function
@@ -135,6 +157,7 @@ class MoCoM
 		boolean 		isMaster(void);  
 		boolean 		isIDFree(byte);  
         void			registerSlaves(void);
+		void			clearSlaveData(void);
 		    
 		boolean			isDataAvailable(void);
 		boolean 		executeCommunication(void);
@@ -145,8 +168,7 @@ class MoCoM
 		void			sendClearMotorData(void);         
   		void			sendDone();
 		void			sendDone(byte);
-		
-				
+						
 				
   		byte 			getSlaveCount(void);
 		byte 			getSelectedSlaveIndex(void);
@@ -222,7 +244,7 @@ class MoCoM
 		
 		byte 			_slaveCount;							// the number of connected slaves
 		slave			_slaves[MOCOM_MAX_SLAVES];
-		byte 			_selectedSlaveIndex;					// teh salve which is selected right now
+		byte 			_selectedSlaveIndex;					// the slave which is selected right now
 		
 		unsigned long 	_lastReceiveTime;		
 		unsigned long 	_lastSendTime;		
@@ -261,7 +283,6 @@ class MoCoM
 		void 			__send(void);
 		boolean			__ping(byte);
 		
-		void			__clearSlaveData(void);
 		void			__deleteSlave(byte);
 		byte			__getSlaveArrayPos(byte);
 		byte 			__getSlaveMotorCount(byte);
