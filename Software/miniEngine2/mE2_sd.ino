@@ -419,7 +419,7 @@ boolean sd_saveConfig() {
     
     
     // daisy chaining data
-    sd_writeData((uint8_t)    com_id);                          // the device ID in the daisy chain
+    sd_writeData((uint8_t)    com.getID());                     // the device ID in the daisy chain
     
     
     sd_file.close();
@@ -585,8 +585,8 @@ boolean sd_loadConfig() {
     }
     
     // daisy chaining data
-    com_id =                         sd_readByte(buffer, address);              address += 1;
-    
+    uint8_t comId =                  sd_readByte(buffer, address);              address += 1;
+    com.setID(comId);
     
     return true;
   }

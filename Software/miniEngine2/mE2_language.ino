@@ -306,10 +306,11 @@ const char* string_231_long = "The timelpase preview is now";
 const char* string_232_long = "done in real-speed...";
 
 const char* string_233_long = "Daisy Chain";
-const char* string_234_long = "Updateing the daisy chain info.";
+const char* string_234_long = "Updating the daisy chain info.";
 const char* string_235_long = "This might take some seconds...";
 const char* string_236_long = "Registered in the chain...";
-
+const char* string_237_long = "Waiting for master sync...";
+const char* string_238_long = "Abort with any key.";
 
 #endif 
 
@@ -447,9 +448,12 @@ const char* string_110_long  = "Die Schriftart, die benutzt werden\nsoll.";
 const char* string_111_long  = "Wie sollen die Motoren sich bewegen?";
 const char* string_112_long  = "Dies setzt alle Einstellungen zurueck\nauf die Standardeinstellungen.\nDruecke den Drehknopf zum bestaetigen.\nDruecke [Start] zum abbrechen.";
 const char* string_113_long  = "Dies sorgt dafuer, dass die\nminiEngine den Lauf immer wieder\nwiederholt. Dies wird fortgesetzt,\nbis du abbrichst.";
-const char* string_114_long  = "Die Einstellungen wurden geloescht.";
-const char* string_115_long  = "Bitte schalte die MiniE aus.";
-const char* string_116_long  = "und dann wieder ein.";
+
+const char* string_114_long  = "Reset";
+const char* string_115_long  = "Die Einstellungen wurden geloescht.";
+const char* string_116_long  = "Bitte schalte die miniEngine";
+const char* string_117_long  = "aus, und dann wieder ein.";
+
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
@@ -574,6 +578,8 @@ const char* string_233_long = "Verkettung";
 const char* string_234_long = "Netzwerk wird analysiert.";
 const char* string_235_long = "Dies kann etwas dauern...";
 const char* string_236_long = "Im Netzwerk registriert...";
+const char* string_237_long = "Warte auf Startsignal...";
+const char* string_238_long = "Abbruch mit jeder Taste.";
 
 #endif
 

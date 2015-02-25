@@ -32,7 +32,7 @@
 // B0 = sync signal received      
 // B1 = program stop flag         
 // B2 = manual override start     
-// B3 = start signal              
+// B3 = prepare signal              
 // B4 = acknowledge received      
 // B5 = 
 // B6 = is registered Slave
@@ -65,9 +65,9 @@ boolean com_isManualOverrideStartFlag()        { return isBit(com_status, BIT_2)
 void    com_setManualOverrideStartFlag()       { setBit(com_status, BIT_2); }
 void    com_deleteManualOverrideStartFlag()    { deleteBit(com_status, BIT_2); }
 
-boolean com_isStartFlag()                      { return isBit(com_status, BIT_3); }
-void    com_setStartFlag()                     { setBit(com_status, BIT_3); }
-void    com_deleteStartFlag()                  { deleteBit(com_status, BIT_3); } 
+boolean com_isPrepareFlag()                      { return isBit(com_status, BIT_3); }
+void    com_setPrepareFlag()                     { setBit(com_status, BIT_3); }
+void    com_deletePrepareFlag()                  { deleteBit(com_status, BIT_3); } 
 
 boolean com_isAcknowledgeFlag()                { return isBit(com_status, BIT_4); }
 void    com_setAcknowledgeFlag()               { setBit(com_status, BIT_4); }
@@ -84,7 +84,7 @@ void com_init() {
   
   com.init(57600);  
   com.registerFunction_CommunicationReceived(com_handleEvents);
-  com.setID(com_id);
+  com.setID(MOCOM_MASTER_ID);
   
   com.clearSlaveData();
   
@@ -98,7 +98,7 @@ void com_process() {
   
   com.executeCommunication();
   
-  if (com_isStartFlag()) {
+  if (com_isPrepareFlag()) {
     // start the program
     core_startProgram();
   }
@@ -124,7 +124,7 @@ void com_handleEvents() {
       (com.isMaster() == false)) {
         
     if (core_isProgramRunningFlag()) core_stopProgram(false); 
-    com_setStartFlag();
+    com_setPrepareFlag();
     return;
   }
   
@@ -182,10 +182,12 @@ void com_handleEvents() {
       com.addMotor(motors[i].getType());  
     }
 
+    // send the signal that we have no more motors
     com.sendDone();
-    
     // remember that we are now a registered slave device
     com_setRegisteredSlaveFlag();
+    // do a full repaint to update possible menu changes
+    uicore_repaint(true);
     // paint the message that shows that the chain is updated...
     uicore_showMessage(233, 236, 236, 2000);
     return;
@@ -238,6 +240,8 @@ void com_handleEvents() {
                   core_mode = com.getDataByte(1); 
                   // check everything for validity
                   core_checkModes();
+                  // do a full repaint
+                  uicore_repaint(true);
                   // set the flag that settings were changed
                   sd_setSettingsChangedFlag(); 
                   
@@ -251,6 +255,8 @@ void com_handleEvents() {
                   core_setup_style = com.getDataByte(1); 
                   // check everything for validity
                   core_checkModes();
+                  // do a full repaint
+                  uicore_repaint(true);
                   // set the flag that settings were changed
                   sd_setSettingsChangedFlag(); 
                   
@@ -264,6 +270,8 @@ void com_handleEvents() {
                   core_move_style = com.getDataByte(1); 
                   // check everything for validity
                   core_checkModes();
+                  // do a full repaint
+                  uicore_repaint(true);
                   // set the flag that settings were changed
                   sd_setSettingsChangedFlag(); 
                   break;
@@ -328,8 +336,9 @@ void com_handleEvents() {
 // ===================================================================================
 void com_sendSystemMode(boolean all) {
     
-  if ((com.getSlaveCount() > 0) &&
-      (com.isMaster())) {
+  if (com.isMaster() &&
+      (com.getSlaveCount() > 0)
+     ){
   
     // send the code for "mode" to all clients
     com_sendCommandData(MOCOM_DATA_SYSTEMMODE, core_mode, all);
@@ -347,17 +356,27 @@ void com_sendSystemMode(boolean all) {
 // ===================================================================================
 void com_sendRunData() {
   
-  if ((com.isMaster()) &&
-      (com.getSlaveCount() > 0) &&
-      (core_mode == MODE_TIMELAPSE)) {    
-        
-    com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_RECORDTIME, (long) setup_record_time);
-    com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_PLAYTIME,   (long) setup_play_time);
-    com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_PLAYFPS,    cam_fps);
-          
+  if (com.isMaster() &&
+      (com.getSlaveCount() > 0)
+     ){
+  
+    if (core_mode == MODE_TIMELAPSE) 
+    {
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_RECORDTIME, (long) setup_record_time);
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_PLAYTIME,   (long) setup_play_time);
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_PLAYFPS,    cam_fps);    
+    } 
+    
+    else if (core_mode == MODE_VIDEO) 
+    {    
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_DATA, MOCOM_DATA_RECORDTIME, (long) setup_record_time);    
+    }
   }
 
 }
+
+
+
 
 
 // ===================================================================================

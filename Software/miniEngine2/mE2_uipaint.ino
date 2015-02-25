@@ -527,6 +527,7 @@ void uipaint_message() {
   tft.setColor(color_schemes[uicore_col_scheme].font);
   tft.setBackColor(color_schemes[uicore_col_scheme].background);
   
+  // get the actual strings and paint them:
   for (int i=1; i<=menu_length; i++) {
     uicore_getLongString(line_codes[i]);
     tft.print(data_line, 17, ystart + 22 + (20 * i));

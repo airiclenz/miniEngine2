@@ -185,6 +185,11 @@ extern uint8_t Arial[];
 #define  ULONG_MAX                  4294967295
 
 
+// time delay after pressing the start button to allow 
+// the system to settle down after pressing activating the motors
+#define  SYSTEM_START_DELAY              1500L        
+
+
 ////////////////////////////////////////////////////////
 //                                                    //
 //  S Y S T E M   M O D E S                           //
@@ -340,7 +345,6 @@ StepperMotor motors[DEF_MOTOR_COUNT] = { StepperMotor(PIN_MOTOR1_STEP, PIN_MOTOR
 
 // COM (for daisy chaingin):
 MoCoM com(PIN_COM_DIR, Serial1);
-byte  com_id = MOCOM_MASTER_ID;
 
 
 // Display:   
@@ -361,7 +365,11 @@ void setup() {
   Serial.begin(19200);
   
   // randomize
-  randomSeed(analogRead(A0));
+  uint16_t a0 = analogRead(A0);
+  uint16_t a4 = analogRead(A4);
+  uint16_t a7 = analogRead(A7);
+  randomSeed((a0 |= a7) &= ~a7);
+  
   
   // initialize all components
   core_init();
@@ -385,6 +393,7 @@ void setup() {
   
   sd_init();  // also loads the settings
   power_init();
+ 
   
   // check if all values are calculated correctly after loading
   // the settings from the SD card

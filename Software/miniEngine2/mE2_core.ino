@@ -147,7 +147,7 @@ bool core_startProgram() {
     core_deleteBouncingMoveFlag();
     
     // delete the start flag that might be set
-    com_deleteStartFlag();
+    com_deletePrepareFlag();
     // delete the com stop flag that might be set
     com_deleteStopFlag();
     // delete the com sync flag that might be set
@@ -155,56 +155,11 @@ bool core_startProgram() {
     
     
     //////////////////////////////////////////////
-    // S L A V E   P R E P A R A T I O N
-    //////////////////////////////////////////////
-    
-    // if we are a master
-    if (com.isMaster() &&
-        com.getSlaveCount() > 0) {
-      
-      // remove the ready flag for all slave devices    
-      com_clearSlavesReady();    
-      // send the prepare command to all slaves
-      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_PREPARE);             
-    }
-    
-    //////////////////////////////////////////////
-    // M O T O R   P R E P A R A T I O N
-    //////////////////////////////////////////////
-    
-    // do we have curves assigned?
-    motor_checkIfCurveExists();
-    // print a "moving motor to home" message
-    uicore_showMessage(225, 226, 226, 1);
-    // enable the motors
-    motor_powerAll();  
-    // check if the motors need to be moved home first and
-    // move them home in case "yes"
-    core_checkMoveHomeBeforeStart();
-    // store the current motor pos as start reference
-    motor_storeMotorReferencePositions();
-    // define / check the moves we need to do
-    motor_checkKeyframes();    
-    
-    
-    // if we are a master
-    if (com.isMaster()) {
-      // check if the slaves are ready as well
-      core_checkSlavePrepareStatus();
-    } 
-    else {
-      // send a done command and wait for acknowledge of the master
-      com_sendDoneWithAck();
-    }
-    
-    
-    
-    //////////////////////////////////////////////
     // S T A R T   T R I G G E R S
     //////////////////////////////////////////////
         
     // clear the trigger cache for making sure we have not false
-    // trigger events cause by enabling the interrupts
+    // trigger events caused by enabling the interrupts
     trigger_clearEvents();  
     
     // check and enable triggers if we are no registered
@@ -249,6 +204,96 @@ bool core_startProgram() {
             
     }
     
+    
+    //////////////////////////////////////////////
+    // S L A V E   P R E P A R A T I O N
+    //////////////////////////////////////////////
+    
+    // if we are a master with registered slave devices
+    if (com.isMaster() &&
+        com.getSlaveCount() > 0) {
+      
+      // remove the ready flag for all slave devices    
+      com_clearSlavesReady();    
+      // send the prepare command to all slaves
+      // this will be acknowledged from the slave devices
+      // with a DONE signal so that we know when they 
+      // finished their preparations
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_PREPARE);             
+    }
+    
+    
+    //////////////////////////////////////////////
+    // M O T O R   P R E P A R A T I O N
+    //////////////////////////////////////////////
+    
+    // do we have curves assigned?
+    motor_checkIfCurveExists();
+    // print a "moving motor to home" message
+    uicore_showMessage(225, 226, 226, 1);
+    // enable the motors
+    motor_powerAll();  
+    // check if the motors need to be moved home first and
+    // move them home in case "yes"
+    core_checkMoveHomeBeforeStart();
+    // store the current motor pos as start reference
+    motor_storeMotorReferencePositions();
+    // define / check the moves we need to do
+    motor_checkKeyframes();    
+    
+    
+    
+    // after the motor preparations are done, we need to tkae care
+    // of some additional daisy chaining stuff:    
+    // if we are a master with registered slave devices
+    if (com.isMaster() &&
+        com.getSlaveCount() > 0) {
+          
+      // check if the slaves are ready as well
+      core_checkSlavePrepareStatus();
+      // wait a little bit to allow everything to settle down after
+      // the motors were avtivated
+      core_delay(SYSTEM_START_DELAY);
+      // send the global sync signal to start everything everywhere :)
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_START);
+    } 
+    
+    // if we are a registered slave device
+    else if (com_isRegisteredSlaveFlag()) {
+      // send a done command and wait for acknowledge of the master
+      com_sendDoneWithAck();
+      // print a message - waiting for master sync
+      uicore_showMessage(233, 237, 238, 1);
+      
+      while(!com_isSyncFlag()) {
+        
+        // do teh communication to check for the sync signal
+        com.executeCommunication();  
+        
+        // check if the user wants to abort
+        if (input_isKeyEvent()) {
+          // remove the key event  
+          input_clearKeyEvent();
+          // stope everything on this device
+          core_stopProgram(false);
+          // leave
+          return false;  
+        }
+      }
+      
+      // make sure we can start 
+      com_deleteSyncFlag();
+      core_setStartImmediatelyFlag();
+      
+    }
+    
+    // we are just a standalone device
+    else {
+      // wait a little bit to allow everything to settle down after
+      // the motors were avtivated
+      core_delay(SYSTEM_START_DELAY);
+    }
+        
         
     //////////////////////////////////////////////
     // R E P A I N T
@@ -256,7 +301,7 @@ bool core_startProgram() {
         
     // remove all possible messages from the screen
     uicore_deleteMessageOnScreenFlag();
-    // do a full repaint to have a fresh dashboard
+    // do a full repaint
     uicore_repaint(true);
     
         
@@ -346,8 +391,9 @@ void core_stopProgram(boolean all) {
   // enable the backlight 
   uicore_setBacklight(true); 
  
-  // do a full repaint to have everything updated
+  // repaint the user interface
   uicore_setRepaintFlag();
+  uicore_repaint(true);
     
 }
 

@@ -2,8 +2,26 @@
 
 
 /////////////////////////////////////////////////////
+version:	2.0 alpha 7
+date:		2015-XX-XX
+
+Software:
+
+-	Bouncing functionality which allows to loop the moves in 
+	Video mode.
+-	Multiple Language support. You can now add your own 
+	language to the system. German is already included in this update.
+-	Added Camera Focus feature to allow a separate focus phase 
+	before the exposure phase.
+-	Fixed a bug that caused prevented correct saving of the 
+	settings to the SD card.
+-	Basic Daisy-Chaining functionality is already included but 
+	not all features are in there yet.
+
+
+/////////////////////////////////////////////////////
 version:	2.0 alpha 6
-date:		2014-XX-XX
+date:		2014-06-29
 
 
 Software:

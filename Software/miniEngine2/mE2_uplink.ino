@@ -178,6 +178,9 @@ void uplink_decode() {
           core_mode = MODE_TIMELAPSE;  
         }
         core_setup_style = SETUP_STYLE_KEYFRAMES;
+        // send the new mode to the clients i we have some;
+        com_sendSystemMode(true);
+        // reset the buffer
         uplink_received_count = 0;
         return;
       }

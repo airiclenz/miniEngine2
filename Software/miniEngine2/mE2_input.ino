@@ -191,7 +191,7 @@ boolean input_isEvent() {
 boolean input_isKeyEvent() {
   
   // if the program is running send another result
-  // (ignore al keys out of the SELECT key)
+  // (ignore all keys out of the SELECT key)
   if (core_isProgramRunningFlag()) {
     return isBit(input_status, BIT_2);
   } else {

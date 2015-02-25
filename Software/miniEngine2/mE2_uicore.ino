@@ -884,7 +884,10 @@ void uicore_getLongString(uint16_t buf_number) {
     case 233: strcpy(data_line, string_233_long);     return;  
     case 234: strcpy(data_line, string_234_long);     return;  
     case 235: strcpy(data_line, string_235_long);     return;  
-        
+    case 236: strcpy(data_line, string_236_long);     return;  
+    case 237: strcpy(data_line, string_237_long);     return;   
+    case 238: strcpy(data_line, string_238_long);     return;
+    
   }
   
   // no result - return an empty string
@@ -1405,6 +1408,8 @@ void uicore_showMessage(byte title, byte fromLine, byte toLine, uint32_t duratio
   
   menu_length = 0;
   
+  // fill the line codes with the id of the title and the ids of the actual
+  // message content:
   line_codes[0] = title; // title
 
   // fill the array with the content we want to paint  
@@ -1564,10 +1569,14 @@ void uicore_generateDataString(uint16_t line_code) {
                       // else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
                       
                     }
-                                             
-                    sd_setSettingsChangedFlag();  
                     
+                    // check for validity
                     core_checkModes();
+                    // send the new mode to the clients i we have some;
+                    com_sendSystemMode(true);
+                    // set the "settings wer changed" flag                             
+                    sd_setSettingsChangedFlag();  
+                                        
                     
                     // show the long strings when in editing mode
                     if      (isBit(core_mode, MODE_TIMELAPSE)) strcpy(data_line, string_60_long);
@@ -1609,8 +1618,13 @@ void uicore_generateDataString(uint16_t line_code) {
                         else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES))  core_setup_style = SETUP_STYLE_RUN; 
                         
                       }
-                                               
-                      sd_setSettingsChangedFlag();  
+                      
+                      // check for validity
+                      core_checkModes();                         
+                      // send the new mode to the clients i we have some;
+                      com_sendSystemMode(true);
+                      // set the "settings wer changed" flag                             
+                      sd_setSettingsChangedFlag();
                     
                       // show the long strings when in editing mode
                       if      (isBit(core_setup_style, SETUP_STYLE_RUN))         strcpy(data_line, string_50_long);
@@ -1672,10 +1686,15 @@ void uicore_generateDataString(uint16_t line_code) {
                         else if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS))  core_move_style = MOVE_STYLE_SMS; 
                         
                       }
-                                               
+                      
+                      // check for validity
+                      core_checkModes();
+                      // send the new mode to the clients i we have some;
+                      com_sendSystemMode(true);
+                      // set the "settings wer changed" flag                             
                       sd_setSettingsChangedFlag();  
                       
-                      core_checkModes();
+                      
                       
                       // show the long strings when in editing mode
                       if      (isBit(core_move_style, MOVE_STYLE_SMS))          strcpy(data_line, string_30_long);
@@ -2098,13 +2117,13 @@ void uicore_generateDataString(uint16_t line_code) {
                    if ((menu_editing) &&
                        (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
                      
-                     uicore_changeValueUByte(&com_id, 1, 0, MOCOM_MAX_SLAVES - 1, true);
+                     uint8_t comId = com.getID();    
+                     uicore_changeValueUByte(&comId, 1, 0, MOCOM_MAX_SLAVES - 1, true);
                      
                      // set the new status
-                     com.setID(com_id);  
+                     com.setID(comId);  
                      // we are no longer a registered (known) slave device
                      com_deleteRegisteredSlaveFlag();
-                                          
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
                    }
@@ -2349,6 +2368,8 @@ void uicore_generateDataString(uint16_t line_code) {
                      
                      // update the set up vlaues
                      core_checkValues();
+                     // send the new values to the clients if we have some
+                     com_sendRunData();
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
@@ -2395,6 +2416,8 @@ void uicore_generateDataString(uint16_t line_code) {
                      
                      // update the set up vlaues
                      core_checkValues();
+                     // send the new values to the clients if we have some
+                     com_sendRunData();
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
@@ -2436,6 +2459,8 @@ void uicore_generateDataString(uint16_t line_code) {
                      
                      // update the set up vlaues
                      core_checkValues();
+                     // send the new values to the clients if we have some
+                     com_sendRunData();
                      
                      // set the flag that settings were changed
                      sd_setSettingsChangedFlag();
