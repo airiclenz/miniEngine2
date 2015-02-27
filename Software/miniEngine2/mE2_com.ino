@@ -118,6 +118,19 @@ void com_handleEvents() {
   // ---------------------
   
   
+  
+  // ---------------------
+  // actually start the engine
+  if ((command == MOCOM_COMMAND_SYNC) &&
+      (com.isMaster() == false)) {
+    
+    // set the sync received flag
+    com_setSyncFlag();
+    
+    return;
+  }
+  
+  
   // ---------------------
   // initialize the start of the engine
   if ((command == MOCOM_COMMAND_PREPARE) &&
@@ -125,17 +138,6 @@ void com_handleEvents() {
         
     if (core_isProgramRunningFlag()) core_stopProgram(false); 
     com_setPrepareFlag();
-    return;
-  }
-  
-  
-  // ---------------------
-  // actually start the engine
-  if ((command == MOCOM_COMMAND_START) &&
-      (com.isMaster() == false)) {
-    
-    // set the sync received flag
-    com_setSyncFlag();
     return;
   }
   
@@ -374,8 +376,6 @@ void com_sendRunData() {
   }
 
 }
-
-
 
 
 

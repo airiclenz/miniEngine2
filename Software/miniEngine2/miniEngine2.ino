@@ -446,25 +446,16 @@ void loop() {
       
         ////////////////////////////
         // did the next cycle start?    
-        if (
+         if (
              (system_phase == 0) &&
-             (
-               core_isNextCycle() ||
-               core_isStartImmediatelyFlag()
-             )
-           ) {
-             
+             core_isNextCycle()) {
+               
           // when did this cycle start?   
           system_cycle_start = millis();   
               
           // set the system status to the camera-phase
           system_phase = BIT_0;    
-              
-          // delete the start.immediately flag  
-          if (core_isStartImmediatelyFlag()) {
-            core_deleteStartImmediatelyFlag();  
-          }
-           
+          
           // trigger the camera  
           cam_start();
                       

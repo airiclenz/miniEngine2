@@ -65,10 +65,6 @@ boolean core_isProgramRunningFlag()             { return isBit(core_status, BIT_
 void    core_setProgramRunningFlag()            { setBit(core_status, BIT_0); }
 void    core_deleteProgramRunningFlag()         { deleteBit(core_status, BIT_0); }
 
-boolean core_isStartImmediatelyFlag()           { return isBit(core_status, BIT_1); }
-void    core_setStartImmediatelyFlag()          { setBit(core_status, BIT_1); }
-void    core_deleteStartImmediatelyFlag()       { deleteBit(core_status, BIT_1); }
-
 boolean core_isJogModeFlag()                    { return isBit(core_status, BIT_2); }
 void    core_setJogModeFlag()                   { setBit(core_status, BIT_2); }
 void    core_deleteJogModeFlag()                { deleteBit(core_status, BIT_2); }
@@ -182,10 +178,8 @@ bool core_startProgram() {
           
           // clear the key input event buffer
           input_clearKeyEvent();
-          
           // stop the program
           core_stopProgram(true);
-          
           // remove all possible meessages from the screen
           uicore_deleteMessageOnScreenFlag();
           // do a full repaint to have a fresh screen
@@ -254,37 +248,23 @@ bool core_startProgram() {
       // wait a little bit to allow everything to settle down after
       // the motors were avtivated
       core_delay(SYSTEM_START_DELAY);
-      // send the global sync signal to start everything everywhere :)
-      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_START);
+      // send the go signal
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
+      
     } 
     
     // if we are a registered slave device
     else if (com_isRegisteredSlaveFlag()) {
-      // send a done command and wait for acknowledge of the master
-      com_sendDoneWithAck();
       // print a message - waiting for master sync
       uicore_showMessage(233, 237, 238, 1);
-      
-      while(!com_isSyncFlag()) {
-        
-        // do teh communication to check for the sync signal
+      // send a done command and wait for acknowledge of the master
+      com_sendDoneWithAck();
+      // wait until the master send the go signal
+      while (!com_isSyncFlag()) {
         com.executeCommunication();  
-        
-        // check if the user wants to abort
-        if (input_isKeyEvent()) {
-          // remove the key event  
-          input_clearKeyEvent();
-          // stope everything on this device
-          core_stopProgram(false);
-          // leave
-          return false;  
-        }
       }
-      
-      // make sure we can start 
+      // delete the received sync flag
       com_deleteSyncFlag();
-      core_setStartImmediatelyFlag();
-      
     }
     
     // we are just a standalone device
@@ -292,6 +272,7 @@ bool core_startProgram() {
       // wait a little bit to allow everything to settle down after
       // the motors were avtivated
       core_delay(SYSTEM_START_DELAY);
+
     }
         
         
@@ -339,11 +320,10 @@ bool core_startProgram() {
       }
       
     }
-    
-    // set the start-immediately-flag
-    core_setStartImmediatelyFlag(); 
+        
     // remember the time when we started  
     core_program_start_time = millis();
+    // remember when the current cycle started
     system_cycle_start = millis();
     // start the timer...
     motor_startMoveTimer();
@@ -485,7 +465,6 @@ void core_checkSlavePrepareStatus() {
 
 
 
-
 // ============================================================================
 // next shot needed?
 // ============================================================================
@@ -509,9 +488,51 @@ void core_checkIfCycleWasToLong() {
 // ============================================================================
 boolean core_isNextCycle() {
   
-  // is the cycle over?
-  return (core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis();
+  // are we a master?
+  if (com.isMaster() &&
+      com.getSlaveCount() > 0) {
+        
+    // is the cycle over?
+    if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
+      // send the global sync signal to start everything everywhere :)
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
+      
+      // make sure we trigger exactly when the master is triggering the camera;
+      // this delay was measured with an oscilloscope and is caused by the different
+      // code that is execute on the master devices vs the slave devices
+      core_delay(4);
+      // wait another millisecond and a bit to make it perfect (+/-200 microseconds = 1/4000 sec)
+      delayMicroseconds(1);
+      
+      // yes, the cycle is over
+      return true;
+      
+    } 
+    // no, the cycle is not over
+    else return false;
     
+  }
+  // we are valid slave in a chain
+  else if (com_isRegisteredSlaveFlag()) {
+  
+    if (com_isSyncFlag()) {
+      com_deleteSyncFlag();
+      return true;
+    }
+    else {
+      return false;  
+    }
+    
+  }
+  // we are a standalone device
+  else {
+    if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
+      return true; 
+    } 
+    
+  }
+  
+  return false;
 }
 
 
@@ -650,7 +671,7 @@ void core_delay(unsigned int milliseconds) {
   unsigned long startTime = millis();
 
   while ((startTime + milliseconds) > millis()) {
-    input_process();       
+    input_process();  
   } 
     
 }

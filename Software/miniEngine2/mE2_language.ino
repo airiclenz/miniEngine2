@@ -167,7 +167,7 @@ const char* string_109_short = "Setup Style";
 const char* string_110_short = "Menu Font";
 const char* string_111_short = "Move Style";
 const char* string_112_short = "Reset all settings";
-const char* string_113_short = "Bouncing";
+const char* string_113_short = "Loop";
 
 const char* string_100_long  = "Power of the backlight.\nValues above 100% are above 5V and\nabove the specifications of the\ndisplay (Overdrive)!";
 const char* string_101_long  = "Time after which the backlight\nturns off.";
