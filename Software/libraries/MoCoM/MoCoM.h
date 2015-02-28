@@ -74,7 +74,7 @@
 
 
 #define MOCOM_COMMAND_PREPARE				10
-#define MOCOM_COMMAND_START					11
+#define MOCOM_COMMAND_SYNC					11
 #define MOCOM_COMMAND_STOP					12
 
 

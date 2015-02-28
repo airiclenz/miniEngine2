@@ -501,7 +501,7 @@ boolean core_isNextCycle() {
       // this delay was measured with an oscilloscope and is caused by the different
       // code that is execute on the master devices vs the slave devices
       core_delay(4);
-      // wait another millisecond and a bit to make it perfect (+/-200 microseconds = 1/4000 sec)
+      // wait another millisecond and a bit to make it perfect (+/-250 microseconds = 1/2000 sec)
       delayMicroseconds(1);
       
       // yes, the cycle is over
