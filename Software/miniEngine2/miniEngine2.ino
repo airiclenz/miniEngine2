@@ -73,12 +73,13 @@ char *ramend=(char *)0x20088000;
 
 
 // if you have an older version of the display, use
-//this line of code (if you get a white screen with
-//this one, change to the other display type):
+// this line of code (if you get a white screen with
+// this one, change to the other display type):
 #define DISPLAY_TYPE        ITDB24E_16    
 
-//if you have a newer version of the display, use this
-//line of code:
+// if you have a newer version of the display, use this
+// line of code (remove the "//" and add it to the above
+// definition):
 //#define DISPLAY_TYPE        TFT01_24_16
 
 
