@@ -145,7 +145,7 @@ void trigger_process() {
                             uicore_setRepaintFlag();
                           
                             // stop the program  
-                            core_stopProgram(true);
+                            core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
                             break;
                           } 
                         
@@ -172,7 +172,7 @@ void trigger_process() {
                             uicore_setRepaintFlag();
                           
                             // stop the program  
-                            core_stopProgram(true);
+                            core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
                             break;
                           } 
                         

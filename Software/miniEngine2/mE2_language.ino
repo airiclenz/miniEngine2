@@ -310,7 +310,7 @@ const char* string_234_long = "Updating the daisy chain info.";
 const char* string_235_long = "This might take some seconds...";
 const char* string_236_long = "Registered in the chain...";
 const char* string_237_long = "Waiting for master sync...";
-const char* string_238_long = "Abort with any key.";
+const char* string_238_long = "Continue with any key.";
 
 #endif 
 
@@ -579,7 +579,7 @@ const char* string_234_long = "Netzwerk wird analysiert.";
 const char* string_235_long = "Dies kann etwas dauern...";
 const char* string_236_long = "Im Netzwerk registriert...";
 const char* string_237_long = "Warte auf Startsignal...";
-const char* string_238_long = "Abbruch mit jeder Taste.";
+const char* string_238_long = "Weiter mit jeder Taste...";
 
 #endif
 

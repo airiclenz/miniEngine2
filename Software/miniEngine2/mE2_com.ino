@@ -31,12 +31,12 @@
 // the communication-status byte
 // B0 = sync signal received      
 // B1 = program stop flag         
-// B2 = manual override start     
-// B3 = prepare signal              
-// B4 = acknowledge received      
+// B2 = prepare signal
+// B3 = acknowledge received               
+// B4 =       
 // B5 = 
-// B6 = is registered Slave
-// B7 = settings were changed     
+// B6 = 
+// B7 = is registered Slave     
 byte com_status = 0;
 
 
@@ -61,21 +61,17 @@ boolean com_isStopFlag()                       { return isBit(com_status, BIT_1)
 void    com_setStopFlag()                      { setBit(com_status, BIT_1); }
 void    com_deleteStopFlag()                   { deleteBit(com_status, BIT_1); } 
 
-boolean com_isManualOverrideStartFlag()        { return isBit(com_status, BIT_2); }
-void    com_setManualOverrideStartFlag()       { setBit(com_status, BIT_2); }
-void    com_deleteManualOverrideStartFlag()    { deleteBit(com_status, BIT_2); }
+boolean com_isPrepareFlag()                    { return isBit(com_status, BIT_2); }
+void    com_setPrepareFlag()                   { setBit(com_status, BIT_2); }
+void    com_deletePrepareFlag()                { deleteBit(com_status, BIT_2); } 
 
-boolean com_isPrepareFlag()                      { return isBit(com_status, BIT_3); }
-void    com_setPrepareFlag()                     { setBit(com_status, BIT_3); }
-void    com_deletePrepareFlag()                  { deleteBit(com_status, BIT_3); } 
+boolean com_isAcknowledgeFlag()                { return isBit(com_status, BIT_3); }
+void    com_setAcknowledgeFlag()               { setBit(com_status, BIT_3); }
+void    com_deleteAcknowledgeFlag()            { deleteBit(com_status, BIT_3); } 
 
-boolean com_isAcknowledgeFlag()                { return isBit(com_status, BIT_4); }
-void    com_setAcknowledgeFlag()               { setBit(com_status, BIT_4); }
-void    com_deleteAcknowledgeFlag()            { deleteBit(com_status, BIT_4); } 
-
-boolean com_isRegisteredSlaveFlag()            { return isBit(com_status, BIT_6); }
-void    com_setRegisteredSlaveFlag()           { setBit(com_status, BIT_6); }
-void    com_deleteRegisteredSlaveFlag()        { deleteBit(com_status, BIT_6); } 
+boolean com_isRegisteredSlaveFlag()            { return isBit(com_status, BIT_7); }
+void    com_setRegisteredSlaveFlag()           { setBit(com_status, BIT_7); }
+void    com_deleteRegisteredSlaveFlag()        { deleteBit(com_status, BIT_7); } 
 
 
 

@@ -965,12 +965,13 @@ boolean uicore_handleKeyEvent(uint8_t key) {
         }
         
       } 
-      // if non of the above...
+      // if none of the above...
       else {
         
         // start / stop the program
         if (core_isProgramRunningFlag()) {
-          core_stopProgram(true);
+          // stop the program
+          core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
         } else {
           if (!core_startProgram()) {
             // the start did no succeed, leave this function

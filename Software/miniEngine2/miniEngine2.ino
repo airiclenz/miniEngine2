@@ -440,7 +440,10 @@ void loop() {
     
     //////////////////////////////////
     if (core_isProgramRunningFlag()) {
-            
+      
+      // did we just start? If yes remeber some times
+      core_checkIfStarted();
+      
       ////////////////////////////
       // T I M E L A P S E
       if (isBit(core_mode, MODE_TIMELAPSE)) {
@@ -546,7 +549,7 @@ void loop() {
       ////////////////////////////
       // V I D E O
       else if (isBit(core_mode, MODE_VIDEO)) {      
-      
+        
         // if the program time is over
         if (core_isProgramOver()) {
           
@@ -570,7 +573,7 @@ void loop() {
           } else {
             
             // stop the program
-            core_stopProgram(true);
+            core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
             
           }
           

@@ -34,7 +34,7 @@
 
 
 // B0 = program is running
-// B1 = start immediately
+// B1 = program just started
 // B2 = jog mode
 // B3 =  
 // B4 = 
@@ -64,6 +64,10 @@ uint8_t core_settings = B00000011;
 boolean core_isProgramRunningFlag()             { return isBit(core_status, BIT_0); }
 void    core_setProgramRunningFlag()            { setBit(core_status, BIT_0); }
 void    core_deleteProgramRunningFlag()         { deleteBit(core_status, BIT_0); }
+
+boolean core_isProgramStartedFlag()             { return isBit(core_status, BIT_1); }
+void    core_setProgramStartedFlag()            { setBit(core_status, BIT_1); }
+void    core_deleteProgramStartedFlag()         { deleteBit(core_status, BIT_1); }
 
 boolean core_isJogModeFlag()                    { return isBit(core_status, BIT_2); }
 void    core_setJogModeFlag()                   { setBit(core_status, BIT_2); }
@@ -104,7 +108,7 @@ void core_checkIfProgramDone() {
   if (cam_getShootCount() >= setup_frame_count) {
           
     // stop the program
-    core_stopProgram(true);
+    core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
           
     // reset the system phase flag and thus restart the cycle
     system_phase = 0;
@@ -112,6 +116,8 @@ void core_checkIfProgramDone() {
   }  
   
 }
+
+
 
 
 
@@ -164,7 +170,7 @@ bool core_startProgram() {
         !com_isRegisteredSlaveFlag()) {
       
       // print a "waiting for trigger" message and show it for
-      // at least on millisecond
+      // at least one millisecond
       uicore_showMessage(220, 221, 222, 1);
   
       // wait until the trigger signal comes
@@ -179,7 +185,7 @@ bool core_startProgram() {
           // clear the key input event buffer
           input_clearKeyEvent();
           // stop the program
-          core_stopProgram(true);
+          core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
           // remove all possible meessages from the screen
           uicore_deleteMessageOnScreenFlag();
           // do a full repaint to have a fresh screen
@@ -237,7 +243,7 @@ bool core_startProgram() {
     
     
     
-    // after the motor preparations are done, we need to tkae care
+    // after the motor preparations are done, we need to take care
     // of some additional daisy chaining stuff:    
     // if we are a master with registered slave devices
     if (com.isMaster() &&
@@ -259,12 +265,21 @@ bool core_startProgram() {
       uicore_showMessage(233, 237, 238, 1);
       // send a done command and wait for acknowledge of the master
       com_sendDoneWithAck();
-      // wait until the master send the go signal
-      while (!com_isSyncFlag()) {
+      
+      // wait until the master sends the go signal
+      // or until a key is pressed
+      while (
+             (!com_isSyncFlag()) &&
+             (!input_isKeyEvent())
+            )       
+      {
         com.executeCommunication();  
       }
+      
       // delete the received sync flag
       com_deleteSyncFlag();
+      // delete the key flag in case a key was pressed
+      input_clearKeyEvent();
     }
     
     // we are just a standalone device
@@ -301,9 +316,9 @@ bool core_startProgram() {
         if (!motor_checkCurvesMaxSpeedOk()) {
 
           // stop everything
-          core_stopProgram(true);
+          core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
           // do a full repaint to have a fresh screen
-          // and updated variabled for not painting
+          // and updated variables for not painting
           // the screen unneededly
           uicore_repaint(true);
           // remove the repaint flag
@@ -320,13 +335,11 @@ bool core_startProgram() {
       }
       
     }
-        
-    // remember the time when we started  
-    core_program_start_time = millis();
-    // remember when the current cycle started
-    system_cycle_start = millis();
-    // start the timer...
-    motor_startMoveTimer();
+    
+    
+    // set the flag indicating that we just started
+    core_setProgramStartedFlag();
+    
     
   } // end: program already running? 
   
@@ -334,6 +347,51 @@ bool core_startProgram() {
   
 }
 
+
+// ============================================================================
+// this function is actually starting the program. It saves the start time
+// and starts the motors
+// ============================================================================
+void core_checkIfStarted() {
+  
+  if (core_isProgramStartedFlag()) {
+  
+    // if we are a master send a 2nd start signal.
+    // this 2nd signal is needed because now the clients are
+    // checking the sync signal from the main loop and can react faster
+    if (com.isMaster() && (com.getSlaveCount() > 0)) {
+      // send the 2nd and final go signal
+      com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
+      // wait until the clients are done receiving
+      core_delay(30);
+   
+    } else if (com_isRegisteredSlaveFlag()) {
+      
+      // wait for the sync flag
+      while (
+               (!com_isSyncFlag()) &&
+               (!input_isKeyEvent())
+              )       
+        {
+          com.executeCommunication();  
+        }
+        
+        // delete the received sync flag
+        com_deleteSyncFlag();
+    }
+    
+    // remember the time when we started  
+    core_program_start_time = millis();
+    // remember when the current cycle started
+    system_cycle_start = millis();
+    // start the timer...
+    motor_startMoveTimer();  
+    // delete the started-flag
+    core_deleteProgramStartedFlag();
+    
+  }
+  
+}
 
 
 // ============================================================================
@@ -499,7 +557,7 @@ boolean core_isNextCycle() {
       
       // make sure we trigger exactly when the master is triggering the camera;
       // this delay was measured with an oscilloscope and is caused by the different
-      // code that is execute on the master devices vs the slave devices
+      // code that is execute on the master devices vs. the slave devices
       core_delay(4);
       // wait another millisecond and a bit to make it perfect (+/-250 microseconds = 1/2000 sec)
       delayMicroseconds(1);
@@ -526,10 +584,7 @@ boolean core_isNextCycle() {
   }
   // we are a standalone device
   else {
-    if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
-      return true; 
-    } 
-    
+    return (core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis();
   }
   
   return false;

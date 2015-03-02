@@ -156,7 +156,7 @@ void uplink_decode() {
       // Stop
       if (uplink_Buffer[0] == CMD_EngineStop) {
         Serial.println(uplink_ack);
-        core_stopProgram(true);
+        core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
         uplink_received_count = 0;
         return;
       }        

@@ -11,6 +11,7 @@ Software:
 	Video mode.
 -	Multiple Language support. You can now add your own 
 	language to the system. German is already included in this update.
+	This feature was indroduced by Sascha Henke.
 -	Added Camera Focus feature to allow a separate focus phase 
 	before the exposure phase.
 -	Fixed a bug that caused prevented correct saving of the 
