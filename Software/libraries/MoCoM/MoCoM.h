@@ -76,6 +76,7 @@
 #define MOCOM_COMMAND_PREPARE				10
 #define MOCOM_COMMAND_SYNC					11
 #define MOCOM_COMMAND_STOP					12
+#define MOCOM_COMMAND_PREVIEW				13
 
 
 #define MOCOM_COMMAND_CAMERA_SHOOT			20
@@ -105,10 +106,12 @@
 #define MOCOM_DATA_SETUPSTYLE				11
 #define MOCOM_DATA_MOVESTYLE				12
 
-
 #define MOCOM_DATA_RECORDTIME				20
 #define MOCOM_DATA_PLAYTIME					21
 #define MOCOM_DATA_PLAYFPS					22
+
+#define MOCOM_DATA_LOOP						30
+
 
 
 // callback function

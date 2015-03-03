@@ -4,11 +4,22 @@ getStepWidth	KEYWORD2
 getHighVelocity	KEYWORD2
 getLowVelocity	KEYWORD2
 
+isFlipped	KEYWORD2
+isKeyMode	KEYWORD2
+isKeyEvent	KEYWORD2
+isKeyUp	KEYWORD2
+isKeyDown	KEYWORD2
+
 setPosition	KEYWORD2
+setPositionMin	KEYWORD2
+setPositionMax	KEYWORD2
 setStepWidth	KEYWORD2
 setFlipped	KEYWORD2
-setStepDampZone		KEYWORD2
+setStepDampZone	KEYWORD2
+setKeyMode	KEYWORD2
 
 deleteStepDampZone	KEYWORD2
 process	KEYWORD2
+
+usePositionLimits	KEYWORD2
 

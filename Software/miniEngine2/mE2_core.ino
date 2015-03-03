@@ -47,8 +47,8 @@ uint8_t core_status;
 
 // B0 = move motor to home pos before program start
 // B1 = autosave settings
-// B2 = bouncing
-// B3 = bouncing move flag (is set if the move is backwards)
+// B2 = loop
+// B3 = looped-move flag (is set if the move is backwards)
 // B4 = 
 // B5 = 
 // B6 = 
@@ -78,15 +78,15 @@ void    core_setMoveToHomeBeforeStartFlag()     { setBit(core_settings, BIT_0); 
 void    core_deleteMoveToHomeBeforeStartFlag()  { deleteBit(core_settings, BIT_0); }
 void    core_toggleMoveToHomeBeforeStartFlag()  { toggleBit(core_settings, BIT_0); }
 
-boolean core_isBouncingFlag()                   { return isBit(core_settings, BIT_2); }
-void    core_setBouncingFlag()                  { setBit(core_settings, BIT_2); }
-void    core_deleteBouncingFlag()               { deleteBit(core_settings, BIT_2); }
-void    core_toggleBouncingFlag()               { toggleBit(core_settings, BIT_2); } 
+boolean core_isLoopFlag()                       { return isBit(core_settings, BIT_2); }
+void    core_setLoopFlag()                      { setBit(core_settings, BIT_2); }
+void    core_deleteLoopFlag()                   { deleteBit(core_settings, BIT_2); }
+void    core_toggleLoopFlag()                   { toggleBit(core_settings, BIT_2); } 
 
-boolean core_isBouncingMoveFlag()               { return isBit(core_settings, BIT_3); } 
-void    core_setBouncingMoveFlag()              { setBit(core_settings, BIT_3); }
-void    core_deleteBouncingMoveFlag()           { deleteBit(core_settings, BIT_3); }
-void    core_toggleBouncingMoveFlag()           { toggleBit(core_settings, BIT_3); } 
+boolean core_isLoopedMoveFlag()                 { return isBit(core_settings, BIT_3); } 
+void    core_setLoopedMoveFlag()                { setBit(core_settings, BIT_3); }
+void    core_deleteLoopedMoveFlag()             { deleteBit(core_settings, BIT_3); }
+void    core_toggleLoopedMoveFlag()             { toggleBit(core_settings, BIT_3); } 
 
 
 // ============================================================================
@@ -146,7 +146,7 @@ bool core_startProgram() {
     trigger_enableAllInterrupts();
     // remove the flag that indicated a 
     // return move in bouncing mode 
-    core_deleteBouncingMoveFlag();
+    core_deleteLoopedMoveFlag();
     
     // delete the start flag that might be set
     com_deletePrepareFlag();
@@ -360,6 +360,7 @@ void core_checkIfStarted() {
     // this 2nd signal is needed because now the clients are
     // checking the sync signal from the main loop and can react faster
     if (com.isMaster() && (com.getSlaveCount() > 0)) {
+      
       // send the 2nd and final go signal
       com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
       // wait until the clients are done receiving
@@ -409,7 +410,7 @@ void core_stopProgram(boolean all) {
  
   // remove the flag that indicated a 
   // return move in bouncing mode 
-  core_deleteBouncingMoveFlag();
+  core_deleteLoopedMoveFlag();
    
   // disable all motors on program Stop 
   motor_disableAll(); 
@@ -552,6 +553,7 @@ boolean core_isNextCycle() {
         
     // is the cycle over?
     if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
+      
       // send the global sync signal to start everything everywhere :)
       com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
       

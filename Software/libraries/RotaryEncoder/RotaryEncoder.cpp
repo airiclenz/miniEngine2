@@ -72,28 +72,28 @@ RotaryEncoder::RotaryEncoder(byte pinA, byte pinB) {
 	pinMode(_pinA, INPUT);
   	pinMode(_pinB, INPUT);
 	
-	_pinA					= pinA;
-	_pinB					= pinB;
+	_pinA							= pinA;
+	_pinB							= pinB;
 	
-	_rotary_step 			= 1;
-	_rotary_position		= 0;
-	_rotary_position_max	= 0; // 0 = no limit
-	_rotary_position_min	= 0; // 0 = no limit
-	 
+	_rotary_step 					= 1;
+	_rotary_position				= 0;
+	_rotary_position_max			= 0; 
+	_rotary_position_min			= 0; 
+	_rotary_use_position_limits 	= false;
 	
-	_state 					= 0;
-	_inter_state			= 0;
-	_inter_state_old		= 0;
+	_state 							= 0;
+	_inter_state					= 0;
+	_inter_state_old				= 0;
 			
-	_damp_bottom 			= 0;
-	_damp_top 				= 0;
-	_damp_factor 			= 1;
+	_damp_bottom 					= 0;
+	_damp_top 						= 0;
+	_damp_factor 					= 1;
 	
 	
-	_velocity				= 1;
+	_velocity						= 1;
 		
 	// set flipped, dampening and keymode to OFF
-	_rotary_status 			= 0;
+	_rotary_status 					= 0;
 
 }
 
@@ -139,7 +139,7 @@ boolean RotaryEncoder::process() {
 				_rotary_position -= step;
 				
 				// check limits
-				if ((_rotary_position_min != 0) && 
+				if ((_rotary_use_position_limits) && 
 					(_rotary_position < _rotary_position_min)) {
 						
 					_rotary_position = _rotary_position_min;
@@ -185,7 +185,7 @@ boolean RotaryEncoder::process() {
 				_rotary_position += step;
 				
 				// check limits
-				if ((_rotary_position_max != 0) && 
+				if ((_rotary_use_position_limits) && 
 					(_rotary_position > _rotary_position_max)) {
 						
 					_rotary_position = _rotary_position_max;
@@ -262,9 +262,8 @@ void RotaryEncoder::setPositionMax(int16_t value) {
 }
 
 // ============================================================================
-void RotaryEncoder::clearPositionLimits() {
-	_rotary_position_min = 0;  
-	_rotary_position_max = 0;  
+void RotaryEncoder::usePositionLimits(bool state) {
+	_rotary_use_position_limits = state;
 }
 
 
@@ -334,6 +333,11 @@ void RotaryEncoder::setStepDampZone(int bottom, int top, float factor) {
 
 }
 
+// ============================================================================
+void RotaryEncoder::clearPositionLimits() {
+	_rotary_position_min = 0;  
+	_rotary_position_max = 0;  
+}
 
 // ============================================================================
 // Enable the key-mode (UP & DOWN)

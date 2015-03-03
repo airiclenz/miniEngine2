@@ -1575,6 +1575,8 @@ void uicore_generateDataString(uint16_t line_code) {
                     core_checkModes();
                     // send the new mode to the clients i we have some;
                     com_sendSystemMode(true);
+                    // send the loop information to clients if needed
+                    com_sendLoopData();
                     // set the "settings wer changed" flag                             
                     sd_setSettingsChangedFlag();  
                                         
@@ -1716,19 +1718,21 @@ void uicore_generateDataString(uint16_t line_code) {
     }
     
     
-    // bouncing
+    // loop
     case 113 : {
                   if ((menu_editing) &&
                       (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
                      
                      // toggle the settings bit    
-                     core_toggleBouncingFlag();
-                         
+                     core_toggleLoopFlag();
+                     // send the loop information to clients if needed
+                     com_sendLoopData();
+                     // set settings were changed flag    
                      sd_setSettingsChangedFlag();    
                   }  
                                
                   
-                  if (core_isBouncingFlag()) {
+                  if (core_isLoopFlag()) {
                     strcpy(data_line, string_3_short); // enabled
                   } else {
                     strcpy(data_line, string_4_short); // disabled
@@ -2734,7 +2738,6 @@ boolean uicode_doAction(uint16_t line_code) {
                         
                       // deselecct the currently selected slave
                       com.deselectSlave();
-                    
                       // registering the slaves
                       com.registerSlaves();  
                       
@@ -2742,6 +2745,9 @@ boolean uicode_doAction(uint16_t line_code) {
                       com_sendSystemMode(true);
                       // send the run-data
                       com_sendRunData();
+                      // send the loop information
+                      com_sendLoopData();
+                                            
                       
                       // remove all possible meessages from the screen
                       uicore_deleteMessageOnScreenFlag();
@@ -2830,7 +2836,9 @@ void uicore_loadMenuStrings() {
             
             (ui_content_relations[i].menu_item == 108) ||    // Syste Mode
             (ui_content_relations[i].menu_item == 109) ||    // Setup Style
-            (ui_content_relations[i].menu_item == 111)       // Move Style
+            (ui_content_relations[i].menu_item == 111) ||    // Move Style
+            
+            (ui_content_relations[i].menu_item == 113)       // Loop
             
            ) {        
         

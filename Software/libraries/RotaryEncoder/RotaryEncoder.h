@@ -68,6 +68,7 @@ class RotaryEncoder {
 		
 		void 		disableStepDampZone(void);
 		
+		void		usePositionLimits(bool);
 		
 	///////////////////////////////////////////	
 	private:
@@ -82,7 +83,7 @@ class RotaryEncoder {
 		
 		volatile int16_t	_rotary_position_max;
 		volatile int16_t	_rotary_position_min;
-		
+		volatile bool		_rotary_use_position_limits;
 			
 		// B0 = flipped
 		// B1 = damp enbaled

@@ -139,6 +139,17 @@ void com_handleEvents() {
   
   
   // ---------------------
+  // initialize the PREVIEW
+  if ((command == MOCOM_COMMAND_PREVIEW) &&
+      (com.isMaster() == false)) {
+        
+    
+    com_setPrepareFlag();
+    return;
+  }
+  
+  
+  // ---------------------
   // camera shoot
   if ((command == MOCOM_COMMAND_CAMERA_SHOOT) &&
       (com.isMaster() == false)) {
@@ -315,6 +326,20 @@ void com_handleEvents() {
       }
       
       
+      // Loop
+      case MOCOM_DATA_LOOP :    {
+        
+                  // set the new move style
+                  boolean value = (boolean) com.getDataByte(1); 
+                  // set the actual variable
+                  if (value) core_setLoopFlag();
+                  else core_deleteLoopFlag();
+                  // set the flag that settings were changed
+                  sd_setSettingsChangedFlag(); 
+                  
+                  break;
+      }
+      
       
 
       
@@ -371,6 +396,19 @@ void com_sendRunData() {
     }
   }
 
+}
+
+
+// ===================================================================================
+void com_sendLoopData() {
+  
+  if (com.isMaster() &&
+      (com.getSlaveCount() > 0)
+     ){
+       
+    com_sendCommandData(MOCOM_DATA_LOOP, (byte) core_isLoopFlag(), true);
+  }
+  
 }
 
 

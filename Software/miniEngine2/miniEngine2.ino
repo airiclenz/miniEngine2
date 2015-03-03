@@ -554,21 +554,24 @@ void loop() {
         if (core_isProgramOver()) {
           
           // are we in bouncing mode?
-          if (core_isBouncingFlag()) {
+          if (core_isLoopFlag()) {
             
             // this markes if the following move is backwards or not
             // if this flag is set, the move will be inverted
-            core_toggleBouncingMoveFlag();
+            core_toggleLoopedMoveFlag();
             
             // invert all the curves
             motor_invertCurves();
             
-            // register the new start time
-            core_program_start_time = millis();
+            // if we are a master, wait a little bit to have all clients
+            // finalized their moves (crystals are not running 
+            // at 100% the same speed ;) 
+            if (com.isMaster() && (com.getSlaveCount() > 0)) core_delay(500);
             
             // start the new move
             motor_startContinuousMove();
-            
+            // set the flag indicating that we just started with a new move
+            core_setProgramStartedFlag();
             
           } else {
             

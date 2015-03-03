@@ -786,7 +786,7 @@ void motor_invertCurves() {
     float curveDuration = ((float)setup_record_time) / 1000.0;
     
     // are we moving backwards?
-    if (core_isBouncingMoveFlag()) {
+    if (core_isLoopedMoveFlag()) {
       
       // loop the curves of this motor in the oposite direction
       for (int mc=motor_used_curves_count[m] - 1; mc>=0; mc--) {
