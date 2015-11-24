@@ -552,7 +552,7 @@ boolean core_isNextCycle() {
       com.getSlaveCount() > 0) {
         
     // is the cycle over?
-    if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
+    if ((core_program_start_time + (setup_interval_length * (uint32_t) cam_getShootCount())) <= millis()) {
       
       // send the global sync signal to start everything everywhere :)
       com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
