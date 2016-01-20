@@ -186,7 +186,7 @@ boolean sd_initCard() {
         sd_deleteSDBat_OK();
       }
       
-    } else {
+    } else {
       
       // create a new battery calibration file
       if (sd_saveBatteryCalibration()) {

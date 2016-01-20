@@ -62,7 +62,7 @@ char *ramend=(char *)0x20088000;
 
 #define LANGUANGE_ENGLISH
 //#define LANGUANGE_GERMAN
-
+//#define LANGUANGE_ITALIAN
 
 
 ////////////////////////////////////////////////////////
