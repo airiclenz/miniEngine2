@@ -654,6 +654,13 @@ void sd_loadOldVersionSettings() {
           
       sd_loadVersion_2_0_6(buffer, address);        
     }
+
+    if ((sd_file_version       == 2) &&
+        (sd_file_subversion    == 0) &&
+        (sd_file_subsubversion == 7)) {
+          
+      sd_loadVersion_2_0_7(buffer, address);        
+    }
     
     
     // save the loaded battery calibration to the new separate battery file
@@ -662,6 +669,83 @@ void sd_loadOldVersionSettings() {
   }
   
 }
+
+
+// ============================================================================
+boolean sd_loadVersion_2_0_7(byte* buffer, uint16_t address) {
+    
+     
+  // backlight and UI layout    
+  uicore_setBacklightLevel(       sd_readByte  (buffer, address));            address += 1;
+  uicore_setBacklightTime(        sd_readULong (buffer, address));            address += 4;
+  uicore_setColorScheme(          sd_readByte  (buffer, address));            address += 1;
+  uicore_setFont(                 sd_readByte  (buffer, address));            address += 1;
+        
+  // core variables
+  core_mode =                     sd_readByte(buffer, address);               address += 1; 
+  core_setup_style =              sd_readByte(buffer, address);               address += 1; 
+  core_move_style =               sd_readByte(buffer, address);               address += 1; 
+  core_settings =                 sd_readByte(buffer, address);               address += 1; 
+  
+  
+  // camera data
+  boolean camType =               (boolean) sd_readByte(buffer, address);     address += 1;
+  if (camType) setBit(cam_status, BIT_7);
+  else         deleteBit(cam_status, BIT_7);    
+  
+  cam_fps =                       sd_readByte(buffer, address);               address += 1;
+  cam_exposure =                  (uint32_t) sd_readULong(buffer, address);   address += 4;
+  cam_exposure_index =            sd_readByte(buffer, address);               address += 1;
+  cam_focus =                     (uint32_t) sd_readULong(buffer, address);   address += 4;
+  cam_post_delay =                (uint32_t) sd_readULong(buffer, address);   address += 4; 
+  
+  
+  // setup data
+  setup_record_time =             (uint32_t) sd_readULong(buffer, address);   address += 4; 
+  setup_play_time =               (uint32_t) sd_readULong(buffer, address);   address += 4; 
+     
+      
+  // motor data
+  for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+    
+    motors[i].setType(            sd_readByte  (buffer, address));            address += 1;
+    motors[i].setCalibration(     sd_readFloat (buffer, address));            address += 4;
+    motors[i].setMaxSpeed(        sd_readFloat (buffer, address));            address += 4;
+    motor_ramp_time[i] =          sd_readFloat (buffer, address) ;            address += 4;
+    motors[i].setPostDelay(       sd_readULong (buffer, address));            address += 4;
+    motor_program_direction[i] =  (boolean) sd_readByte(buffer, address);     address += 1;
+    
+    motor_total_distance[i] =     sd_readFloat (buffer, address);             address += 4;
+    motor_sleep[i] =              (boolean) sd_readByte(buffer, address);     address += 1; 
+    motors[i].setDirectionFlipped((boolean) sd_readByte(buffer, address));    address += 1; 
+    motors[i].setKeepPowered(     (boolean) sd_readByte(buffer, address));    address += 1;       
+    motor_check_speed[i] =        (boolean) sd_readByte(buffer, address);     address += 1;
+    
+          
+    // a lille bit of motor specific run-setup-data
+    setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
+    setup_run_ramp_out[i] =       sd_readByte(buffer, address);               address += 1; 
+    
+  }
+  
+  
+  // trigger data
+  for (int i=0; i<trigger_getTriggercount(); i++) {
+    
+    boolean enabled =             (boolean) sd_readByte(buffer, address);     address += 1;
+    byte action =                 sd_readByte(buffer, address);               address += 1;
+    byte type =                   sd_readByte(buffer, address);               address += 1;
+    boolean debounce =            (boolean) sd_readByte(buffer, address);     address += 1;
+    
+    trigger_setTriggerType(i, type);
+    trigger_setTriggerAction(i, action);
+    trigger_setDebounce(i, debounce);
+    trigger_setEnabled(i, enabled);
+    
+  }
+
+}
+
 
 
 // ============================================================================

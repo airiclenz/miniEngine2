@@ -174,6 +174,8 @@ const char* string_110_short = "Menu Font";
 const char* string_111_short = "Move Style";
 const char* string_112_short = "Reset all settings";
 const char* string_113_short = "Loop";
+const char* string_114_short = "Endless Shoot";
+
 
 const char* string_100_long  = "Power of the backlight.\nValues above 100% are above 5V and\nabove the specifications of the\ndisplay (Overdrive)!";
 const char* string_101_long  = "Time after which the backlight\nturns off.";
@@ -186,10 +188,12 @@ const char* string_110_long  = "The used font on the display.";
 const char* string_111_long  = "How should the motors move?";
 const char* string_112_long  = "This will reset all settings\nto the default values.\nPress the Rotary button to Reset.\nPress [Start] to abort.";
 const char* string_113_long  = "This feature will restart the move\nin the reverse direction after it is\ndone. This is only used in Video mode\nand will continue until you stop\nthe move.";
-const char* string_114_long  = "Reset";
-const char* string_115_long  = "The configuration was deleted.";
-const char* string_116_long  = "Please turn the miniEngine OFF";
-const char* string_117_long  = "and then ON again.";
+const char* string_114_long  = "This option lets the camera\ncontinue shooting after the program\nis done until stopped by the user.";
+
+const char* string_115_long  = "Reset";
+const char* string_116_long  = "The configuration was deleted.";
+const char* string_117_long  = "Please turn the miniEngine OFF";
+const char* string_118_long  = "and then ON again.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA
@@ -442,6 +446,7 @@ const char* string_110_short = "Schriftart";
 const char* string_111_short = "Bewegart";
 const char* string_112_short = "Zuruecksetzen";
 const char* string_113_short = "Wiederholen";
+const char* string_114_short = "Endlose Aufnahme";
 
 const char* string_100_long  = "Helligkeit des Hintergrundlichts.\nEinstellungen ueber 100% sind ueber\n5V und ueber den Spezifikationen des\nDisplays!";
 const char* string_101_long  = "Zeit nach der das Hintergrundlicht\naus geht.";
@@ -454,11 +459,12 @@ const char* string_110_long  = "Die Schriftart, die benutzt werden\nsoll.";
 const char* string_111_long  = "Wie sollen die Motoren sich bewegen?";
 const char* string_112_long  = "Dies setzt alle Einstellungen zurueck\nauf die Standardeinstellungen.\nDruecke den Drehknopf zum bestaetigen.\nDruecke [Start] zum abbrechen.";
 const char* string_113_long  = "Dies sorgt dafuer, dass die\nminiEngine den Lauf immer wieder\nwiederholt. Dies wird fortgesetzt,\nbis du abbrichst.";
+const char* string_114_long  = "Diese Option laesst die Kamera\nnach Programmende weiter aufnehmen\nbis der Nutzer abbricht.";
 
-const char* string_114_long  = "Reset";
-const char* string_115_long  = "Die Einstellungen wurden geloescht.";
-const char* string_116_long  = "Bitte schalte die miniEngine";
-const char* string_117_long  = "aus, und dann wieder ein.";
+const char* string_115_long  = "Reset";
+const char* string_116_long  = "Die Einstellungen wurden geloescht.";
+const char* string_117_long  = "Bitte schalte die miniEngine";
+const char* string_118_long  = "aus, und dann wieder ein.";
 
 
 ////////////////////////////////////////////////////////
@@ -710,22 +716,25 @@ const char* string_110_short = "Font Menu";
 const char* string_111_short = "Stile Mov.";
 const char* string_112_short = "Reset Impostazioni";
 const char* string_113_short = "Ciclo";
+const char* string_114_short = "Endless shoot";
 
 const char* string_100_long  = "Livello retroilluminazione.\nValori sopra al 100% sono sopra ai 5V\ne sopra alle specifiche costruttore\ndello schermo (Sovralimentazione)!";
 const char* string_101_long  = "Tempo dopo il quale lo schermo si\ndisattiva.";
 const char* string_102_long  = "Lo schema colori dello schermo. Usa\nquesto per migliorare la leggibilita'\ndello schermo.";
-const char* string_103_long  = "Inverti la risposta di direzione \ndella manopola.";
+const char* string_103_long  = "Inverti la risposta di direzione\ndella manopola.";
 const char* string_107_long  = "Muovi i motori al punto di partenza\nprima che il programma parta.\nQuesto interessa tutte\nle modalita' non-keyframe.";
 const char* string_108_long  = "Il modo in cui i motori muovono.";
 const char* string_109_long  = "Il modo in cui sono definiti i movimen\nti.'Keyframes' necessita di una\nconnessione ad un computer!";
 const char* string_110_long  = "Il font in uso sul display.";
 const char* string_111_long  = "Come si deve muovere?";
 const char* string_112_long  = "Questo reimposta tutte le impostazio\nni sui valori di default.\nPremi il rotore per confermare.\nPremi il tasto [Start] per annullare.";
-const char* string_113_long  = "Questa impostazione e' solo per la \nmodalita' video e serve a ripetere \nciclicamente il movimento in direzione\n contraria fino allo stop manuale";
-const char* string_114_long  = "Reset";
-const char* string_115_long  = "La configurazione e' stata eliminata.";
-const char* string_116_long  = "Spegni il miniengine";
-const char* string_117_long  = "e riaccendilo un altra volta.";
+const char* string_113_long  = "Questa impostazione e' solo per la\nmodalita' video e serve a ripetere\nciclicamente il movimento in direzione\n contraria fino allo stop manuale";
+const char* string_114_long  = "This option lets the camera\ncontinue shooting after the program\nis done until stopped by the user.";
+
+const char* string_115_long  = "Reset";
+const char* string_116_long  = "La configurazione e' stata eliminata.";
+const char* string_117_long  = "Spegni il miniengine";
+const char* string_118_long  = "e riaccendilo un altra volta.";
 
 ////////////////////////////////////////////////////////
 // SETTINGS CAMERA

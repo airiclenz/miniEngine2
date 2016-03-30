@@ -111,6 +111,7 @@
 #define MOCOM_DATA_PLAYFPS					22
 
 #define MOCOM_DATA_LOOP						30
+#define MOCOM_DATA_ENDLESSSHOOT				31
 
 
 

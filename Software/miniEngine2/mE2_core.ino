@@ -49,7 +49,7 @@ uint8_t core_status;
 // B1 = autosave settings
 // B2 = loop
 // B3 = looped-move flag (is set if the move is backwards)
-// B4 = 
+// B4 = continue to shoot after done
 // B5 = 
 // B6 = 
 // B7 = 
@@ -88,6 +88,12 @@ void    core_setLoopedMoveFlag()                { setBit(core_settings, BIT_3); 
 void    core_deleteLoopedMoveFlag()             { deleteBit(core_settings, BIT_3); }
 void    core_toggleLoopedMoveFlag()             { toggleBit(core_settings, BIT_3); } 
 
+boolean core_isEndlessShootFlag()              { return isBit(core_settings, BIT_4); } 
+void    core_setEndlessShootFlag()             { setBit(core_settings, BIT_4); }
+void    core_deleteEndlessShootFlag()          { deleteBit(core_settings, BIT_4); }
+void    core_toggleEndlessShootFlag()          { toggleBit(core_settings, BIT_4); } 
+
+
 
 // ============================================================================
 // initialize the core parts of the software
@@ -98,25 +104,6 @@ void core_init() {
   core_status = 0;
     
 }
-
-
-
-// ============================================================================
-void core_checkIfProgramDone() {
-  
-  // did we reach the program end?
-  if (cam_getShootCount() >= setup_frame_count) {
-          
-    // stop the program
-    core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
-          
-    // reset the system phase flag and thus restart the cycle
-    system_phase = 0;
-    
-  }  
-  
-}
-
 
 
 
@@ -593,11 +580,34 @@ boolean core_isNextCycle() {
 }
 
 
+
+
+// ============================================================================
+void core_checkIfTimelapseDone() {
+
+  // are we supposed to do an endless shoot?
+  // is yes, just leave and do nothing...
+  if (core_isEndlessShootFlag()) return;
+  
+  // did we reach the program end?
+  else if (cam_getShootCount() >= setup_frame_count) {
+          
+    // stop the program
+    core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
+          
+    // reset the system phase flag and thus restart the cycle
+    system_phase = 0;
+    
+  }  
+  
+}
+
+
 // ============================================================================
 // next shot needed?
 // ============================================================================
-boolean core_isProgramOver() {
-  
+boolean core_checkIfVideoDone() {
+
   return (core_program_start_time + (setup_record_time * motor_getTimeFactor())) <= millis();
     
 }
@@ -740,7 +750,7 @@ void core_deleteSettings() {
   // remove the old settings file
   sd_deleteSettings(); 
   // show the reset message
-  uicore_showMessage(114, 115, 117, 1000);  
+  uicore_showMessage(115, 116, 118, 1000);  
 
   // wait forever until the user removed the power
   while(1){};  

@@ -339,6 +339,21 @@ void com_handleEvents() {
                   
                   break;
       }
+
+
+      // Endless Shoot
+      case MOCOM_DATA_ENDLESSSHOOT :    {
+        
+                  // set the new move style
+                  boolean value = (boolean) com.getDataByte(1); 
+                  // set the actual variable
+                  if (value) core_setEndlessShootFlag();
+                  else core_deleteEndlessShootFlag();
+                  // set the flag that settings were changed
+                  sd_setSettingsChangedFlag(); 
+                  
+                  break;
+      }
       
       
 
@@ -412,6 +427,20 @@ void com_sendLoopData() {
 }
 
 
+// ===================================================================================
+void com_sendEndlessShootData()
+{
+  
+  if (com.isMaster() &&
+      (com.getSlaveCount() > 0)
+     ){
+       
+    com_sendCommandData(MOCOM_DATA_ENDLESSSHOOT, (byte) core_isEndlessShootFlag(), true);
+  }
+  
+
+  
+}
 
 // ===================================================================================
 // this function sends a code plus a data-byte to the curretly selected,

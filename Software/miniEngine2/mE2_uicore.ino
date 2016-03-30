@@ -320,7 +320,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 72;
+const uint8_t uicore_content_relation_count = 73;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -333,7 +333,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   {  31,  23 },
   
     
-  { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 113 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
+  { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 113 }, { 100, 114 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
   { 101, 120 }, { 101, 121 }, { 101, 124 }, { 101, 122 }, 
   { 102, 140 }, { 102, 150 }, { 102, 154 }, { 102, 141 }, { 102, 142 }, { 102, 143 }, { 102, 144 }, { 102, 145 }, { 102, 161 }, { 102, 146 }, { 102, 151 }, { 102, 155 }, /* { 102, 147 }, */   
     
@@ -687,6 +687,8 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 111: strcpy(lines[target_line], string_111_short);     return;  
     case 112: strcpy(lines[target_line], string_112_short);     return;  
     case 113: strcpy(lines[target_line], string_113_short);     return;  
+    case 114: strcpy(lines[target_line], string_114_short);     return;  
+    //case 115: strcpy(lines[target_line], string_115_short);     return;  
     
     
     ///////////////////////////////////////////////////////////////////
@@ -812,6 +814,7 @@ void uicore_getLongString(uint16_t buf_number) {
     case 115: strcpy(data_line, string_115_long);     return;
     case 116: strcpy(data_line, string_116_long);     return;
     case 117: strcpy(data_line, string_117_long);     return;
+    case 118: strcpy(data_line, string_118_long);     return;
     
     
     ///////////////////////////////////////////////////////////////////
@@ -1733,6 +1736,30 @@ void uicore_generateDataString(uint16_t line_code) {
                                
                   
                   if (core_isLoopFlag()) {
+                    strcpy(data_line, string_3_short); // enabled
+                  } else {
+                    strcpy(data_line, string_4_short); // disabled
+                  }
+                      
+                  break;
+    }
+
+
+    // endless shoot
+    case 114 : {
+                  if ((menu_editing) &&
+                      (isBit(key, KEY_UP) || isBit(key, KEY_DOWN))) {
+                     
+                     // toggle the settings bit    
+                     core_toggleEndlessShootFlag();
+                     // send the loop information to clients if needed
+                     com_sendEndlessShootData();
+                     // set settings were changed flag    
+                     sd_setSettingsChangedFlag();    
+                  }  
+                               
+                  
+                  if (core_isEndlessShootFlag()) {
                     strcpy(data_line, string_3_short); // enabled
                   } else {
                     strcpy(data_line, string_4_short); // disabled
@@ -2815,6 +2842,14 @@ void uicore_loadMenuStrings() {
       // is not video mode and on setting bouncing?
       if (core_mode != MODE_VIDEO &&
           ui_content_relations[i].menu_item == 113) {
+        
+        disable_line = true;   
+      }   
+
+
+      // is video mode and on setting endless shoot?
+      if (core_mode == MODE_VIDEO &&
+          ui_content_relations[i].menu_item == 114) {
         
         disable_line = true;   
       }   

@@ -92,9 +92,9 @@ char *ramend=(char *)0x20088000;
 
 #define VERSION                      2
 #define SUBVERSION                   0  
-#define SUBSUBVERSION                7
+#define SUBSUBVERSION                8
 
-const char* STR_VER                  = "PRE";
+const char* STR_VER                  = "release";
 
 
 ////////////////////////////////////////////////////////
@@ -474,7 +474,7 @@ void loop() {
           if (!cam_isCameraWorking()) {
             
             // check if the program is done
-            core_checkIfProgramDone();
+            core_checkIfTimelapseDone();
             
             // if we are in a curve-based-move mode, just go back to
             // the cycle start
@@ -545,13 +545,14 @@ void loop() {
                     
       } // end: Timelapse mode            
              
+
              
       ////////////////////////////
       // V I D E O
       else if (isBit(core_mode, MODE_VIDEO)) {      
         
         // if the program time is over
-        if (core_isProgramOver()) {
+        if (core_checkIfVideoDone()) {
           
           // are we in bouncing mode?
           if (core_isLoopFlag()) {
