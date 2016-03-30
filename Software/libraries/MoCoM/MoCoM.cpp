@@ -1,6 +1,6 @@
 /*
 
- 	Motion-Control-Communication library by Airic Lenz 2013
+ 	Motion-Control-Communication library by Airic Lenz 2016
   
 	Licensed under the GNU GPL Version 3.
   

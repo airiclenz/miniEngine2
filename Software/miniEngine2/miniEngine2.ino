@@ -1,7 +1,7 @@
 /*
 
     Author: Airic Lenz, C.A. Church
-    Year of release: 2015
+    Year of release: 2016
     
     See www.airiclenz.com for more information
 
