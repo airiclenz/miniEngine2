@@ -285,6 +285,7 @@ const char* string_204_short = "Playb Time";
 const char* string_205_short = "Playb FPS";
 const char* string_206_short = "Ramp In";
 const char* string_207_short = "Ramp Out";
+const char* string_208_short = "Move Delay";
 
 const char* string_200_long = "The total move-distance of this motor\nduring the recording.\nPress [Menu] to change the granularity.";
 const char* string_201_long = "The motor direction.";
@@ -292,8 +293,9 @@ const char* string_202_long = "The camera exposure time. This can\nbe 1/10 for j
 const char* string_203_long = "The total record-duration.";
 const char* string_204_long = "Length of the final clip you want.";
 const char* string_205_long = "Frames Per Second of your final clip.\nThis influences how many photos will\nbe made.";
-const char* string_206_long = "Percent of record-time to ramp into\nthe move.";
-const char* string_207_long = "Percent of record-time to ramp out\nof the move.";
+const char* string_206_long = "Percent of move-time to ramp into\nthe move.";
+const char* string_207_long = "Percent of move-time to ramp out\nof the move.";
+const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
 
 
 
@@ -556,6 +558,7 @@ const char* string_204_short = "Wiedergb";
 const char* string_205_short = "Abspiel-FPS";
 const char* string_206_short = "Beschleunigung";
 const char* string_207_short = "Abbremsung";
+const char* string_208_short = "Motor Delay";
 
 const char* string_200_long = "Die Gesamtstrecke des Motors\nwaehrend der Aufnahme.\nDruecke [Menue]\num die Granularitaet zu aendern.";
 const char* string_201_long = "Die Richtung der Motordrehung";
@@ -563,9 +566,9 @@ const char* string_202_long = "Die Belichtungszeit. Diese kann\nz.B. 1/10 sek zu
 const char* string_203_long = "Die Gesamtaufnahmezeit.";
 const char* string_204_long = "Die Laenge des Clips der\nerstellt werden soll.";
 const char* string_205_long = "Bilder pro Sekunde vom finalen Clip.\nDies beeinflusst wieviele Fotos\ninsgesamt gemacht werden.";
-const char* string_206_long = "Prozent der Aufnahmezeit\nfuer die Beschleunigungsphase.";
-const char* string_207_long = "Prozent der Aufnahmezeit\nfuer die Abbremsphase.";
-
+const char* string_206_long = "Prozent der Motorzeit\nfuer die Beschleunigungsphase.";
+const char* string_207_long = "Prozent der Motorzeit\nfuer die Abbremsphase.";
+const char* string_208_long = "Prozent of Aufnahmezeit\nals Verzoegerung befor der Motor\nstartet.";
 
 
 ////////////////////////////////////////////////////////
@@ -826,6 +829,7 @@ const char* string_204_short = "Dur. Video";
 const char* string_205_short = "Fps Video";
 const char* string_206_short = "Introduzione";
 const char* string_207_short = "Conclusione";
+const char* string_208_short = "Motor Delay";
 
 const char* string_200_long = "La distanza totale percorsa durante\nle riprese. Premi [Menu] per cambiare\nla risoluzione.";
 const char* string_201_long = "La direzione del motore.";
@@ -835,7 +839,7 @@ const char* string_204_long = "Lunghezza del video finale desiderato.";
 const char* string_205_long = "Frame al secondo del video finale.\nQuesto influenza il numero delle foto\nche verranno scattate.";
 const char* string_206_long = "Percentuale del tempo di registrazione\nper l'introduzione del movimento";
 const char* string_207_long = "Percentuale del tempo di registrazione\nper la conclusione del movimento";
-
+const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
 
 
 ////////////////////////////////////////////////////////

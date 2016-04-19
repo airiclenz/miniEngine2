@@ -320,15 +320,15 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 73;
+const uint8_t uicore_content_relation_count = 83;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
     
-  {  10, 202 }, {  10, 203 }, {  10, 204 }, {  10, 205 }, {  10, 140 }, {  10, 200 }, {  10, 201 }, {  10, 206 }, {  10, 207 }, 
-  {  11, 202 }, {  11, 204 }, {  11, 205 },
-  {  20, 202 }, {  20, 203 }, {  20, 204 }, {  20, 205 }, {  20, 140 }, {  20, 200 }, {  20, 201 }, {  20, 206 }, {  20, 207 },
-  {  21, 202 }, {  21, 204 }, {  21, 205 },
+  {  10, 202 }, {  10, 203 }, {  10, 204 }, {  10, 205 }, {  10, 140 }, {  10, 200 }, {  10, 201 }, {  10, 206 }, {  10, 207 }, {  10, 208 }, 
+  {  11, 202 }, {  11, 204 }, {  11, 205 }, {  11, 140 }, {  11, 206 }, {  11, 207 }, {  11, 208 }, 
+  {  20, 202 }, {  20, 203 }, {  20, 204 }, {  20, 205 }, {  20, 140 }, {  20, 200 }, {  20, 201 }, {  20, 206 }, {  20, 207 }, {  20, 208 }, 
+  {  21, 202 }, {  21, 204 }, {  21, 205 }, {  21, 140 }, {  21, 206 }, {  21, 207 }, {  21, 208 }, 
   {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
   {  31,  23 },
   
@@ -757,6 +757,7 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 205: strcpy(lines[target_line], string_205_short);     return;  
     case 206: strcpy(lines[target_line], string_206_short);     return;  
     case 207: strcpy(lines[target_line], string_207_short);     return;  
+    case 208: strcpy(lines[target_line], string_208_short);     return;  
     
   }
   
@@ -864,6 +865,7 @@ void uicore_getLongString(uint16_t buf_number) {
     case 205: strcpy(data_line, string_205_long);     return;  
     case 206: strcpy(data_line, string_206_long);     return;  
     case 207: strcpy(data_line, string_207_long);     return;  
+    case 208: strcpy(data_line, string_208_long);     return;  
     
     
     ///////////////////////////////////////////////////////////////////
@@ -2533,6 +2535,23 @@ void uicore_generateDataString(uint16_t line_code) {
                    }
                    
                    itoa(setup_run_ramp_out[motor_selected], data_line, 10);
+                   strcat(data_line, STR_PERCENT); // %
+                  
+                   break; 
+    }
+
+
+    // motor delay
+    case 208 :   {
+                   if (menu_editing) {
+                     
+                     uicore_changeValueUByte(&setup_run_move_delay[motor_selected], 1, 0, 99, false);
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                   
+                   itoa(setup_run_move_delay[motor_selected], data_line, 10);
                    strcat(data_line, STR_PERCENT); // %
                   
                    break; 

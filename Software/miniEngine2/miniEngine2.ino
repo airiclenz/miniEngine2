@@ -53,6 +53,9 @@ char *ramstart=(char *)0x20070000;
 char *ramend=(char *)0x20088000;
 
 
+//#define   prn   Serial.print
+//#define   prnl  Serial.println
+
 
 ////////////////////////////////////////////////////////
 //                                                    //
@@ -306,9 +309,9 @@ uint32_t system_cycle_start;
 bool system_cycle_too_long = false;
 
 
-uint8_t   setup_run_ramp_out[DEF_MOTOR_COUNT]  = { 0  , 0   };
-uint8_t   setup_run_ramp_in[DEF_MOTOR_COUNT]   = { 0  , 0   };
-
+uint8_t   setup_run_ramp_out[DEF_MOTOR_COUNT]     = { 0  , 0   };
+uint8_t   setup_run_ramp_in[DEF_MOTOR_COUNT]      = { 0  , 0   };
+uint8_t   setup_run_move_delay[DEF_MOTOR_COUNT]   = { 0  , 0   };
 
 
 uint8_t   cam_fps               = 25;

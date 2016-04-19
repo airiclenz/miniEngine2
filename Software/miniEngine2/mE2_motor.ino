@@ -413,7 +413,7 @@ void motor_checkIfCurveExists() {
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
       
     // if not, then assign one curve because even the simplest
-    // moves require one curve 
+    // moves requires one curve 
     if (motor_used_curves_count[i] < 1) {
       motor_assignNewCurve(i);
     }
@@ -995,22 +995,28 @@ void motor_makeKeyframes() {
   
   QuadBezierCurve curve;
   float curveDuration;
+  float delayTime;
   float newPos;
   
   uint8_t curveIndex;
-  
+
   
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+
         
     // remove all existing curves for this motor
     motor_freeAllCurves(i);
-    
-    // assign a new curve for this motor
-    int res = motor_assignNewCurve(i);
-            
+                
     // the duration of the curve to be defined.
     curveDuration = ((float)setup_record_time) / 1000.0;
+
+    // the delay before the motors start
+    delayTime = curveDuration * ((float) setup_run_move_delay[i] / 100.0);
+
+    // remove the delay
+    curveDuration = curveDuration - delayTime;
+
     
     // the position to where the motor needs to go
     // (our start point is the motor ref-point - not home! - because we
@@ -1020,58 +1026,48 @@ void motor_makeKeyframes() {
     } else {
       newPos = motor_reference_pos[i] + motor_total_distance[i];
     }
+
+
        
-    
+    // add a empty curve if the move delay is greater then 0%
+    if (setup_run_move_delay[i] > 0)
+    {
+      // assign a new curve for this motor
+      curveIndex = motor_assignNewCurve(i);
+      
+      curve.p0 = Point(0,         motor_reference_pos[i]);
+      curve.p1 = Point(0,         motor_reference_pos[i]);
+      curve.p2 = Point(delayTime, motor_reference_pos[i]);
+      curve.p3 = Point(delayTime, motor_reference_pos[i]);
+
+      // get the min and max values of the curves
+      curve.updateDimension();
+
+      // convert the just defined Bezier curve into linear segments
+      // and store it in the global curve array
+      mCurves[curveIndex].curveDefinition = curve;
+      mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
+
+      // init the motor move 
+      mCurves[curveIndex].curve.initMove(); 
+
+    }
+      
     
     // define a curve (linear when no ramping was defined)
     // the points p1 and p2 are the helper points of the Bezier which define
     // the smoothness and thus the ramping of the curve
-    curve.p0 = Point(0,                                                                motor_reference_pos[i]);
-    curve.p1 = Point(curveDuration * ((float)        setup_run_ramp_in[i]   / 100.0),  motor_reference_pos[i]);
-    curve.p2 = Point(curveDuration * ((float) (100 - setup_run_ramp_out[i]) / 100.0),  newPos);
-    curve.p3 = Point(curveDuration,                                                    newPos);
+    curve.p0 = Point(delayTime,                                                                     motor_reference_pos[i]);
+    curve.p1 = Point(delayTime + (curveDuration * ((float)        setup_run_ramp_in[i]   / 100.0)), motor_reference_pos[i]);
+    curve.p2 = Point(delayTime + (curveDuration * ((float) (100 - setup_run_ramp_out[i]) / 100.0)), newPos);
+    curve.p3 = Point(delayTime +  curveDuration,                                                    newPos);
     
     
     // get the min and max values of the curves
     curve.updateDimension();
-        
-    // get the index of the first used curve in the global
-    // curve array
-    curveIndex = motor_used_curves[i][0];
-    
-    /*
-    Serial.println();
-    Serial.print("making keyframe (m:");
-    Serial.print(i, DEC);
-    Serial.print(", ci:");
-    Serial.print(curveIndex);
-    Serial.println(")");
-      
-    Serial.print("Point 1: x");
-    Serial.print(curve.p0.x);
-    Serial.print(" y");
-    Serial.println(curve.p0.y);
-      
-    Serial.print("Point 2: x");
-    Serial.print(curve.p1.x);
-    Serial.print(" y");
-    Serial.println(curve.p1.y);
-    
-    Serial.print("Point 3: x");
-    Serial.print(curve.p2.x);
-    Serial.print(" y");
-    Serial.println(curve.p2.y);
-    
-    Serial.print("Point 4: x");
-    Serial.print(curve.p3.x);
-    Serial.print(" y");
-    Serial.println(curve.p3.y);
-    Serial.println();
-    
-    
-    Serial.print("saved in curve index:");
-    Serial.println(curveIndex);
-    */
+
+    // assign a new curve for this motor
+    curveIndex = motor_assignNewCurve(i);
     
     // convert the just defined Bezier curve into linear segments
     // and store it in the global curve array

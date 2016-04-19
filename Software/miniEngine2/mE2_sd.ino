@@ -404,6 +404,7 @@ boolean sd_saveConfig() {
       // a lille bit of motor specific run-setup-data
       sd_writeData((uint8_t)  setup_run_ramp_in[i]);            // the ramp-in-amount in percent for run setup
       sd_writeData((uint8_t)  setup_run_ramp_out[i]);           // the ramp-out-amount in percent for run setup
+      sd_writeData((uint8_t)  setup_run_move_delay[i]);         // the motor delay before the move starts
       
     }
     
@@ -565,6 +566,7 @@ boolean sd_loadConfig() {
       // a lille bit of motor specific run-setup-data
       setup_run_ramp_in[i] =        sd_readByte(buffer, address);               address += 1; 
       setup_run_ramp_out[i] =       sd_readByte(buffer, address);               address += 1; 
+      setup_run_move_delay[i] =     sd_readByte(buffer, address);               address += 1; 
       
     }
     
