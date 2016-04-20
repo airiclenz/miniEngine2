@@ -143,8 +143,13 @@ boolean motor_check_speed[DEF_MOTOR_COUNT];
 // When running a timer is called 20000 times per second.
 
 
-DueTimer timer_move(0);  // --> All curve based motor moves
-DueTimer timer_jog(1);   // --> Jogging
+
+#define timer_move    Timer0
+#define timer_jog     Timer1
+
+
+//DueTimer timer_move(0);  // --> All curve based motor moves
+//DueTimer timer_jog(1);   // --> Jogging
 
 
 
