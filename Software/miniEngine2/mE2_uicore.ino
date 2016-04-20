@@ -1056,7 +1056,7 @@ boolean uicore_handleKeyEvent(uint8_t key) {
     if (isBit(uicore_status, BIT_7)) {
       
       // do what we need to do for the selected menu point
-      uicode_doAction(line_codes[popup_menu_pos]);
+      uicore_doAction(line_codes[popup_menu_pos]);
       
       // close the popup menu
       uicore_endPopupMenu();
@@ -1073,7 +1073,7 @@ boolean uicore_handleKeyEvent(uint8_t key) {
         // check if the menu point we are standing on
         // is an action menu point (this also executed
         // the action if it is an action)
-        if (!uicode_doAction(line_codes[menu_pos])) {
+        if (!uicore_doAction(line_codes[menu_pos])) {
           
           // a special case: reset the settings
           if ((line_codes[menu_pos] == 112) &&
@@ -2566,7 +2566,7 @@ void uicore_generateDataString(uint16_t line_code) {
 
 
 // ===================================================================================
-boolean uicode_doAction(uint16_t line_code) {
+boolean uicore_doAction(uint16_t line_code) {
   
   // go through all options and create the data string
   switch (line_code) {
