@@ -2,8 +2,20 @@
 
 
 /////////////////////////////////////////////////////
+version:	2.0.8
+date:		2016-04-20
+
+Software:
+
+-	Added a feature to allow the camera to continue shooting
+	even after the program run has ended until the user aborts.
+-	Added a feature to delay the start of the motors after the
+	program was started.
+
+
+/////////////////////////////////////////////////////
 version:	2.0 alpha 7
-date:		2015-XX-XX
+date:		2015-07-29
 
 Software:
 
