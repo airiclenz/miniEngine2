@@ -115,7 +115,6 @@ bool core_startProgram() {
   
   // if the program is not yet running
   if (!core_isProgramRunningFlag()) {
-  
     
     //////////////////////////////////////////////
     // P R O G R A M   I N I T I A L I Z A T I O N 
@@ -134,14 +133,13 @@ bool core_startProgram() {
     // remove the flag that indicated a 
     // return move in bouncing mode 
     core_deleteLoopedMoveFlag();
-    
     // delete the start flag that might be set
     com_deletePrepareFlag();
     // delete the com stop flag that might be set
     com_deleteStopFlag();
     // delete the com sync flag that might be set
     com_deleteSyncFlag();
-    
+
     
     //////////////////////////////////////////////
     // S T A R T   T R I G G E R S
@@ -190,7 +188,7 @@ bool core_startProgram() {
       uicore_setBacklight(true);
             
     }
-    
+   
     
     //////////////////////////////////////////////
     // S L A V E   P R E P A R A T I O N
@@ -208,7 +206,7 @@ bool core_startProgram() {
       // finished their preparations
       com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_PREPARE);             
     }
-    
+
     
     //////////////////////////////////////////////
     // M O T O R   P R E P A R A T I O N
@@ -225,9 +223,15 @@ bool core_startProgram() {
     core_checkMoveHomeBeforeStart();
     // store the current motor pos as start reference
     motor_storeMotorReferencePositions();
+
+prn("recordtime4.5: ");
+prnl(setup_record_time, DEC);
+    
     // define / check the moves we need to do
     motor_checkKeyframes();    
-    
+
+prn("recordtime5: ");
+prnl(setup_record_time, DEC);
     
     
     // after the motor preparations are done, we need to take care
@@ -245,6 +249,7 @@ bool core_startProgram() {
       com.sendCommand(MOCOM_BROADCAST, MOCOM_COMMAND_SYNC);  
       
     } 
+
     
     // if we are a registered slave device
     else if (com_isRegisteredSlaveFlag()) {
@@ -276,7 +281,7 @@ bool core_startProgram() {
       core_delay(SYSTEM_START_DELAY);
 
     }
-        
+    
         
     //////////////////////////////////////////////
     // R E P A I N T
@@ -691,11 +696,16 @@ boolean core_checkMoveHomeBeforeStart() {
 // checks the system modes for any invalid configurations
 // ============================================================================
 void core_checkModes() {
-  
+
+  // if we are in video mode
   if (isBit(core_mode, MODE_VIDEO)) {
     
     if (isBit(core_move_style, MOVE_STYLE_SMS)) {
       core_move_style = MOVE_STYLE_CONTINUOUS;
+    }  
+
+    if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
+      core_move_style = SETUP_STYLE_RUN;
     }  
     
   }

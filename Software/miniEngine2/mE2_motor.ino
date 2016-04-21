@@ -26,7 +26,7 @@
 
 
 #define MOVE_MODE_NONE          0           // this motor is not supposed to move
-#define MOVE_MODE_TO_POS	BIT_1       // this motors is using the temp curves for individual moved
+#define MOVE_MODE_TO_POS	      BIT_1       // this motors is using the temp curves for individual moved
 #define MOVE_MODE_CURVE         BIT_2       // this motor is doing long moves with multiple curves
 
 
@@ -923,7 +923,7 @@ void motor_checkKeyframes() {
 
   if (isBit(core_mode, MODE_TIMELAPSE) ||
       isBit(core_mode, MODE_VIDEO)) {
-    
+
     ///////////////////////////////////
     // Setup Style   R U N
     if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
@@ -935,53 +935,77 @@ void motor_checkKeyframes() {
     ///////////////////////////////////
     // Setup Style   K E Y F R A M E S
     else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
-    
-      // the variable for our max duration
-      uint32_t duration = 0;
-      
-      // check which motor needs the most time for its curves;
-      // loop all motors fir this:
+
+      motor_makeKeyframes();
+
+      /*
+      bool noCurves = true;
+      // do some curves exist?
       for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-        
-        int curveIndex;
-        
-        // loop all curves
-        for (int c=0; c<motor_used_curves_count[i]; c++) {
-        
-          // and initialize them for the comming move
-          curveIndex = motor_used_curves[i][c];
-          mCurves[curveIndex].curve.initMove();
-        
-        } // end: loop all curves
-        
-        
-        // if this motor has curves:
-        if (motor_used_curves_count[i] > 0) {
-          
-          // get the index of the last curve of the current motor  
-          curveIndex = motor_used_curves[i][motor_used_curves_count[i] - 1];
-          
-          // is this curve running longer than your current duration?
-          if (mCurves[curveIndex].curve.getEndX() > duration) {
-            
-            // set the new max value
-            duration = mCurves[curveIndex].curve.getEndX();
-            
-          } // end: new max value
-        
-        } // end: motor has curves
-        
-      } // end: loop all motors
       
-      // set the program duration to our new value
-      setup_record_time = duration * 1000;
+        // if not, then assign one curve because even the simplest
+        // moves requires one curve 
+        if (motor_used_curves_count[i] > 0) {
+          noCurves = false;    
+        }
+      }
+
+      if (noCurves)
+      {
+        motor_makeKeyframes();
+      }
+      else
+      {
+      
+        // the variable for our max duration
+        uint32_t duration = 0;
+        
+        // check which motor needs the most time for its curves;
+        // loop all motors for this:
+        for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+          
+          int curveIndex;
+          
+          // loop all curves
+          for (int c=0; c<motor_used_curves_count[i]; c++) {
+          
+            // and initialize them for the comming move
+            curveIndex = motor_used_curves[i][c];
+            mCurves[curveIndex].curve.initMove();
+          
+          } // end: loop all curves
+          
+          
+          // if this motor has curves:
+          if (motor_used_curves_count[i] > 0) {
             
-      // recalculate core values if needed
-      core_checkValues();
+            // get the index of the last curve of the current motor  
+            curveIndex = motor_used_curves[i][motor_used_curves_count[i] - 1];
             
+            // is this curve running longer than your current duration?
+            if (mCurves[curveIndex].curve.getEndX() > duration) {
+              
+              // set the new max value
+              duration = mCurves[curveIndex].curve.getEndX();
+              
+            } // end: new max value
+          
+          } // end: motor has curves
+          
+        } // end: loop all motors
+        
+        // set the program duration to our new value
+        setup_record_time = duration * 1000;
+              
+        // recalculate core values if needed
+        core_checkValues();
+      
+      } // end: no Curves     
+      
+      */
             
     } // end: setup style keyframes
-       
+           
   } 
 
 }

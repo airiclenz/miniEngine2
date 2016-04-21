@@ -53,8 +53,8 @@ char *ramstart=(char *)0x20070000;
 char *ramend=(char *)0x20088000;
 
 
-//#define   prn   Serial.print
-//#define   prnl  Serial.println
+#define   prn   Serial.print
+#define   prnl  Serial.println
 
 
 ////////////////////////////////////////////////////////
@@ -330,6 +330,11 @@ uint32_t  setup_interval_length = setup_record_time / (setup_frame_count - 1);
 float     motor_total_distance[DEF_MOTOR_COUNT]= { 0.0, 0.0 };
 
 uint32_t  core_program_start_time;
+
+// panorma variables
+uint8_t   panorama_pics_m1      = 20;
+uint8_t   panorama_pics_m2      = 10;
+
 
 
 ////////////////////////////////////////////////////////

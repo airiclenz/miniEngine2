@@ -382,8 +382,7 @@ boolean sd_saveConfig() {
     // setup data
     sd_writeData((uint32_t)   setup_record_time);               // the duration of the record period
     sd_writeData((uint32_t)   setup_play_time);                 // the length of the final clip 
-          
-            
+        
     // motor data
     for (int i=0; i<DEF_MOTOR_COUNT; i++) {
       
@@ -421,7 +420,12 @@ boolean sd_saveConfig() {
     
     // daisy chaining data
     sd_writeData((uint8_t)    com.getID());                     // the device ID in the daisy chain
-    
+
+
+    // panorama stuff
+    sd_writeData((byte)       panorama_pics_m1);                // The amount of pictures on the axis of motor 1
+    sd_writeData((byte)       panorama_pics_m2);                // The amount of pictures on the axis of motor 2
+
     
     sd_file.close();
     
@@ -589,6 +593,12 @@ boolean sd_loadConfig() {
     // daisy chaining data
     uint8_t comId =                  sd_readByte(buffer, address);              address += 1;
     com.setID(comId);
+
+
+    // panorama stuff
+    panorama_pics_m1 =               sd_readByte(buffer, address);              address += 1;
+    panorama_pics_m2 =               sd_readByte(buffer, address);              address += 1;
+
     
     return true;
   }

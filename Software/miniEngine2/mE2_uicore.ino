@@ -320,17 +320,18 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 83;
+const uint8_t uicore_content_relation_count = 86;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
     
   {  10, 202 }, {  10, 203 }, {  10, 204 }, {  10, 205 }, {  10, 140 }, {  10, 200 }, {  10, 201 }, {  10, 206 }, {  10, 207 }, {  10, 208 }, 
-  {  11, 202 }, {  11, 204 }, {  11, 205 }, {  11, 140 }, {  11, 206 }, {  11, 207 }, {  11, 208 }, 
+  {  11, 202 }, {  11, 203 }, {  11, 204 }, {  11, 205 }, {  11, 140 }, {  11, 206 }, {  11, 207 }, {  11, 208 }, 
   {  20, 202 }, {  20, 203 }, {  20, 204 }, {  20, 205 }, {  20, 140 }, {  20, 200 }, {  20, 201 }, {  20, 206 }, {  20, 207 }, {  20, 208 }, 
-  {  21, 202 }, {  21, 204 }, {  21, 205 }, {  21, 140 }, {  21, 206 }, {  21, 207 }, {  21, 208 }, 
+  {  21, 202 }, {  21, 203 }, {  21, 204 }, {  21, 205 }, {  21, 140 }, {  21, 206 }, {  21, 207 }, {  21, 208 }, 
   {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
   {  31,  23 },
+  {  40, 210 }, {  40, 211 },
   
     
   { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 113 }, { 100, 114 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
@@ -759,6 +760,12 @@ void uicore_getShortString(uint16_t buf_number, uint8_t target_line) {
     case 207: strcpy(lines[target_line], string_207_short);     return;  
     case 208: strcpy(lines[target_line], string_208_short);     return;  
     
+    ///////////////////////////////////////////////////////////////////
+    // PANORAMA
+    
+    case 210: strcpy(lines[target_line], string_210_short);     return;  
+    case 211: strcpy(lines[target_line], string_211_short);     return;  
+    
   }
   
   // no valid result - fill in nothing
@@ -867,6 +874,12 @@ void uicore_getLongString(uint16_t buf_number) {
     case 207: strcpy(data_line, string_207_long);     return;  
     case 208: strcpy(data_line, string_208_long);     return;  
     
+    ///////////////////////////////////////////////////////////////////
+    // PANORAMA
+    
+    case 210: strcpy(data_line, string_210_long);     return;  
+    case 211: strcpy(data_line, string_211_long);     return;  
+
     
     ///////////////////////////////////////////////////////////////////
     // MESSAGES
@@ -1561,18 +1574,32 @@ void uicore_generateDataString(uint16_t line_code) {
                   if (menu_editing) {
                     
                     if (isBit(key, KEY_UP)) {
-                      
-                     if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
-                     else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_TIMELAPSE; 
-                     // else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
-                                                                  
+
+                      /*
+                      if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
+                      else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_TIMELAPSE; 
+                      //*/
+
+                      //*  
+                      if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
+                      else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_PANORAMA; 
+                      else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE;
+                      //*/  
+                                                                    
                     }
                    
                     if (isBit(key, KEY_DOWN)) {
-                      
+
+                      /*
                       if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
                       else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_TIMELAPSE; 
-                      // else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
+                      //*/
+
+                      //*  
+                      if      (isBit(core_mode, MODE_TIMELAPSE))   core_mode = MODE_VIDEO; 
+                      else if (isBit(core_mode, MODE_VIDEO))       core_mode = MODE_PANORAMA; 
+                      else if (isBit(core_mode, MODE_PANORAMA))    core_mode = MODE_TIMELAPSE; 
+                      //*/  
                       
                     }
                     
@@ -1590,19 +1617,19 @@ void uicore_generateDataString(uint16_t line_code) {
                     if      (isBit(core_mode, MODE_TIMELAPSE)) strcpy(data_line, string_60_long);
                     else if (isBit(core_mode, MODE_VIDEO))     strcpy(data_line, string_61_long);
                     else if (isBit(core_mode, MODE_PANORAMA))  strcpy(data_line, string_62_long);
-                    
-                  } else {
-                   
+                  
+                 } else {
+                 
                    // show the short strings when in editing mode 
                    if      (isBit(core_mode, MODE_TIMELAPSE)) strcpy(data_line, string_60_short);
                    else if (isBit(core_mode, MODE_VIDEO))     strcpy(data_line, string_61_short);
                    else if (isBit(core_mode, MODE_PANORAMA))  strcpy(data_line, string_62_short); 
-                     
-                  }
-                  
-                  
-                  
-                  break;
+                   
+                 }
+                
+                
+                
+                 break;
             
     }
     
@@ -2557,6 +2584,42 @@ void uicore_generateDataString(uint16_t line_code) {
                    break; 
     }
     
+
+    // panorama pictures motor 1
+    case 210 :   {
+                   if (menu_editing) {
+                     
+                     uicore_changeValueUByte(&panorama_pics_m1, 1, 1, 255, false);
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                   
+                   itoa(panorama_pics_m1, data_line, 10);
+                   //strcat(data_line, STR_PERCENT); // %
+                  
+                   break; 
+    }  
+
+
+    // panorama pictures motor 2
+    case 211 :   {
+                   if (menu_editing) {
+                     
+                     uicore_changeValueUByte(&panorama_pics_m2, 1, 1, 255, false);
+                     
+                     // set the flag that settings were changed
+                     sd_setSettingsChangedFlag();
+                   }
+                   
+                   itoa(panorama_pics_m2, data_line, 10);
+                   //strcat(data_line, STR_PERCENT); // %
+                  
+                   break; 
+    }  
+    
+
+
     
     
            
@@ -2850,29 +2913,32 @@ void uicore_loadMenuStrings() {
       if (ui_content_relations[i].menu_item == 23) {
         disable_line = true;   
       }
+
       
-      // in VIDEO MODE and on move style item?
-      if (core_mode == MODE_VIDEO &&
-          ui_content_relations[i].menu_item == 111) {
-        
-        disable_line = true;   
-      }   
             
-      // is not video mode and on setting bouncing?
-      if (core_mode != MODE_VIDEO &&
-          ui_content_relations[i].menu_item == 113) {
+      // is video mode?
+      if (core_mode == MODE_VIDEO &&
+          (
+            (ui_content_relations[i].menu_item == 109) ||     // Setup Style
+            (ui_content_relations[i].menu_item == 111)        // Move Style
+          )) {
         
         disable_line = true;   
       }   
+
 
 
       // is video mode and on setting endless shoot?
-      if (core_mode == MODE_VIDEO &&
-          ui_content_relations[i].menu_item == 114) {
-        
+      if (core_mode == MODE_PANORAMA &&
+          (
+           (ui_content_relations[i].menu_item == 109) ||      // Setup Style
+           (ui_content_relations[i].menu_item == 111) ||      // Move Style
+           (ui_content_relations[i].menu_item == 113)         // Loop 
+          )) {
+            
         disable_line = true;   
       }   
-      
+
       
       // if we are a slave device
       if (!com.isMaster() &&
@@ -2888,7 +2954,7 @@ void uicore_loadMenuStrings() {
             (ui_content_relations[i].menu_item == 204) ||    // Playback time
             (ui_content_relations[i].menu_item == 205) ||    // Playback FPS
             
-            (ui_content_relations[i].menu_item == 108) ||    // Syste Mode
+            (ui_content_relations[i].menu_item == 108) ||    // System Mode
             (ui_content_relations[i].menu_item == 109) ||    // Setup Style
             (ui_content_relations[i].menu_item == 111) ||    // Move Style
             
@@ -3015,7 +3081,7 @@ byte uicore_checkScreenPos() {
   
   
   ///////////////////////////////
-  // VIDEO
+  // PANORAMA
   else if (isBit(core_mode, MODE_PANORAMA)) {
     
     return 40;

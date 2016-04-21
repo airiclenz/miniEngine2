@@ -297,7 +297,14 @@ const char* string_206_long = "Percent of move-time to ramp into\nthe move.";
 const char* string_207_long = "Percent of move-time to ramp out\nof the move.";
 const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
 
+////////////////////////////////////////////////////////
+// panorama
 
+const char* string_210_short = "# Pics Mot.1";
+const char* string_211_short = "# Pics Mot.2";
+
+const char* string_210_long = "The amount of pictures on the axis\nof motor 1.";
+const char* string_211_long = "The amount of pictures on the axis\nof motor 2.";
 
 ////////////////////////////////////////////////////////
 // messages
