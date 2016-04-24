@@ -320,7 +320,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 86;
+const uint8_t uicore_content_relation_count = 91;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -329,8 +329,8 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   {  11, 202 }, {  11, 203 }, {  11, 204 }, {  11, 205 }, {  11, 140 }, {  11, 206 }, {  11, 207 }, {  11, 208 }, 
   {  20, 202 }, {  20, 203 }, {  20, 204 }, {  20, 205 }, {  20, 140 }, {  20, 200 }, {  20, 201 }, {  20, 206 }, {  20, 207 }, {  20, 208 }, 
   {  21, 202 }, {  21, 203 }, {  21, 204 }, {  21, 205 }, {  21, 140 }, {  21, 206 }, {  21, 207 }, {  21, 208 }, 
-  {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 },
-  {  31,  23 },
+  {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 }, {  30, 208 }, 
+  {  31, 203 }, {  31, 140 }, {  31, 206 }, {  31, 207 }, {  31, 208 }, 
   {  40, 210 }, {  40, 211 },
   
     
@@ -1605,6 +1605,8 @@ void uicore_generateDataString(uint16_t line_code) {
                     
                     // check for validity
                     core_checkModes();
+                    // check and / or recalculate values
+                    core_checkValues();
                     // send the new mode to the clients i we have some;
                     com_sendSystemMode(true);
                     // send the loop information to clients if needed
@@ -1655,7 +1657,9 @@ void uicore_generateDataString(uint16_t line_code) {
                       }
                       
                       // check for validity
-                      core_checkModes();                         
+                      core_checkModes();  
+                      // check and / or recalculate values
+                      core_checkValues();                       
                       // send the new mode to the clients i we have some;
                       com_sendSystemMode(true);
                       // set the "settings wer changed" flag                             
@@ -2756,6 +2760,13 @@ boolean uicore_doAction(uint16_t line_code) {
                      // now set the motor position to zero for the current motor
                      // because this is our new start point
                      motors[i].setMotorPosition(0);
+
+
+                     prn("motor ");
+                     prnl(i, DEC); 
+
+                     prn("new distance: ");
+                     prnl(motor_total_distance[i], DEC);
                      
                    }
                    
@@ -2778,6 +2789,14 @@ boolean uicore_doAction(uint16_t line_code) {
                        motor_program_direction[i] = false; 
                        motor_total_distance[i] = dist;  
                      }
+
+
+                     prn("motor ");
+                     prnl(i, DEC); 
+
+                     prn("new distance: ");
+                     prnl(motor_total_distance[i], DEC);
+
                      
                    }
                    return true; 
@@ -2919,8 +2938,9 @@ void uicore_loadMenuStrings() {
       // is video mode?
       if (core_mode == MODE_VIDEO &&
           (
-            (ui_content_relations[i].menu_item == 109) ||     // Setup Style
-            (ui_content_relations[i].menu_item == 111)        // Move Style
+          //(ui_content_relations[i].menu_item == 109) ||     // Setup Style
+            (ui_content_relations[i].menu_item == 111) ||     // Move Style
+            (ui_content_relations[i].menu_item == 114)        // Endless Shoot
           )) {
         
         disable_line = true;   

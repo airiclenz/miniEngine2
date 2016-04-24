@@ -52,7 +52,6 @@ extern "C" char *sbrk(int i);
 char *ramstart=(char *)0x20070000;
 char *ramend=(char *)0x20088000;
 
-
 #define   prn   Serial.print
 #define   prnl  Serial.println
 
@@ -209,9 +208,10 @@ extern uint8_t Arial[];
 #define  MODE_PANORAMA           B00000100    
 
 // setup styles
-#define  SETUP_STYLE_COUNT       2
+#define  SETUP_STYLE_COUNT       3
 #define  SETUP_STYLE_RUN         B00000001
 #define  SETUP_STYLE_KEYFRAMES   B00000010
+#define  SETUP_STYLE_REMOTE      B00000100
 
 // move styles
 #define  MOVE_STYLE_COUNT        2

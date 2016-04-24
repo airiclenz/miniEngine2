@@ -650,31 +650,7 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
       }
       
       
-      /*
-      if (mNum == 0) {
-        
-        Serial.print("Point 1: x");
-        Serial.print(curve.p0.x, DEC);
-        Serial.print(" y");
-        Serial.println(curve.p0.y, DEC);
-        
-        Serial.print("Point 2: x");
-        Serial.print(curve.p1.x, DEC);
-        Serial.print(" y");
-        Serial.println(curve.p1.y, DEC);
-        
-        Serial.print("Point 3: x");
-        Serial.print(curve.p2.x, DEC);
-        Serial.print(" y");
-        Serial.println(curve.p2.y, DEC);
-        
-        Serial.print("Point 4: x");
-        Serial.print(curve.p3.x, DEC);
-        Serial.print(" y");
-        Serial.println(curve.p3.y, DEC);
-        
-      }
-      */     
+
         
       // get the min and max values of the curves
       curve.updateDimension();
@@ -796,15 +772,7 @@ void motor_invertCurves() {
         // get the index of the curve we are handling
         curveIndex = motor_used_curves[m][mc];
         
-        /*
-        Serial.println();
-        Serial.print("m:");
-        Serial.print(m, DEC);
-        Serial.print(", mc:");
-        Serial.print(mc, DEC);
-        Serial.print(", ci:");
-        Serial.println(curveIndex);
-        */
+
         
         QuadBezierCurve curve;
                 
@@ -814,27 +782,7 @@ void motor_invertCurves() {
         curve.p2 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p1.x, mCurves[curveIndex].curveDefinition.p1.y);
         curve.p3 = Point(curveDuration - mCurves[curveIndex].curveDefinition.p0.x, mCurves[curveIndex].curveDefinition.p0.y);
         
-        /*
-        Serial.print("Point 1: x");
-        Serial.print(curve.p0.x);
-        Serial.print(" y");
-        Serial.println(curve.p0.y);
-        
-        Serial.print("Point 2: x");
-        Serial.print(curve.p1.x);
-        Serial.print(" y");
-        Serial.println(curve.p1.y);
-        
-        Serial.print("Point 3: x");
-        Serial.print(curve.p2.x);
-        Serial.print(" y");
-        Serial.println(curve.p2.y);
-        
-        Serial.print("Point 4: x");
-        Serial.print(curve.p3.x);
-        Serial.print(" y");
-        Serial.println(curve.p3.y);
-        */       
+ 
                 
         // get the min and max values of the curves
         curve.updateDimension();
@@ -846,10 +794,7 @@ void motor_invertCurves() {
         
         curveIndex = motor_used_curves[m][motor_used_curves_count[m] - 1 - mc];
         
-        /*
-        Serial.print("saved in curve index=");
-        Serial.println(curveIndex);
-        */
+   
         
         mCurves[curveIndex].curve.segmentateCurveOptimized(curve);
         
@@ -938,7 +883,13 @@ void motor_checkKeyframes() {
 
       motor_makeKeyframes();
 
-      /*
+    }
+
+    ///////////////////////////////////
+    // Setup Style   R E M O T E
+    else if (isBit(core_setup_style, SETUP_STYLE_REMOTE)) {
+
+          
       bool noCurves = true;
       // do some curves exist?
       for (int i=0; i<DEF_MOTOR_COUNT; i++) {
@@ -950,47 +901,40 @@ void motor_checkKeyframes() {
         }
       }
 
-      if (noCurves)
-      {
-        motor_makeKeyframes();
-      }
-      else
-      {
       
-        // the variable for our max duration
-        uint32_t duration = 0;
+      // the variable for our max duration
+      uint32_t duration = 0;
+      
+      // check which motor needs the most time for its curves;
+      // loop all motors for this:
+      for (int i=0; i<DEF_MOTOR_COUNT; i++) {
         
-        // check which motor needs the most time for its curves;
-        // loop all motors for this:
-        for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+        int curveIndex;
+        
+        // loop all curves
+        for (int c=0; c<motor_used_curves_count[i]; c++) {
+        
+          // and initialize them for the comming move
+          curveIndex = motor_used_curves[i][c];
+          mCurves[curveIndex].curve.initMove();
+        
+        } // end: loop all curves
+        
+        
+        // if this motor has curves:
+        if (motor_used_curves_count[i] > 0) {
           
-          int curveIndex;
+          // get the index of the last curve of the current motor  
+          curveIndex = motor_used_curves[i][motor_used_curves_count[i] - 1];
           
-          // loop all curves
-          for (int c=0; c<motor_used_curves_count[i]; c++) {
-          
-            // and initialize them for the comming move
-            curveIndex = motor_used_curves[i][c];
-            mCurves[curveIndex].curve.initMove();
-          
-          } // end: loop all curves
-          
-          
-          // if this motor has curves:
-          if (motor_used_curves_count[i] > 0) {
+          // is this curve running longer than your current duration?
+          if (mCurves[curveIndex].curve.getEndX() > duration) {
             
-            // get the index of the last curve of the current motor  
-            curveIndex = motor_used_curves[i][motor_used_curves_count[i] - 1];
+            // set the new max value
+            duration = mCurves[curveIndex].curve.getEndX();
             
-            // is this curve running longer than your current duration?
-            if (mCurves[curveIndex].curve.getEndX() > duration) {
-              
-              // set the new max value
-              duration = mCurves[curveIndex].curve.getEndX();
-              
-            } // end: new max value
-          
-          } // end: motor has curves
+          } // end: new max value
+                
           
         } // end: loop all motors
         
@@ -1001,8 +945,6 @@ void motor_checkKeyframes() {
         core_checkValues();
       
       } // end: no Curves     
-      
-      */
             
     } // end: setup style keyframes
            
@@ -1021,7 +963,7 @@ void motor_makeKeyframes() {
   
   QuadBezierCurve curve;
   float curveDuration;
-  float delayTime;
+  float delayTime = 0;
   float newPos;
   
   uint8_t curveIndex;
@@ -1042,6 +984,7 @@ void motor_makeKeyframes() {
 
     // remove the delay
     curveDuration = curveDuration - delayTime;
+    
 
     
     // the position to where the motor needs to go
@@ -1066,6 +1009,9 @@ void motor_makeKeyframes() {
       curve.p2 = Point(delayTime, motor_reference_pos[i]);
       curve.p3 = Point(delayTime, motor_reference_pos[i]);
 
+prn("using delay time of ");
+prnl(delayTime);
+
       // get the min and max values of the curves
       curve.updateDimension();
 
@@ -1087,7 +1033,9 @@ void motor_makeKeyframes() {
     curve.p1 = Point(delayTime + (curveDuration * ((float)        setup_run_ramp_in[i]   / 100.0)), motor_reference_pos[i]);
     curve.p2 = Point(delayTime + (curveDuration * ((float) (100 - setup_run_ramp_out[i]) / 100.0)), newPos);
     curve.p3 = Point(delayTime +  curveDuration,                                                    newPos);
-    
+
+prn("main curve duration ");
+prnl(curveDuration);
     
     // get the min and max values of the curves
     curve.updateDimension();

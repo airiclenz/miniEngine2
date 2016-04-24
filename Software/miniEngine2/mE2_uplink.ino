@@ -177,7 +177,10 @@ void uplink_decode() {
         if (core_mode == MODE_PANORAMA) {
           core_mode = MODE_TIMELAPSE;  
         }
-        core_setup_style = SETUP_STYLE_KEYFRAMES;
+        
+        //core_setup_style = SETUP_STYLE_KEYFRAMES;
+        core_setup_style = SETUP_STYLE_REMOTE;
+                
         // send the new mode to the clients i we have some;
         com_sendSystemMode(true);
         // reset the buffer

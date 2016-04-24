@@ -120,7 +120,10 @@ bool core_startProgram() {
     // P R O G R A M   I N I T I A L I Z A T I O N 
     ////////////////////////////////////////////// 
     
-    
+    // check the modes
+    core_checkModes();
+    // possibly do a recalculation of the core values
+    core_checkValues();
     // reset the camera shoot count
     cam_resetShootCount();
     // set the program-is-running-flag
@@ -193,7 +196,7 @@ bool core_startProgram() {
     //////////////////////////////////////////////
     // S L A V E   P R E P A R A T I O N
     //////////////////////////////////////////////
-    
+
     // if we are a master with registered slave devices
     if (com.isMaster() &&
         com.getSlaveCount() > 0) {
@@ -212,8 +215,6 @@ bool core_startProgram() {
     // M O T O R   P R E P A R A T I O N
     //////////////////////////////////////////////
     
-    // do we have curves assigned?
-    motor_checkIfCurveExists();
     // print a "moving motor to home" message
     uicore_showMessage(225, 226, 226, 1);
     // enable the motors
@@ -223,15 +224,10 @@ bool core_startProgram() {
     core_checkMoveHomeBeforeStart();
     // store the current motor pos as start reference
     motor_storeMotorReferencePositions();
-
-prn("recordtime4.5: ");
-prnl(setup_record_time, DEC);
-    
+    // do we have curves assigned?
+    motor_checkIfCurveExists();
     // define / check the moves we need to do
     motor_checkKeyframes();    
-
-prn("recordtime5: ");
-prnl(setup_record_time, DEC);
     
     
     // after the motor preparations are done, we need to take care
@@ -301,8 +297,15 @@ prnl(setup_record_time, DEC);
     // start the curve based move for all motors
     if (isBit(core_mode, MODE_TIMELAPSE) || 
         isBit(core_mode, MODE_VIDEO)) {
+
+
+prnl("video or sms mode");
+prn("move style ");
+prnl(core_move_style, BIN);
             
       if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) {
+
+prnl("continuous move");
         
         // check the max speeds...
         if (!motor_checkCurvesMaxSpeedOk()) {
@@ -624,65 +627,45 @@ boolean core_checkIfVideoDone() {
 // and moves the motors home if "yes"
 // ============================================================================
 boolean core_checkMoveHomeBeforeStart() {
-  
-  /////////////////////////////
-  // TIMELAPSE OR VIDEO
-  if (isBit(core_mode, MODE_TIMELAPSE) ||
-      isBit(core_mode, MODE_VIDEO)) {
     
-    if (isBit(core_setup_style, SETUP_STYLE_RUN)) {
-      
-      // are we requested to move the motor to home before starting?
-      if (core_isMoveToHomeBeforeStartFlag()) {
-        
-        // move all motors home first
-        for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-          motor_defineMoveToPosition(i, 0, true);  
-        }
-        
-        // start the moves
-        motor_startMovesToPosition();
+  // are we requested to move the motor to home before starting?
+  if (core_isMoveToHomeBeforeStartFlag()) {
+    
+    // move all motors home first
+    for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+      motor_defineMoveToPosition(i, 0, true);  
+    }
+    
+    // start the moves
+    motor_startMovesToPosition();
+            
+    // wait until all motors reached home
+    while (motor_isMoveToPositionRunning()) {
                 
-        // wait until all motors reached home
-        while (motor_isMoveToPositionRunning()) {
-                    
-          // check if we received answer from the clients          
-          if (com.isMaster()) {
-            // do communication...
-            com.executeCommunication();
-          }
-          
-          
-          // abort if the select key is pressed
-          if (input_isKeyEvent()) {
-            
-            if (input_getPressedKey() == KEY_1) {
-              
-              input_clearKeyEvent(); 
-              
-              return false;  
-            }
-       
-            input_clearKeyEvent();   
-            
-          } // end: key event
-          
-        } // end: while motors are moving 
+      // check if we received answer from the clients          
+      if (com.isMaster()) {
+        // do communication...
+        com.executeCommunication();
+      }
+      
+      
+      // abort if the select key is pressed
+      if (input_isKeyEvent()) {
         
-      } // end: move home first  
-            
-    } // end: setup style run
-    
-    else if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
+        if (input_getPressedKey() == KEY_1) {
+          
+          input_clearKeyEvent(); 
+          
+          return false;  
+        }
+   
+        input_clearKeyEvent();   
+        
+      } // end: key event
       
-      // move all motors to the position of their start keyframe
-      motor_moveToStartKeyframe();
-      
-    } // end: setup style keyframes
+    } // end: while motors are moving 
     
-  } // end: timelapse / video
-  
-  
+  } // end: move home first  
   
   return true;
   
@@ -700,13 +683,10 @@ void core_checkModes() {
   // if we are in video mode
   if (isBit(core_mode, MODE_VIDEO)) {
     
-    if (isBit(core_move_style, MOVE_STYLE_SMS)) {
-      core_move_style = MOVE_STYLE_CONTINUOUS;
-    }  
+    core_move_style = MOVE_STYLE_CONTINUOUS;
 
-    if (isBit(core_setup_style, SETUP_STYLE_KEYFRAMES)) {
-      core_move_style = SETUP_STYLE_RUN;
-    }  
+prn("move style ");
+prnl(core_move_style, BIN);
     
   }
     

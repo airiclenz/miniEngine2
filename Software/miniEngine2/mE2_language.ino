@@ -579,6 +579,16 @@ const char* string_208_long = "Prozent of Aufnahmezeit\nals Verzoegerung befor d
 
 
 ////////////////////////////////////////////////////////
+// panorama
+
+const char* string_210_short = "# Pics Mot.1";
+const char* string_211_short = "# Pics Mot.2";
+
+const char* string_210_long = "The amount of pictures on the axis\nof motor 1.";
+const char* string_211_long = "The amount of pictures on the axis\nof motor 2.";
+
+
+////////////////////////////////////////////////////////
 // messages
 
 const char* string_220_long = "Trigger";
@@ -847,6 +857,16 @@ const char* string_205_long = "Frame al secondo del video finale.\nQuesto influe
 const char* string_206_long = "Percentuale del tempo di registrazione\nper l'introduzione del movimento";
 const char* string_207_long = "Percentuale del tempo di registrazione\nper la conclusione del movimento";
 const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
+
+
+////////////////////////////////////////////////////////
+// panorama
+
+const char* string_210_short = "# Pics Mot.1";
+const char* string_211_short = "# Pics Mot.2";
+
+const char* string_210_long = "The amount of pictures on the axis\nof motor 1.";
+const char* string_211_long = "The amount of pictures on the axis\nof motor 2.";
 
 
 ////////////////////////////////////////////////////////

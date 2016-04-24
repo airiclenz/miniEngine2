@@ -30,7 +30,7 @@
 
 
 // debouncing delay in milliseconds
-#define DEF_TRIGGER_DEBOUNCE         100
+#define DEF_TRIGGER_DEBOUNCE         150
 
 
 

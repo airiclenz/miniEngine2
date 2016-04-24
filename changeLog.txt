@@ -8,9 +8,11 @@ date:		2016-04-20
 Software:
 
 -	Added a feature to allow the camera to continue shooting
-	even after the program run has ended until the user aborts.
+	even after the program run has ended until the user aborts
+	(in Timelapse Mode)
 -	Added a feature to delay the start of the motors after the
 	program was started.
+-	Fixed some bugs
 
 
 /////////////////////////////////////////////////////
