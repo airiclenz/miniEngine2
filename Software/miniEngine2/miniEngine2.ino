@@ -52,8 +52,8 @@ char *ramend=(char *)0x20088000;
 
 
 // some replacements for fast coding
-#define   prn   Serial.print
-#define   prnl  Serial.println
+//#define   prn   Serial.print
+//#define   prnl  Serial.println
 
 
 
@@ -636,13 +636,6 @@ void loop() {
           // is the camer phase over?
           if (!cam_isCameraWorking()) {
 
-     prnl("starting motor phase");
-
-     prn("motor1: ");
-     prn(panorama_pos_m1);
-     prn(";     motor2: ");
-     prnl(panorama_pos_m2);
-  
             // move to the motor phase
             system_phase = BIT_1; // Bx00000010
 
