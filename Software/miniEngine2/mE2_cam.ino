@@ -37,7 +37,7 @@
 // B5 = 
 // B6 = 
 // B7 = camera type
-uint8_t cam_status = B0;
+uint8_t cam_status = 0;
 
 
 // variables for tracking the actual exposure
@@ -235,8 +235,6 @@ void cam_start() {
       cam_setCameraExposingFlag();
     }
     
-        
-    
       
   }
   
@@ -271,6 +269,8 @@ void cam_stop() {
   // delete the camere-is-active flag
   cam_deleteCameraExposingFlag();
   cam_deleteCameraFocusingFlag();
+  cam_deletePostDelayActiveFlag();
+  
 }
 
 

@@ -333,14 +333,15 @@ int16_t   setup_frame_count     = cam_fps * (setup_play_time / 1000.0);
 uint32_t  setup_interval_length = setup_record_time / (setup_frame_count - 1);
 
 
-float     motor_total_distance[DEF_MOTOR_COUNT]= { 0.0, 0.0 };
+float     motor_total_distance[DEF_MOTOR_COUNT] = { 0.0, 0.0 };
 
 uint32_t  core_program_start_time;
 
 // panorma variables
-uint8_t   panorama_pics_m1      = 20;
-uint8_t   panorama_pics_m2      = 10;
-
+uint8_t   panorama_pics_m1      = 10;
+uint8_t   panorama_pics_m2      = 5;
+uint8_t   panorama_pos_m1       = 0;
+uint8_t   panorama_pos_m2       = 0;
 
 
 ////////////////////////////////////////////////////////
@@ -609,12 +610,17 @@ void loop() {
 
       ////////////////////////////
       // P A N O R A M A
-      else if (isBit(core_mode, MODE_VIDEO)) {      
+      else if (isBit(core_mode, MODE_PANORAMA)) {      
 
         ////////////////////////////
         // are we ready for the next picture? (camera phase)
         if (system_phase == 0)
         {
+
+     prnl();
+     prnl();
+     prnl("starting next panorama cycle");
+          
           // when did this cycle start?   
           system_cycle_start = millis();   
               
@@ -624,48 +630,78 @@ void loop() {
           // trigger the camera  
           cam_start();
           
-        } // end_ camera phase
+        } // end: start phase
 
         
         ////////////////////////////   
-        // motor phase
-        if (system_phase == BIT_0) {
+        // camera phase
+        if (isBit(system_phase, BIT_0)) {
           
           // is the camer phase over?
           if (!cam_isCameraWorking()) {
 
-            // check if the program is over
-            // TODO
-            
+     prnl("starting motor phase");
+
+     prn("m1: ");
+     prn(panorama_pos_m1);
+     prn(";    m2: ");
+     prnl(panorama_pos_m2);
+  
             // move to the motor phase
-            system_phase == BIT_1; // Bx00000010
-            
-            // loop all motors
-            for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+            system_phase = BIT_1; // Bx00000010
 
-              // calculate the motor position
-              // TODO
-              float newPos = 0;
-
-              // define a move to the next position;
-              motor_defineMoveToPosition(i, newPos, true);
+            // caluclate the new position for motor 1
+            float newPos = (motor_total_distance[0] / (float) panorama_pics_m1) * (float) panorama_pos_m1;
+            // define a move to the next position for motor 1;
+            motor_defineMoveToPosition(0, newPos, true);
               
+            // caluclate the new position for motor 1
+            newPos = (motor_total_distance[1] / (float) panorama_pics_m2) * (float) panorama_pos_m2;
+            // define a move to the next position for motor 2;
+            motor_defineMoveToPosition(1, newPos, true);
+
+            
+            // calculate the next motor positions
+            if (panorama_pos_m1 < panorama_pics_m1)
+            {
+              panorama_pos_m1++;
+            }
+            else
+            {
+              panorama_pos_m1 = 0;
+
+              if (panorama_pos_m2 == panorama_pics_m2)
+              {
+                panorama_pos_m1 = 0;
+                panorama_pos_m2 = 0;
+                
+                // stop the program - all done
+                core_stopProgram(true);
+              }
+              
+              if (panorama_pos_m2 < panorama_pics_m2)
+              {
+                panorama_pos_m2++;
+              }
+                            
             }
             
             // start moving to the next pos;
             motor_startMovesToPosition();
               
-          }
+          } // end: camera phase is over
         
-        } // end: motor phase
+        } // end: camera phase
 
 
         ////////////////////////////
-        // stop motor phase
+        // motor phase
         if (system_phase == BIT_1) {
            
           // check if the motor moves are done
           if (!motor_isMoveToPositionRunning()) {
+
+        prnl("move to position ended");    
             
             // go to the motor post phase
             system_phase = BIT_2; // Bx00000100
@@ -681,6 +717,9 @@ void loop() {
          
           // when the motor post delay ended
           if (!motor_isPostDelay()) {
+
+
+      prnl("motor post delay ended");
             
             // checks and sets the sleep function if needed          
             motor_startSleep();

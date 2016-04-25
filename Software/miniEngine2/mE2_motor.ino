@@ -673,7 +673,7 @@ void motor_defineMoveToPosition(uint8_t mNum, float newPos, bool smooth) {
     } // end: move dist is > 0
            
   } // end: do this kind of move only when...
-		
+
 }
 
 
@@ -710,7 +710,6 @@ boolean motor_isMoveToPositionRunning() {
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
     
-    // init this motor if needed
     if (isBit(motor_move_mode[i], MOVE_MODE_TO_POS)) {
       return true;  
     }

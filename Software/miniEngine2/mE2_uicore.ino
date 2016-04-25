@@ -320,7 +320,7 @@ typedef struct uiRelation {
 };
 
 // amount of menu entires
-const uint8_t uicore_content_relation_count = 91;
+const uint8_t uicore_content_relation_count = 92;
 
 // our menu tree
 struct uiRelation ui_content_relations[uicore_content_relation_count] = {
@@ -331,7 +331,7 @@ struct uiRelation ui_content_relations[uicore_content_relation_count] = {
   {  21, 202 }, {  21, 203 }, {  21, 204 }, {  21, 205 }, {  21, 140 }, {  21, 206 }, {  21, 207 }, {  21, 208 }, 
   {  30, 203 }, {  30, 140 }, {  30, 200 }, {  30, 201 }, {  30, 206 }, {  30, 207 }, {  30, 208 }, 
   {  31, 203 }, {  31, 140 }, {  31, 206 }, {  31, 207 }, {  31, 208 }, 
-  {  40, 210 }, {  40, 211 },
+  {  40, 202 }, {  40, 210 }, {  40, 211 },
   
     
   { 100, 108 }, { 100, 109 }, { 100, 111 }, { 100, 113 }, { 100, 114 }, { 100, 100 }, { 100, 101 }, { 100, 102 }, { 100, 107 }, { 100, 103 }, { 100, 110 }, { 100, 112 },
