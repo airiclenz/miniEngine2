@@ -141,13 +141,12 @@ boolean motor_check_speed[DEF_MOTOR_COUNT];
 
 // used timers for checking if the motors need to move.
 // When running a timer is called 20000 times per second.
-#define timer_move    Timer0    // --> All curve based motor moves
-#define timer_jog     Timer1    // --> Jogging
+//#define timer_move    Timer0    // --> All curve based motor moves
+//#define timer_jog     Timer1    // --> Jogging
 
-/* // Old stuff
 DueTimer timer_move(0);  // --> All curve based motor moves
 DueTimer timer_jog(1);   // --> Jogging
-*/
+
 
 
 
@@ -971,7 +970,6 @@ void motor_makeKeyframes() {
   
   // loop all motors
   for (int i=0; i<DEF_MOTOR_COUNT; i++) {
-
         
     // remove all existing curves for this motor
     motor_freeAllCurves(i);
@@ -1009,9 +1007,6 @@ void motor_makeKeyframes() {
       curve.p2 = Point(delayTime, motor_reference_pos[i]);
       curve.p3 = Point(delayTime, motor_reference_pos[i]);
 
-prn("using delay time of ");
-prnl(delayTime);
-
       // get the min and max values of the curves
       curve.updateDimension();
 
@@ -1033,9 +1028,6 @@ prnl(delayTime);
     curve.p1 = Point(delayTime + (curveDuration * ((float)        setup_run_ramp_in[i]   / 100.0)), motor_reference_pos[i]);
     curve.p2 = Point(delayTime + (curveDuration * ((float) (100 - setup_run_ramp_out[i]) / 100.0)), newPos);
     curve.p3 = Point(delayTime +  curveDuration,                                                    newPos);
-
-prn("main curve duration ");
-prnl(curveDuration);
     
     // get the min and max values of the curves
     curve.updateDimension();

@@ -39,9 +39,6 @@
 #include <bitOps.h>
 #include <DueTimer.h>
 
-
-
-
 // free mem stuff
 #include <malloc.h>
 #include <stdlib.h>
@@ -52,8 +49,12 @@ extern "C" char *sbrk(int i);
 char *ramstart=(char *)0x20070000;
 char *ramend=(char *)0x20088000;
 
+
+
+// some replacements for fast coding
 #define   prn   Serial.print
 #define   prnl  Serial.println
+
 
 
 ////////////////////////////////////////////////////////
@@ -79,10 +80,15 @@ char *ramend=(char *)0x20088000;
 // this one, change to the other display type):
 #define DISPLAY_TYPE        ITDB24E_16    
 
-// if you have a newer version of the display, use this
-// line of code (remove the "//" and add it to the above
-// definition):
+// if you have a newer version of the display or you get a
+// white screen, use one of these lines of code 
+// (remove the "//" and add it to the above definition):
+
 //#define DISPLAY_TYPE        TFT01_24_16
+//#define DISPLAY_TYPE        S6D1121_16
+//#define DISPLAY_TYPE        ILI9325D_16
+//#define DISPLAY_TYPE        ILI9325D_16ALT
+
 
 
 ////////////////////////////////////////////////////////
@@ -96,7 +102,7 @@ char *ramend=(char *)0x20088000;
 #define SUBVERSION                   0  
 #define SUBSUBVERSION                8
 
-const char* STR_VER                  = "release";
+const char* STR_VER                  = "beta";
 
 
 ////////////////////////////////////////////////////////

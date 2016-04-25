@@ -936,6 +936,7 @@ boolean uicore_handleKeyEvent(uint8_t key) {
     input_clearKeyEvent();  
     // and leave this function - there is nothing more to do here
     return true;  
+    
   } 
   
   
@@ -957,6 +958,7 @@ boolean uicore_handleKeyEvent(uint8_t key) {
       
       // stop the jogging stuff  
       uicore_stopJog();
+      
     }
     // no popup menu and not jogging
     else {
@@ -988,12 +990,17 @@ boolean uicore_handleKeyEvent(uint8_t key) {
         
         // start / stop the program
         if (core_isProgramRunningFlag()) {
+          
           // stop the program
           core_stopProgram(com.isMaster() && (com.getSlaveCount() > 0));
+          
         } else {
+          
           if (!core_startProgram()) {
+            
             // the start did no succeed, leave this function
             return false; 
+            
           }
           
         }
@@ -1013,7 +1020,10 @@ boolean uicore_handleKeyEvent(uint8_t key) {
     // is there a popup menu on the screen?
     if (isBit(uicore_status, BIT_7)) {
       
-      // just end the popup menu
+      // do what we need to do for the selected menu point
+      uicore_doAction(line_codes[popup_menu_pos]);
+      
+      // close the popup menu
       uicore_endPopupMenu();
       
     } 
@@ -2760,13 +2770,6 @@ boolean uicore_doAction(uint16_t line_code) {
                      // now set the motor position to zero for the current motor
                      // because this is our new start point
                      motors[i].setMotorPosition(0);
-
-
-                     prn("motor ");
-                     prnl(i, DEC); 
-
-                     prn("new distance: ");
-                     prnl(motor_total_distance[i], DEC);
                      
                    }
                    
@@ -2789,14 +2792,6 @@ boolean uicore_doAction(uint16_t line_code) {
                        motor_program_direction[i] = false; 
                        motor_total_distance[i] = dist;  
                      }
-
-
-                     prn("motor ");
-                     prnl(i, DEC); 
-
-                     prn("new distance: ");
-                     prnl(motor_total_distance[i], DEC);
-
                      
                    }
                    return true; 
@@ -2953,7 +2948,8 @@ void uicore_loadMenuStrings() {
           (
            (ui_content_relations[i].menu_item == 109) ||      // Setup Style
            (ui_content_relations[i].menu_item == 111) ||      // Move Style
-           (ui_content_relations[i].menu_item == 113)         // Loop 
+           (ui_content_relations[i].menu_item == 113) ||      // Loop 
+           (ui_content_relations[i].menu_item == 114)         // Endless Shoot
           )) {
             
         disable_line = true;   

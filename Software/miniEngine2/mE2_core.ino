@@ -298,14 +298,8 @@ bool core_startProgram() {
     if (isBit(core_mode, MODE_TIMELAPSE) || 
         isBit(core_mode, MODE_VIDEO)) {
 
-
-prnl("video or sms mode");
-prn("move style ");
-prnl(core_move_style, BIN);
             
       if (isBit(core_move_style, MOVE_STYLE_CONTINUOUS)) {
-
-prnl("continuous move");
         
         // check the max speeds...
         if (!motor_checkCurvesMaxSpeedOk()) {
@@ -684,9 +678,6 @@ void core_checkModes() {
   if (isBit(core_mode, MODE_VIDEO)) {
     
     core_move_style = MOVE_STYLE_CONTINUOUS;
-
-prn("move style ");
-prnl(core_move_style, BIN);
     
   }
     

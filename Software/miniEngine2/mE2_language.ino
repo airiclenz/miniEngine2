@@ -295,7 +295,7 @@ const char* string_204_long = "Length of the final clip you want.";
 const char* string_205_long = "Frames Per Second of your final clip.\nThis influences how many photos will\nbe made.";
 const char* string_206_long = "Percent of move-time to ramp into\nthe move.";
 const char* string_207_long = "Percent of move-time to ramp out\nof the move.";
-const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
+const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.\nThe camera will still start immediatly.";
 
 ////////////////////////////////////////////////////////
 // panorama
@@ -575,7 +575,7 @@ const char* string_204_long = "Die Laenge des Clips der\nerstellt werden soll.";
 const char* string_205_long = "Bilder pro Sekunde vom finalen Clip.\nDies beeinflusst wieviele Fotos\ninsgesamt gemacht werden.";
 const char* string_206_long = "Prozent der Motorzeit\nfuer die Beschleunigungsphase.";
 const char* string_207_long = "Prozent der Motorzeit\nfuer die Abbremsphase.";
-const char* string_208_long = "Prozent of Aufnahmezeit\nals Verzoegerung befor der Motor\nstartet.";
+const char* string_208_long = "Prozent of Aufnahmezeit\nals Verzoegerung befor der Motor\nstartet. Die Kamera startet trotzdem\nunverzueglich.";
 
 
 ////////////////////////////////////////////////////////
@@ -856,7 +856,7 @@ const char* string_204_long = "Lunghezza del video finale desiderato.";
 const char* string_205_long = "Frame al secondo del video finale.\nQuesto influenza il numero delle foto\nche verranno scattate.";
 const char* string_206_long = "Percentuale del tempo di registrazione\nper l'introduzione del movimento";
 const char* string_207_long = "Percentuale del tempo di registrazione\nper la conclusione del movimento";
-const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.";
+const char* string_208_long = "Percent of record-time to wait\nbefore the move starts.\nThe camera will still start immediatly.";
 
 
 ////////////////////////////////////////////////////////
