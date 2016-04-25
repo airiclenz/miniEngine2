@@ -616,10 +616,6 @@ void loop() {
         // are we ready for the next picture? (camera phase)
         if (system_phase == 0)
         {
-
-     prnl();
-     prnl();
-     prnl("starting next panorama cycle");
           
           // when did this cycle start?   
           system_cycle_start = millis();   
@@ -642,9 +638,9 @@ void loop() {
 
      prnl("starting motor phase");
 
-     prn("m1: ");
+     prn("motor1: ");
      prn(panorama_pos_m1);
-     prn(";    m2: ");
+     prn(";     motor2: ");
      prnl(panorama_pos_m2);
   
             // move to the motor phase
@@ -672,9 +668,6 @@ void loop() {
 
               if (panorama_pos_m2 == panorama_pics_m2)
               {
-                panorama_pos_m1 = 0;
-                panorama_pos_m2 = 0;
-                
                 // stop the program - all done
                 core_stopProgram(true);
               }
@@ -701,8 +694,6 @@ void loop() {
           // check if the motor moves are done
           if (!motor_isMoveToPositionRunning()) {
 
-        prnl("move to position ended");    
-            
             // go to the motor post phase
             system_phase = BIT_2; // Bx00000100
             
@@ -717,9 +708,6 @@ void loop() {
          
           // when the motor post delay ended
           if (!motor_isPostDelay()) {
-
-
-      prnl("motor post delay ended");
             
             // checks and sets the sleep function if needed          
             motor_startSleep();

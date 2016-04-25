@@ -415,6 +415,10 @@ void core_stopProgram(boolean all) {
 
   // reset the cycle warning
   system_cycle_too_long = false;
+
+  // reset the panorama stuff
+  panorama_pos_m1 = 0;
+  panorama_pos_m2 = 0;
  
   // enable the backlight 
   uicore_setBacklight(true); 
@@ -422,6 +426,7 @@ void core_stopProgram(boolean all) {
   // repaint the user interface
   uicore_setRepaintFlag();
   uicore_repaint(true);
+ 
     
 }
 
