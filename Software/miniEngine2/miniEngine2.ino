@@ -502,7 +502,7 @@ void loop() {
               
             } 
             
-            // if we are in a SMS mode, do the motor move stuff now
+            // if we are in SMS mode, do the motor move stuff now
             else {
               
               // go to the post delay phase 
@@ -513,8 +513,7 @@ void loop() {
               motor_startMotorPhase();
               
             }
-                               
-            
+             
           } // end: camera is done
            
         } // end: camera phase ended
@@ -560,6 +559,9 @@ void loop() {
       } // end: Timelapse mode            
              
 
+
+
+
              
       ////////////////////////////
       // V I D E O
@@ -598,6 +600,101 @@ void loop() {
         } // end: is program over? 
         
       } // end: is video mode? 
+
+
+
+
+
+
+
+      ////////////////////////////
+      // P A N O R A M A
+      else if (isBit(core_mode, MODE_VIDEO)) {      
+
+        ////////////////////////////
+        // are we ready for the next picture? (camera phase)
+        if (system_phase == 0)
+        {
+          // when did this cycle start?   
+          system_cycle_start = millis();   
+              
+          // set the system status to the camera-phase
+          system_phase = BIT_0; // Bx00000001   
+          
+          // trigger the camera  
+          cam_start();
+          
+        } // end_ camera phase
+
+        
+        ////////////////////////////   
+        // motor phase
+        if (system_phase == BIT_0) {
+          
+          // is the camer phase over?
+          if (!cam_isCameraWorking()) {
+
+            // check if the program is over
+            // TODO
+            
+            // move to the motor phase
+            system_phase == BIT_1; // Bx00000010
+            
+            // loop all motors
+            for (int i=0; i<DEF_MOTOR_COUNT; i++) {
+
+              // calculate the motor position
+              // TODO
+              float newPos = 0;
+
+              // define a move to the next position;
+              motor_defineMoveToPosition(i, newPos, true);
+              
+            }
+            
+            // start moving to the next pos;
+            motor_startMovesToPosition();
+              
+          }
+        
+        } // end: motor phase
+
+
+        ////////////////////////////
+        // stop motor phase
+        if (system_phase == BIT_1) {
+           
+          // check if the motor moves are done
+          if (!motor_isMoveToPositionRunning()) {
+            
+            // go to the motor post phase
+            system_phase = BIT_2; // Bx00000100
+            
+          } 
+           
+        } // end: stop motor phase
+
+
+        ////////////////////////////
+        // motor post delay
+        if (system_phase == BIT_2) {
+         
+          // when the motor post delay ended
+          if (!motor_isPostDelay()) {
+            
+            // checks and sets the sleep function if needed          
+            motor_startSleep();
+            
+            // reset the system phase flag and thus restart the cycle for the next picture
+            system_phase = 0;
+          
+          } // end: motor post delay ended
+         
+        } // end: motor post delay phase
+
+      } // end: panorama mode?
+
+
                      
     } // end: program is running
         
